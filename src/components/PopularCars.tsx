@@ -1,51 +1,52 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import CarCard from './CarCard';
-import carRangeRover from '@/assets/car-range-rover.jpg';
-import carCorvette from '@/assets/car-corvette.jpg';
-import carMercedes from '@/assets/car-mercedes.jpg';
-import carTesla from '@/assets/car-tesla.jpg';
-
-const cars = [
-  {
-    id: 1,
-    image: carRangeRover,
-    name: 'Range Rover Sport',
-    type: 'Luxury SUV • Automatic',
-    rating: 4.9,
-    originalPrice: 180,
-    price: 150,
-  },
-  {
-    id: 2,
-    image: carCorvette,
-    name: 'Chevrolet Corvette',
-    type: 'Sports • Automatic',
-    rating: 5.0,
-    originalPrice: 220,
-    price: 195,
-  },
-  {
-    id: 3,
-    image: carMercedes,
-    name: 'Mercedes S-Class',
-    type: 'Luxury • Automatic',
-    rating: 4.9,
-    originalPrice: 250,
-    price: 210,
-  },
-  {
-    id: 4,
-    image: carTesla,
-    name: 'Tesla Model 3',
-    type: 'Electric • Autopilot',
-    rating: 4.7,
-    originalPrice: 100,
-    price: 85,
-  },
-];
+import { supabase } from '@/integrations/supabase/client';
 
 const PopularCars = () => {
+  const { data: cars, isLoading } = useQuery({
+    queryKey: ['popular-cars'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!cars || cars.length === 0) {
+    return (
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-foreground">Popular Cars Near You</h2>
+          </div>
+          <div className="text-center py-12 text-muted-foreground">
+            No cars available at the moment. Check back soon!
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,7 +64,12 @@ const PopularCars = () => {
           {cars.map((car, index) => (
             <Link key={car.id} to={`/car/${car.id}`}>
               <CarCard
-                {...car}
+                image={car.main_image || '/placeholder.svg'}
+                name={`${car.brand} ${car.model}`}
+                type={`${car.category.charAt(0).toUpperCase() + car.category.slice(1)} • ${car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)}`}
+                rating={4.8}
+                originalPrice={Math.round(car.price_per_day * 1.2)}
+                price={car.price_per_day}
                 delay={index * 100}
               />
             </Link>
