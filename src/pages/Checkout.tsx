@@ -8,6 +8,7 @@ import {
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { countryCodes } from '@/data/countryCodes';
@@ -27,6 +28,7 @@ type PaymentOption = 'full' | 'deposit' | 'pickup';
 const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   
   const carId = searchParams.get('carId');
   const startDate = searchParams.get('startDate');
@@ -97,13 +99,14 @@ const Checkout = () => {
     mutationFn: async () => {
       const bookingData = {
         car_id: carId || null,
+        user_id: user?.id || null,
         start_date: startDate || format(new Date(), 'yyyy-MM-dd'),
         end_date: endDate || format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
         with_driver: withDriver,
         total_price: totalPrice,
         status: 'pending' as const,
         customer_name: `${firstName} ${lastName}`.trim() || 'Demo Customer',
-        customer_email: email || 'demo@example.com',
+        customer_email: email || user?.email || 'demo@example.com',
         customer_phone: `${countryCode} ${phone}` || '+1 555-0123',
         payment_option: paymentSchedule,
         deposit_amount: paymentAmounts.deposit,

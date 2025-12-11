@@ -10,6 +10,8 @@ import CarDetail from "./pages/CarDetail";
 import TripDetail from "./pages/TripDetail";
 import Checkout from "./pages/Checkout";
 import BookingSuccess from "./pages/BookingSuccess";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import AdminLogin from "./pages/AdminLogin";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import DashboardContent from "./pages/admin/DashboardContent";
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="/trip/:id" element={<TripDetail />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             
             {/* Admin Routes with Sidebar Layout */}

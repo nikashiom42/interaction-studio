@@ -1,20 +1,36 @@
 import { useState } from 'react';
-import { Search, Heart, User, ShoppingCart, ChevronDown } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, User, ShoppingCart, ChevronDown, LogOut, LayoutDashboard } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const { user, signOut, isAdmin } = useAuth();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">R</span>
             </div>
             <span className="font-semibold text-foreground text-lg">Rentals</span>
-          </div>
+          </Link>
 
           {/* Search Bar */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
@@ -40,18 +56,57 @@ const Header = () => {
               <span className="hidden sm:inline">USD</span>
               <ChevronDown className="w-4 h-4" />
             </button>
-            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-full">
-              <Heart className="w-5 h-5" />
-            </button>
-            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-full">
-              <User className="w-5 h-5" />
-            </button>
-            <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-full">
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-full">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
+                    </div>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-3 py-2 border-b border-border">
+                    <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
+                      <LayoutDashboard className="w-4 h-4" />
+                      My Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/dashboard" className="flex items-center gap-2 cursor-pointer">
+                        <LayoutDashboard className="w-4 h-4" />
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link 
+                to="/auth" 
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:bg-coral-hover transition-colors"
+              >
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Link>
+            )}
+            
+            <Link to="/checkout" className="relative p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-full">
               <ShoppingCart className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
                 0
               </span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
