@@ -13,6 +13,7 @@ import BookingSuccess from "./pages/BookingSuccess";
 import AdminLogin from "./pages/AdminLogin";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import DashboardContent from "./pages/admin/DashboardContent";
+import CarsManagement from "./pages/admin/CarsManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,7 +37,7 @@ const App = () => (
             {/* Admin Routes with Sidebar Layout */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route path="dashboard" element={<DashboardContent />} />
-              <Route path="cars" element={<div className="text-foreground">Cars Management - Coming Soon</div>} />
+              <Route path="cars" element={<CarsManagement />} />
               <Route path="bookings" element={<div className="text-foreground">Bookings Management - Coming Soon</div>} />
               <Route path="users" element={<div className="text-foreground">Users Management - Coming Soon</div>} />
               <Route path="tours" element={<div className="text-foreground">Tours Management - Coming Soon</div>} />
