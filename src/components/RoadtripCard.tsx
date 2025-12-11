@@ -1,6 +1,8 @@
+import { Link } from 'react-router-dom';
 import { Clock, MapPin, ArrowRight } from 'lucide-react';
 
 interface RoadtripCardProps {
+  id: number;
   image: string;
   title: string;
   days: number;
@@ -11,10 +13,11 @@ interface RoadtripCardProps {
   delay?: number;
 }
 
-const RoadtripCard = ({ image, title, days, miles, description, price, badge, delay = 0 }: RoadtripCardProps) => {
+const RoadtripCard = ({ id, image, title, days, miles, description, price, badge, delay = 0 }: RoadtripCardProps) => {
   return (
-    <div 
-      className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
+    <Link 
+      to={`/trip/${id}`}
+      className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up block"
       style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
     >
       {/* Image Container */}
@@ -59,12 +62,12 @@ const RoadtripCard = ({ image, title, days, miles, description, price, badge, de
             <span className="text-primary text-lg font-bold">${price}</span>
             <span className="text-muted-foreground text-sm">/trip</span>
           </div>
-          <button className="flex items-center gap-1 text-primary font-medium group/btn">
-            <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-          </button>
+          <div className="flex items-center gap-1 text-primary font-medium">
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
