@@ -307,17 +307,24 @@ export default function CarsManagement() {
                   {filteredCars.map((car) => (
                     <TableRow key={car.id}>
                       <TableCell>
-                        {car.main_image ? (
-                          <img
-                            src={car.main_image}
-                            alt={`${car.brand} ${car.model}`}
-                            className="w-16 h-12 object-cover rounded-md"
-                          />
-                        ) : (
-                          <div className="w-16 h-12 bg-muted rounded-md flex items-center justify-center">
-                            <Car className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        )}
+                        <div className="relative">
+                          {car.main_image ? (
+                            <img
+                              src={car.main_image}
+                              alt={`${car.brand} ${car.model}`}
+                              className="w-16 h-12 object-cover rounded-md"
+                            />
+                          ) : (
+                            <div className="w-16 h-12 bg-muted rounded-md flex items-center justify-center">
+                              <Car className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                          )}
+                          {car.gallery_images && car.gallery_images.length > 0 && (
+                            <span className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+                              +{car.gallery_images.length}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div>

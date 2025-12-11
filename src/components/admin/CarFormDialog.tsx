@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,6 +33,7 @@ import {
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ImageUpload } from './ImageUpload';
 
 type Car = Tables<'cars'>;
 
@@ -82,7 +83,6 @@ const carFormSchema = z.object({
   is_active: z.boolean(),
   delivery_available: z.boolean(),
   advance_booking_days: z.coerce.number().min(1).max(365),
-  main_image: z.string().url().optional().nullable().or(z.literal('')),
 });
 
 type CarFormValues = z.infer<typeof carFormSchema>;
@@ -96,6 +96,10 @@ interface CarFormDialogProps {
 export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
   const queryClient = useQueryClient();
   const isEditing = !!car;
+  
+  // Image state (managed separately from form)
+  const [mainImage, setMainImage] = useState<string | null>(null);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
   const form = useForm<CarFormValues>({
     resolver: zodResolver(carFormSchema),
@@ -113,7 +117,6 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       is_active: true,
       delivery_available: false,
       advance_booking_days: 30,
-      main_image: '',
     },
   });
 
@@ -134,8 +137,9 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         is_active: car.is_active ?? true,
         delivery_available: car.delivery_available ?? false,
         advance_booking_days: car.advance_booking_days ?? 30,
-        main_image: car.main_image || '',
       });
+      setMainImage(car.main_image || null);
+      setGalleryImages(car.gallery_images || []);
     } else {
       form.reset({
         brand: '',
@@ -151,8 +155,9 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         is_active: true,
         delivery_available: false,
         advance_booking_days: 30,
-        main_image: '',
       });
+      setMainImage(null);
+      setGalleryImages([]);
     }
   }, [car, form]);
 
@@ -172,7 +177,8 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         is_active: values.is_active,
         delivery_available: values.delivery_available,
         advance_booking_days: values.advance_booking_days,
-        main_image: values.main_image || null,
+        main_image: mainImage,
+        gallery_images: galleryImages,
       };
 
       if (isEditing && car) {
@@ -437,21 +443,15 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                 />
               </div>
 
-              {/* Image */}
+              {/* Images */}
               <div className="space-y-4">
-                <h3 className="font-medium text-foreground border-b border-border pb-2">Image</h3>
-                <FormField
-                  control={form.control}
-                  name="main_image"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Main Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com/car-image.jpg" {...field} value={field.value || ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <h3 className="font-medium text-foreground border-b border-border pb-2">Images</h3>
+                <ImageUpload
+                  mainImage={mainImage}
+                  galleryImages={galleryImages}
+                  onMainImageChange={setMainImage}
+                  onGalleryImagesChange={setGalleryImages}
+                  carId={car?.id}
                 />
               </div>
 
