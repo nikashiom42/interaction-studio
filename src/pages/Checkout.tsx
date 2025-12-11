@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format, parseISO, differenceInDays } from 'date-fns';
+import { countryCodes } from '@/data/countryCodes';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carTesla from '@/assets/car-tesla.jpg';
 import carMercedes from '@/assets/car-mercedes.jpg';
@@ -21,6 +22,8 @@ const recentCars = [
   { id: 3, name: 'Ford Mustang', type: 'Convertible • Automatic', price: 95, image: carCorvette },
 ];
 
+type PaymentOption = 'full' | 'deposit' | 'pickup';
+
 const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -30,7 +33,7 @@ const Checkout = () => {
   const endDate = searchParams.get('endDate');
   const withDriver = searchParams.get('withDriver') === 'true';
   
-  const [paymentSchedule, setPaymentSchedule] = useState<'full' | 'deposit'>('full');
+  const [paymentSchedule, setPaymentSchedule] = useState<PaymentOption>('full');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [createAccount, setCreateAccount] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -40,6 +43,7 @@ const Checkout = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+1');
 
   // Fetch car details if carId is provided
   const { data: car, isLoading: carLoading } = useQuery({
@@ -72,6 +76,22 @@ const Checkout = () => {
   const serviceCharge = 15;
   const totalPrice = rentalPrice + taxesFees + serviceCharge;
 
+  // Calculate payment amounts based on option
+  const getPaymentAmounts = () => {
+    switch (paymentSchedule) {
+      case 'full':
+        return { deposit: totalPrice, remaining: 0 };
+      case 'deposit':
+        return { deposit: totalPrice * 0.2, remaining: totalPrice * 0.8 };
+      case 'pickup':
+        return { deposit: 0, remaining: totalPrice };
+      default:
+        return { deposit: totalPrice, remaining: 0 };
+    }
+  };
+
+  const paymentAmounts = getPaymentAmounts();
+
   // Create booking mutation
   const createBookingMutation = useMutation({
     mutationFn: async () => {
@@ -84,11 +104,11 @@ const Checkout = () => {
         status: 'pending' as const,
         customer_name: `${firstName} ${lastName}`.trim() || 'Demo Customer',
         customer_email: email || 'demo@example.com',
-        customer_phone: phone || '+1 555-0123',
+        customer_phone: `${countryCode} ${phone}` || '+1 555-0123',
         payment_option: paymentSchedule,
-        deposit_amount: paymentSchedule === 'deposit' ? totalPrice * 0.2 : 0,
-        remaining_balance: paymentSchedule === 'deposit' ? totalPrice * 0.8 : 0,
-        notes: `Demo booking - ${withDriver ? 'With driver' : 'Self-drive'}`,
+        deposit_amount: paymentAmounts.deposit,
+        remaining_balance: paymentAmounts.remaining,
+        notes: `Demo booking - Self-drive`,
       };
 
       const { data, error } = await supabase
@@ -314,10 +334,16 @@ const Checkout = () => {
               <div className="mb-4">
                 <label className="block text-sm font-medium text-foreground mb-1">Phone Number *</label>
                 <div className="flex gap-2">
-                  <select className="px-3 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>US +1</option>
-                    <option>UK +44</option>
-                    <option>JP +81</option>
+                  <select 
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="w-32 px-3 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
+                    {countryCodes.map((country) => (
+                      <option key={country.code} value={country.dial_code}>
+                        {country.flag} {country.dial_code}
+                      </option>
+                    ))}
                   </select>
                   <input
                     type="tel"
@@ -426,7 +452,7 @@ const Checkout = () => {
                     Processing Payment...
                   </>
                 ) : (
-                  <>Complete Booking • Pay ${totalPrice.toFixed(2)}</>
+                  <>Complete Booking {paymentAmounts.deposit > 0 ? `• Pay $${paymentAmounts.deposit.toFixed(2)}` : ''}</>
                 )}
               </button>
 
@@ -475,7 +501,7 @@ const Checkout = () => {
 
               {/* Payment Schedule */}
               <div className="bg-card rounded-xl p-6 shadow-card">
-                <h3 className="font-semibold text-foreground mb-4">Payment Schedule</h3>
+                <h3 className="font-semibold text-foreground mb-4">Payment Options</h3>
                 
                 <div className="space-y-3">
                   <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
@@ -487,9 +513,12 @@ const Checkout = () => {
                       onChange={() => setPaymentSchedule('full')}
                       className="w-5 h-5 text-primary focus:ring-primary mt-0.5"
                     />
-                    <div>
-                      <span className="font-medium text-foreground">Pay Full Amount</span>
-                      <p className="text-sm text-muted-foreground">Pay ${totalPrice.toFixed(2)} now</p>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-foreground">Pay Full Amount</span>
+                        <span className="text-sm font-semibold text-primary">${totalPrice.toFixed(2)}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Pay the total amount now</p>
                     </div>
                   </label>
 
@@ -502,11 +531,46 @@ const Checkout = () => {
                       onChange={() => setPaymentSchedule('deposit')}
                       className="w-5 h-5 text-primary focus:ring-primary mt-0.5"
                     />
-                    <div>
-                      <span className="font-medium text-foreground">Pay Deposit Only</span>
-                      <p className="text-sm text-muted-foreground">Pay ${(totalPrice * 0.2).toFixed(2)} (20%) now, rest at pickup</p>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-foreground">Pay 20% Deposit</span>
+                        <span className="text-sm font-semibold text-primary">${(totalPrice * 0.2).toFixed(2)}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Pay ${(totalPrice * 0.2).toFixed(2)} now, ${(totalPrice * 0.8).toFixed(2)} at pickup</p>
                     </div>
                   </label>
+
+                  <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                    paymentSchedule === 'pickup' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                  }`}>
+                    <input
+                      type="radio"
+                      checked={paymentSchedule === 'pickup'}
+                      onChange={() => setPaymentSchedule('pickup')}
+                      className="w-5 h-5 text-primary focus:ring-primary mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-foreground">Pay at Pickup</span>
+                        <span className="text-sm font-semibold text-muted-foreground">$0.00 now</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Pay full amount (${totalPrice.toFixed(2)}) when you pickup the car</p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Payment Summary */}
+                <div className="mt-4 pt-4 border-t border-border space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Due now</span>
+                    <span className="font-medium text-foreground">${paymentAmounts.deposit.toFixed(2)}</span>
+                  </div>
+                  {paymentAmounts.remaining > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Due at pickup</span>
+                      <span className="font-medium text-foreground">${paymentAmounts.remaining.toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
