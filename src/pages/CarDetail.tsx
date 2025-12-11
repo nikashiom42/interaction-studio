@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { 
   ChevronRight, ChevronDown, ChevronUp, Star, MapPin, Heart, Share2, Users, Settings, 
   Check, Calendar, Fuel, Car, Briefcase, DoorOpen, Wifi, Lock, ThumbsUp,
@@ -494,9 +494,9 @@ const CarDetail = () => {
               </div>
 
               {/* Book Button */}
-              <button className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button mb-4">
+              <Link to="/checkout" className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button mb-4 flex items-center justify-center">
                 Book Now
-              </button>
+              </Link>
 
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Lock className="w-4 h-4" />
