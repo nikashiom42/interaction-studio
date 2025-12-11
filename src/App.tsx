@@ -11,7 +11,8 @@ import TripDetail from "./pages/TripDetail";
 import Checkout from "./pages/Checkout";
 import BookingSuccess from "./pages/BookingSuccess";
 import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/admin/Dashboard";
+import { AdminLayout } from "./components/admin/AdminLayout";
+import DashboardContent from "./pages/admin/DashboardContent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,7 +32,16 @@ const App = () => (
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            
+            {/* Admin Routes with Sidebar Layout */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="dashboard" element={<DashboardContent />} />
+              <Route path="cars" element={<div className="text-foreground">Cars Management - Coming Soon</div>} />
+              <Route path="bookings" element={<div className="text-foreground">Bookings Management - Coming Soon</div>} />
+              <Route path="users" element={<div className="text-foreground">Users Management - Coming Soon</div>} />
+              <Route path="tours" element={<div className="text-foreground">Tours Management - Coming Soon</div>} />
+            </Route>
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
