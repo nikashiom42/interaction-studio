@@ -1,7 +1,8 @@
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import RoadtripCard from './RoadtripCard';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowRight } from 'lucide-react';
 
 type Tour = {
   id: string;
@@ -52,7 +53,16 @@ const CuratedRoadtrips = () => {
   return (
     <section className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-bold text-foreground mb-8">Curated Roadtrips</h2>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-foreground">Curated Roadtrips</h2>
+          <Link 
+            to="/tours" 
+            className="flex items-center gap-2 text-primary font-medium hover:underline transition-all group"
+          >
+            View All Tours
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tours.map((tour, index) => (
