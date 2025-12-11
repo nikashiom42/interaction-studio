@@ -5,6 +5,7 @@ import {
   ChevronRight, ChevronDown, ChevronUp, Star, MapPin, Share2, Users, Settings, 
   Check, Fuel, Car, Briefcase, DoorOpen, Wifi, Loader2
 } from 'lucide-react';
+import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BookingWidget from '@/components/BookingWidget';
@@ -23,7 +24,7 @@ const staticFaq = [
     question: 'Driver Requirements', 
     answer: 'Minimum age is 25 years. Driver must hold a full, valid driving license for at least 2 years. International Driving Permit (IDP) required if your license is not in English.' 
   },
-  { question: 'Security Deposit', answer: 'A security deposit of $500 is required upon pickup. This will be refunded within 7-14 business days after the return of the vehicle.' },
+  { question: 'Security Deposit', answer: `A security deposit of ${CURRENCY_SYMBOL}500 is required upon pickup. This will be refunded within 7-14 business days after the return of the vehicle.` },
   { question: 'Mileage Policy', answer: 'Unlimited mileage is included with all rentals. No additional charges for distance traveled.' },
 ];
 
@@ -169,7 +170,7 @@ const CarDetail = () => {
                 </div>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <MapPin className="w-4 h-4" />
-                  <span>Los Angeles, CA</span>
+                  <span>Tbilisi, Georgia</span>
                 </div>
               </div>
 
@@ -349,7 +350,7 @@ const CarDetail = () => {
                         <div className="flex items-center justify-between pt-3 border-t border-border">
                           <div>
                             <span className="text-xs text-muted-foreground">From</span>
-                            <p className="text-lg font-bold text-foreground">${similarCar.price_per_day}/day</p>
+                            <p className="text-lg font-bold text-foreground">{formatPrice(similarCar.price_per_day)}/day</p>
                           </div>
                           <span className="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:border-foreground hover:bg-secondary transition-colors">
                             View

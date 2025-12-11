@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { countryCodes } from '@/data/countryCodes';
+import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carTesla from '@/assets/car-tesla.jpg';
 import carMercedes from '@/assets/car-mercedes.jpg';
@@ -45,7 +46,7 @@ const Checkout = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('+1');
+  const [countryCode, setCountryCode] = useState('+995');
 
   // Fetch car details if carId is provided
   const { data: car, isLoading: carLoading } = useQuery({
@@ -190,7 +191,7 @@ const Checkout = () => {
                     <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{recentCar.name}</h4>
                     <p className="text-sm text-muted-foreground mb-2">{recentCar.type}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-primary font-bold">${recentCar.price}<span className="text-muted-foreground font-normal text-sm">/day</span></span>
+                      <span className="text-primary font-bold">{formatPrice(recentCar.price)}<span className="text-muted-foreground font-normal text-sm">/day</span></span>
                       <button className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">+</button>
                     </div>
                   </div>
@@ -282,7 +283,7 @@ const Checkout = () => {
                   </div>
                   <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
-                    <span>Los Angeles Intl. Airport (LAX)</span>
+                    <span>Tbilisi Intl. Airport (TBS)</span>
                   </div>
                   <div className="flex items-center gap-1 mt-2 text-sm text-success">
                     <Check className="w-4 h-4" />
@@ -455,7 +456,7 @@ const Checkout = () => {
                     Processing Payment...
                   </>
                 ) : (
-                  <>Complete Booking {paymentAmounts.deposit > 0 ? `• Pay $${paymentAmounts.deposit.toFixed(2)}` : ''}</>
+                  <>Complete Booking {paymentAmounts.deposit > 0 ? `• Pay ${formatPrice(paymentAmounts.deposit)}` : ''}</>
                 )}
               </button>
 
@@ -475,23 +476,23 @@ const Checkout = () => {
                 
                 <div className="space-y-3 pb-4 border-b border-border">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Car Rental ({rentalDays} days × ${dailyRate})</span>
-                    <span className="text-foreground">${rentalPrice.toFixed(2)}</span>
+                    <span className="text-muted-foreground">Car Rental ({rentalDays} days × {formatPrice(dailyRate)})</span>
+                    <span className="text-foreground">{formatPrice(rentalPrice)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Taxes & Fees (6%)</span>
-                    <span className="text-foreground">${taxesFees.toFixed(2)}</span>
+                    <span className="text-foreground">{formatPrice(taxesFees)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Service Charge</span>
-                    <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
+                    <span className="text-foreground">{formatPrice(serviceCharge)}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between py-4">
                   <span className="font-semibold text-foreground">Total Price</span>
                   <div className="text-right">
-                    <span className="text-2xl font-bold text-foreground">${totalPrice.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-foreground">{formatPrice(totalPrice)}</span>
                     <p className="text-xs text-muted-foreground">Includes all taxes</p>
                   </div>
                 </div>
@@ -519,7 +520,7 @@ const Checkout = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-foreground">Pay Full Amount</span>
-                        <span className="text-sm font-semibold text-primary">${totalPrice.toFixed(2)}</span>
+                        <span className="text-sm font-semibold text-primary">{formatPrice(totalPrice)}</span>
                       </div>
                       <p className="text-sm text-muted-foreground">Pay the total amount now</p>
                     </div>
@@ -537,9 +538,9 @@ const Checkout = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-foreground">Pay 20% Deposit</span>
-                        <span className="text-sm font-semibold text-primary">${(totalPrice * 0.2).toFixed(2)}</span>
+                        <span className="text-sm font-semibold text-primary">{formatPrice(totalPrice * 0.2)}</span>
                       </div>
-                      <p className="text-sm text-muted-foreground">Pay ${(totalPrice * 0.2).toFixed(2)} now, ${(totalPrice * 0.8).toFixed(2)} at pickup</p>
+                      <p className="text-sm text-muted-foreground">Pay {formatPrice(totalPrice * 0.2)} now, {formatPrice(totalPrice * 0.8)} at pickup</p>
                     </div>
                   </label>
 
@@ -555,9 +556,9 @@ const Checkout = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-foreground">Pay at Pickup</span>
-                        <span className="text-sm font-semibold text-muted-foreground">$0.00 now</span>
+                        <span className="text-sm font-semibold text-muted-foreground">{CURRENCY_SYMBOL}0 now</span>
                       </div>
-                      <p className="text-sm text-muted-foreground">Pay full amount (${totalPrice.toFixed(2)}) when you pickup the car</p>
+                      <p className="text-sm text-muted-foreground">Pay full amount ({formatPrice(totalPrice)}) when you pickup the car</p>
                     </div>
                   </label>
                 </div>
@@ -566,12 +567,12 @@ const Checkout = () => {
                 <div className="mt-4 pt-4 border-t border-border space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Due now</span>
-                    <span className="font-medium text-foreground">${paymentAmounts.deposit.toFixed(2)}</span>
+                    <span className="font-medium text-foreground">{formatPrice(paymentAmounts.deposit)}</span>
                   </div>
                   {paymentAmounts.remaining > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Due at pickup</span>
-                      <span className="font-medium text-foreground">${paymentAmounts.remaining.toFixed(2)}</span>
+                      <span className="font-medium text-foreground">{formatPrice(paymentAmounts.remaining)}</span>
                     </div>
                   )}
                 </div>

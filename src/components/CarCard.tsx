@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react';
+import { formatPrice } from '@/lib/currency';
 
 interface CarCardProps {
   image: string;
@@ -39,8 +40,8 @@ const CarCard = ({ image, name, type, rating, originalPrice, price, delay = 0 }:
         
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-2">
-            <span className="text-muted-foreground text-sm line-through">${originalPrice}</span>
-            <span className="text-primary text-xl font-bold">${price}</span>
+            <span className="text-muted-foreground text-sm line-through">{formatPrice(originalPrice)}</span>
+            <span className="text-primary text-xl font-bold">{formatPrice(price)}</span>
             <span className="text-muted-foreground text-sm">/day</span>
           </div>
           <button className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button">

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Users, Lock, Minus, Plus, ChevronDown } from 'lucide-react';
+import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
@@ -68,7 +69,7 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
         <div>
           <span className="text-sm text-muted-foreground">Price starts from</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-foreground">${pricePerDay}</span>
+            <span className="text-3xl font-bold text-foreground">{formatPrice(pricePerDay)}</span>
             <span className="text-muted-foreground">/day</span>
           </div>
         </div>
@@ -140,7 +141,7 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
           <MapPin className="w-5 h-5 text-muted-foreground flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <span className="text-xs text-muted-foreground block">Pick-up Location</span>
-            <span className="font-medium text-foreground truncate block">Tokyo Haneda Airport (HND)</span>
+            <span className="font-medium text-foreground truncate block">Tbilisi International Airport (TBS)</span>
           </div>
           <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </div>
@@ -206,22 +207,22 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
       {/* Price Breakdown */}
       <div className="space-y-3 mb-6 pb-6 border-b border-border">
         <div className="flex items-center justify-between text-muted-foreground text-sm">
-          <span>${pricePerDay} x {days} {days === 1 ? 'day' : 'days'}</span>
-          <span className="font-medium text-foreground">${subtotal}</span>
+          <span>{formatPrice(pricePerDay)} x {days} {days === 1 ? 'day' : 'days'}</span>
+          <span className="font-medium text-foreground">{formatPrice(subtotal)}</span>
         </div>
         {driveType === 'driver' && (
           <div className="flex items-center justify-between text-muted-foreground text-sm animate-fade-in">
-            <span>Driver fee ($50/day)</span>
-            <span className="font-medium text-foreground">${driverFee}</span>
+            <span>Driver fee ({CURRENCY_SYMBOL}50/day)</span>
+            <span className="font-medium text-foreground">{formatPrice(driverFee)}</span>
           </div>
         )}
         <div className="flex items-center justify-between text-muted-foreground text-sm">
           <span>Service fee (5%)</span>
-          <span className="font-medium text-foreground">${serviceFee}</span>
+          <span className="font-medium text-foreground">{formatPrice(serviceFee)}</span>
         </div>
         <div className="flex items-center justify-between pt-3 border-t border-dashed border-border">
           <span className="font-semibold text-foreground">Total</span>
-          <span className="text-2xl font-bold text-foreground">${total}</span>
+          <span className="text-2xl font-bold text-foreground">{formatPrice(total)}</span>
         </div>
       </div>
 
@@ -230,7 +231,7 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
         to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&withDriver=${driveType === 'driver'}`}
         className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
       >
-        Book Now • ${total}
+        Book Now • {formatPrice(total)}
       </Link>
 
       <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
