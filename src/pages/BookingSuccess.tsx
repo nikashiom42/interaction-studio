@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Check, Copy, Calendar, MapPin, Download, Mail, Smartphone, Key, ArrowRight, Loader2, Car } from 'lucide-react';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
+import { formatPrice } from '@/lib/currency';
 import { format, parseISO } from 'date-fns';
 import carTesla from '@/assets/car-tesla.jpg';
 
@@ -189,8 +190,8 @@ const BookingSuccess = () => {
                 <div className="flex items-start gap-2 mt-4 text-sm">
                   <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="font-medium text-foreground">Los Angeles Intl Airport (LAX)</p>
-                    <p className="text-muted-foreground">Terminal 4, Rental Counter</p>
+                    <p className="font-medium text-foreground">Tbilisi Intl Airport (TBS)</p>
+                    <p className="text-muted-foreground">Terminal, Rental Counter</p>
                   </div>
                 </div>
               </div>
@@ -200,7 +201,7 @@ const BookingSuccess = () => {
             <div className="flex items-center justify-between pt-6 mt-6 border-t border-border">
               <span className="text-muted-foreground">Total Paid</span>
               <span className="text-2xl font-bold text-foreground">
-                ${Number(booking?.total_price || 245).toLocaleString()}
+                {formatPrice(Number(booking?.total_price || 245))}
               </span>
             </div>
           </div>

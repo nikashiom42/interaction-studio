@@ -11,6 +11,7 @@ import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { format, parseISO } from 'date-fns';
+import { formatPrice } from '@/lib/currency';
 
 const statusConfig = {
   pending: { label: 'Pending', icon: AlertCircle, className: 'bg-warning/10 text-warning' },
@@ -280,7 +281,7 @@ const Dashboard = () => {
                               </div>
                               <div className="flex items-center gap-1">
                                 <CreditCard className="w-4 h-4" />
-                                <span>${Number(booking.total_price).toFixed(2)}</span>
+                                <span>{formatPrice(Number(booking.total_price))}</span>
                               </div>
                             </div>
 
@@ -289,12 +290,12 @@ const Dashboard = () => {
                               <div className="text-sm text-muted-foreground">
                                 {booking.payment_option === 'deposit' && (
                                   <span>
-                                    Deposit: ${Number(booking.deposit_amount || 0).toFixed(2)} | 
-                                    Remaining: ${Number(booking.remaining_balance || 0).toFixed(2)}
+                                    Deposit: {formatPrice(Number(booking.deposit_amount || 0))} | 
+                                    Remaining: {formatPrice(Number(booking.remaining_balance || 0))}
                                   </span>
                                 )}
                                 {booking.payment_option === 'pickup' && (
-                                  <span>Payment due at pickup: ${Number(booking.total_price).toFixed(2)}</span>
+                                  <span>Payment due at pickup: {formatPrice(Number(booking.total_price))}</span>
                                 )}
                               </div>
                             )}

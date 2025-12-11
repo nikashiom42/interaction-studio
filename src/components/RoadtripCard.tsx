@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, ArrowRight } from 'lucide-react';
+import { formatPrice } from '@/lib/currency';
 
 interface RoadtripCardProps {
   id: string | number;
@@ -59,7 +60,7 @@ const RoadtripCard = ({ id, image, title, days, miles, description, price, badge
         <div className="flex items-center justify-between">
           <div>
             <span className="text-muted-foreground text-sm">From </span>
-            <span className="text-primary text-lg font-bold">${price}</span>
+            <span className="text-primary text-lg font-bold">{formatPrice(price)}</span>
             <span className="text-muted-foreground text-sm">/trip</span>
           </div>
           <div className="flex items-center gap-1 text-primary font-medium">

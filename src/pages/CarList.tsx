@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
 import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car } from 'lucide-react';
+import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -228,7 +229,7 @@ const CarList = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground text-sm">Price for 1 day</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-foreground text-2xl font-bold">${car.price_per_day}</span>
+                        <span className="text-foreground text-2xl font-bold">{formatPrice(car.price_per_day)}</span>
                       </div>
                     </div>
                   </div>

@@ -1,18 +1,18 @@
 import DestinationCircle from './DestinationCircle';
-import destMiami from '@/assets/dest-miami.jpg';
-import destLA from '@/assets/dest-la.jpg';
-import destLondon from '@/assets/dest-london.jpg';
-import destDubai from '@/assets/dest-dubai.jpg';
-import destParis from '@/assets/dest-paris.jpg';
-import destTokyo from '@/assets/dest-tokyo.jpg';
+import destTbilisi from '@/assets/dest-miami.jpg';
+import destBatumi from '@/assets/dest-la.jpg';
+import destKutaisi from '@/assets/dest-london.jpg';
+import destKazbegi from '@/assets/dest-dubai.jpg';
+import destBorjomi from '@/assets/dest-paris.jpg';
+import destSvaneti from '@/assets/dest-tokyo.jpg';
 
 const destinations = [
-  { id: 1, name: 'Miami', image: destMiami },
-  { id: 2, name: 'Los Angeles', image: destLA },
-  { id: 3, name: 'London', image: destLondon },
-  { id: 4, name: 'Dubai', image: destDubai },
-  { id: 5, name: 'Paris', image: destParis },
-  { id: 6, name: 'Tokyo', image: destTokyo },
+  { id: 1, name: 'Tbilisi', image: destTbilisi },
+  { id: 2, name: 'Batumi', image: destBatumi },
+  { id: 3, name: 'Kutaisi', image: destKutaisi },
+  { id: 4, name: 'Kazbegi', image: destKazbegi },
+  { id: 5, name: 'Borjomi', image: destBorjomi },
+  { id: 6, name: 'Svaneti', image: destSvaneti },
 ];
 
 const ExploreDestinations = () => {

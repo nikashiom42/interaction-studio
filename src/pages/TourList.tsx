@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
 import { ChevronRight, ChevronDown, Clock, MapPin, ArrowRight, Loader2, Compass, Star } from 'lucide-react';
+import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -222,7 +223,7 @@ const TourList = () => {
                   <div className="flex items-center justify-between border-t border-border pt-4">
                     <div>
                       <span className="text-muted-foreground text-sm">From </span>
-                      <span className="text-primary text-xl font-bold">${tour.base_price}</span>
+                      <span className="text-primary text-xl font-bold">{formatPrice(tour.base_price)}</span>
                       <span className="text-muted-foreground text-sm">/trip</span>
                     </div>
                     <div className="flex items-center gap-1 text-primary font-medium">

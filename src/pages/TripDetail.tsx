@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2 } from 'lucide-react';
+import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -257,7 +258,7 @@ const TripDetail = () => {
               <div className="mb-6">
                 <p className="text-muted-foreground text-sm">Starting from</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-primary">${tour.base_price}</span>
+                  <span className="text-3xl font-bold text-primary">{formatPrice(tour.base_price)}</span>
                   <span className="text-muted-foreground">
                     {tour.price_per_person ? '/person' : '/trip'}
                   </span>

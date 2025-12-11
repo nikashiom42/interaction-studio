@@ -22,10 +22,10 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
         <div className="max-w-xl animate-fade-in">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background italic mb-4">
-            Drive Your Adventure.
+            Explore Georgia Your Way.
           </h1>
           <p className="text-background/90 text-lg md:text-xl mb-8">
-            Discover the world's best car rentals, from luxury sports cars to rugged off-roaders.
+            Premium car rentals and curated tours across Georgia's stunning landscapes.
           </p>
 
           {/* Search Form */}
