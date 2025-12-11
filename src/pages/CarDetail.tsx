@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { 
   ChevronRight, ChevronDown, ChevronUp, Star, MapPin, Heart, Share2, Users, Settings, 
-  Check, Calendar, Fuel, Car, Briefcase, DoorOpen, Wifi, Lock, ThumbsUp,
-  Minus, Plus
+  Check, Calendar, Fuel, Car, Briefcase, DoorOpen, Wifi, Lock, ThumbsUp
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BookingWidget from '@/components/BookingWidget';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carCorvette from '@/assets/car-corvette.jpg';
 import carMercedes from '@/assets/car-mercedes.jpg';
@@ -79,15 +79,9 @@ const carData = {
 const CarDetail = () => {
   const { id } = useParams();
   const [activeImage, setActiveImage] = useState(0);
-  const [driveType, setDriveType] = useState<'self' | 'driver'>('self');
-  const [passengers, setPassengers] = useState(2);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showFullDesc, setShowFullDesc] = useState(false);
-
-  const days = 3;
-  const serviceFee = 15;
-  const total = carData.pricePerDay * days + serviceFee;
 
   return (
     <div className="min-h-screen bg-background">
@@ -398,110 +392,8 @@ const CarDetail = () => {
 
           {/* Right Column - Booking Widget */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-card rounded-xl shadow-card-hover p-6 border border-border">
-              {/* Price */}
-              <div className="flex items-baseline justify-between mb-4">
-                <div>
-                  <span className="text-sm text-muted-foreground">Price starts from</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-foreground">${carData.pricePerDay}</span>
-                    <span className="text-muted-foreground">/day</span>
-                  </div>
-                </div>
-                <span className="text-primary text-sm font-medium cursor-pointer hover:underline">Best Price Guarantee</span>
-              </div>
-
-              {/* Date Picker */}
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center gap-3 p-3 border border-border rounded-lg hover:border-primary transition-colors cursor-pointer">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  <div>
-                    <span className="text-xs text-muted-foreground">Pick-up & Drop-off Dates</span>
-                    <p className="font-medium text-foreground">Nov 12 - Nov 15</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 border border-border rounded-lg hover:border-primary transition-colors cursor-pointer">
-                  <MapPin className="w-5 h-5 text-muted-foreground" />
-                  <div className="flex-1">
-                    <span className="text-xs text-muted-foreground">Pick-up Location</span>
-                    <p className="font-medium text-foreground">Tokyo Haneda Airport (HND)</p>
-                  </div>
-                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                </div>
-              </div>
-
-              {/* Drive Type Toggle */}
-              <div className="flex bg-secondary rounded-lg p-1 mb-4">
-                <button
-                  onClick={() => setDriveType('self')}
-                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-                    driveType === 'self'
-                      ? 'bg-background text-primary shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Self-Drive
-                </button>
-                <button
-                  onClick={() => setDriveType('driver')}
-                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-                    driveType === 'driver'
-                      ? 'bg-background text-primary shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  With Driver
-                </button>
-              </div>
-
-              {/* Passengers */}
-              <div className="flex items-center justify-between p-3 border border-border rounded-lg mb-6">
-                <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-foreground">Passengers</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setPassengers(Math.max(1, passengers - 1))}
-                    className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors btn-scale"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-6 text-center font-medium text-foreground">{passengers}</span>
-                  <button
-                    onClick={() => setPassengers(Math.min(7, passengers + 1))}
-                    className="w-8 h-8 rounded-full border border-primary bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors btn-scale"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Price Breakdown */}
-              <div className="space-y-3 mb-6 pb-6 border-b border-border">
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span>${carData.pricePerDay} x {days} days</span>
-                  <span>${carData.pricePerDay * days}</span>
-                </div>
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Service fee</span>
-                  <span>${serviceFee}</span>
-                </div>
-                <div className="flex items-center justify-between font-bold text-foreground">
-                  <span>Total</span>
-                  <span>${total}</span>
-                </div>
-              </div>
-
-              {/* Book Button */}
-              <Link to="/checkout" className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button mb-4 flex items-center justify-center">
-                Book Now
-              </Link>
-
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <Lock className="w-4 h-4" />
-                <span>Secure booking. No hidden fees.</span>
-              </div>
+            <div className="sticky top-24">
+              <BookingWidget pricePerDay={carData.pricePerDay} carName={carData.name} />
             </div>
           </div>
         </div>
