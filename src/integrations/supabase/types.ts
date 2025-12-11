@@ -286,6 +286,63 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          car_id: string | null
+          content: string
+          created_at: string
+          id: string
+          is_approved: boolean | null
+          is_featured: boolean | null
+          rating: number
+          title: string | null
+          tour_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          car_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          rating: number
+          title?: string | null
+          tour_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          car_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          rating?: number
+          title?: string | null
+          tour_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tour_availability: {
         Row: {
           date: string

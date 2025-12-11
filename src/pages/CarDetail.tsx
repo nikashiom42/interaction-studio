@@ -3,11 +3,13 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { 
   ChevronRight, ChevronDown, ChevronUp, Star, MapPin, Share2, Users, Settings, 
-  Check, Calendar, Fuel, Car, Briefcase, DoorOpen, Wifi, Lock, ThumbsUp, Loader2
+  Check, Fuel, Car, Briefcase, DoorOpen, Wifi, Loader2
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BookingWidget from '@/components/BookingWidget';
+import ReviewForm from '@/components/ReviewForm';
+import ReviewsList from '@/components/ReviewsList';
 import { supabase } from '@/integrations/supabase/client';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carCorvette from '@/assets/car-corvette.jpg';
@@ -23,30 +25,6 @@ const staticFaq = [
   },
   { question: 'Security Deposit', answer: 'A security deposit of $500 is required upon pickup. This will be refunded within 7-14 business days after the return of the vehicle.' },
   { question: 'Mileage Policy', answer: 'Unlimited mileage is included with all rentals. No additional charges for distance traveled.' },
-];
-
-const reviewStats = {
-  overall: 4.8,
-  total: 124,
-  breakdown: [
-    { label: 'Cleanliness', score: 4.9 },
-    { label: 'Comfort', score: 4.8 },
-    { label: 'Service', score: 4.6 },
-    { label: 'Value', score: 4.7 },
-  ],
-};
-
-const customerReviews = [
-  {
-    id: 1,
-    name: 'John Doe',
-    location: 'United States',
-    date: 'October 2023',
-    rating: 5,
-    title: 'Fantastic experience!',
-    text: 'The car was in perfect condition and the pickup process was smooth. Highly recommend this for anyone traveling to the mountains.',
-    verified: true,
-  },
 ];
 
 const CarDetail = () => {
@@ -330,75 +308,10 @@ const CarDetail = () => {
             {/* Reviews */}
             <section className="mb-8">
               <h2 className="text-xl font-bold text-foreground mb-6">Customer Reviews</h2>
-              
-              {/* Stats */}
-              <div className="flex gap-8 mb-8">
-                <div className="flex flex-col items-center justify-center p-6 bg-primary/10 rounded-xl">
-                  <span className="text-4xl font-bold text-foreground">{reviewStats.overall}</span>
-                  <div className="flex mt-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-star text-star" />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground mt-2">Based on {reviewStats.total} reviews</span>
-                </div>
-                <div className="flex-1 space-y-3">
-                  {reviewStats.breakdown.map(stat => (
-                    <div key={stat.label} className="flex items-center gap-3">
-                      <span className="w-24 text-sm text-muted-foreground">{stat.label}</span>
-                      <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full transition-all duration-500"
-                          style={{ width: `${(stat.score / 5) * 100}%` }}
-                        />
-                      </div>
-                      <span className="w-8 text-sm text-muted-foreground">{stat.score}</span>
-                    </div>
-                  ))}
-                </div>
+              <ReviewsList carId={id} />
+              <div className="mt-8">
+                <ReviewForm carId={id} />
               </div>
-
-              {/* Review Cards */}
-              {customerReviews.map(review => (
-                <div key={review.id} className="border-t border-border pt-6">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                      {review.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="font-medium text-foreground">{review.name}</span>
-                          <p className="text-sm text-muted-foreground">{review.location} • {review.date}</p>
-                        </div>
-                        <div className="flex">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-star text-star' : 'text-gray-200'}`} />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <h4 className="font-medium text-foreground mb-2">{review.title}</h4>
-                  <p className="text-muted-foreground mb-4">{review.text}</p>
-                  <div className="flex items-center gap-4 text-sm">
-                    {review.verified && (
-                      <span className="flex items-center gap-1 text-success">
-                        <Check className="w-4 h-4" />
-                        Verified Booking
-                      </span>
-                    )}
-                    <button className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
-                      <ThumbsUp className="w-4 h-4" />
-                      Helpful
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              <button className="w-full mt-6 py-3 border border-border rounded-lg font-medium text-foreground hover:border-foreground hover:bg-secondary transition-all btn-scale">
-                Load more reviews
-              </button>
             </section>
 
             {/* Similar Cars */}
