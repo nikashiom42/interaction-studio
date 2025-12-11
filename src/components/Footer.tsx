@@ -1,17 +1,29 @@
+import { Link } from 'react-router-dom';
 import { ChevronDown, Globe, DollarSign } from 'lucide-react';
 
 const footerLinks = {
   support: {
     title: 'Support',
-    links: ['Help Center', 'Safety Information', 'Cancellation Options', 'Report a Complaint'],
+    links: [
+      { label: 'Help Center', href: '/contact' },
+      { label: 'Safety Information', href: '/contact' },
+      { label: 'Cancellation Policy', href: '/contact' },
+    ],
   },
   company: {
     title: 'Company',
-    links: ['About Us', 'Careers', 'Press', 'Investor Relations'],
+    links: [
+      { label: 'About Us', href: '/about' },
+      { label: 'Contact Us', href: '/contact' },
+      { label: 'Careers', href: '/contact' },
+    ],
   },
-  work: {
-    title: 'Work With Us',
-    links: ['Become a Supplier', 'Partner API', 'Affiliate Program'],
+  explore: {
+    title: 'Explore',
+    links: [
+      { label: 'Browse Cars', href: '/cars' },
+      { label: 'Tours', href: '/tours' },
+    ],
   },
 };
 
@@ -26,13 +38,13 @@ const Footer = () => {
               <h3 className="font-semibold text-foreground mb-4">{section.title}</h3>
               <ul className="space-y-3">
                 {section.links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
+                  <li key={link.label}>
+                    <Link
+                      to={link.href}
                       className="text-muted-foreground text-sm hover:text-foreground transition-colors link-underline"
                     >
-                      {link}
-                    </a>
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

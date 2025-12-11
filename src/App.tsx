@@ -14,6 +14,8 @@ import BookingSuccess from "./pages/BookingSuccess";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AdminLogin from "./pages/AdminLogin";
+import AboutUs from "./pages/AboutUs";
+import ContactUs from "./pages/ContactUs";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import DashboardContent from "./pages/admin/DashboardContent";
 import CarsManagement from "./pages/admin/CarsManagement";
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactUs />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             
             {/* Admin Routes with Sidebar Layout */}
