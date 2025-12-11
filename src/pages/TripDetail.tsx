@@ -5,6 +5,8 @@ import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRig
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import ReviewsList from '@/components/ReviewsList';
+import ReviewForm from '@/components/ReviewForm';
 
 type Tour = {
   id: string;
@@ -238,6 +240,15 @@ const TripDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* Reviews Section */}
+            <div className="mt-8">
+              <h3 className="font-semibold text-foreground mb-4">Customer Reviews</h3>
+              <ReviewsList tourId={id} />
+              <div className="mt-6">
+                <ReviewForm tourId={id} />
+              </div>
+            </div>
           </div>
 
           {/* Booking Sidebar */}
