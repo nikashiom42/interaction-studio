@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CarCard from './CarCard';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carCorvette from '@/assets/car-corvette.jpg';
@@ -51,20 +52,21 @@ const PopularCars = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-foreground">Popular Cars Near You</h2>
-          <button className="flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all group">
+          <Link to="/cars" className="flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all group">
             <span>View all</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
         </div>
 
         {/* Cars Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {cars.map((car, index) => (
-            <CarCard
-              key={car.id}
-              {...car}
-              delay={index * 100}
-            />
+            <Link key={car.id} to={`/car/${car.id}`}>
+              <CarCard
+                {...car}
+                delay={index * 100}
+              />
+            </Link>
           ))}
         </div>
       </div>
