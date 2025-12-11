@@ -13,9 +13,10 @@ import {
 interface BookingWidgetProps {
   pricePerDay: number;
   carName?: string;
+  carId?: string;
 }
 
-const BookingWidget = ({ pricePerDay, carName }: BookingWidgetProps) => {
+const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
   const [driveType, setDriveType] = useState<'self' | 'driver'>('self');
@@ -226,7 +227,7 @@ const BookingWidget = ({ pricePerDay, carName }: BookingWidgetProps) => {
 
       {/* Book Button */}
       <Link 
-        to="/checkout" 
+        to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&withDriver=${driveType === 'driver'}`}
         className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
       >
         Book Now • ${total}

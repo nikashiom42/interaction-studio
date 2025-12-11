@@ -1,13 +1,59 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Check, Copy, Calendar, MapPin, Download, Mail, Smartphone, Key, ArrowRight } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Check, Copy, Calendar, MapPin, Download, Mail, Smartphone, Key, ArrowRight, Loader2, Car } from 'lucide-react';
 import Header from '@/components/Header';
+import { supabase } from '@/integrations/supabase/client';
+import { format, parseISO } from 'date-fns';
 import carTesla from '@/assets/car-tesla.jpg';
 
+type BookingWithCar = {
+  id: string;
+  car_id: string | null;
+  start_date: string;
+  end_date: string;
+  with_driver: boolean | null;
+  total_price: number;
+  status: string;
+  customer_name: string | null;
+  customer_email: string | null;
+  customer_phone: string | null;
+  created_at: string;
+  cars?: {
+    id: string;
+    brand: string;
+    model: string;
+    main_image: string | null;
+    category: string;
+  } | null;
+};
+
 const BookingSuccess = () => {
+  const [searchParams] = useSearchParams();
+  const bookingId = searchParams.get('bookingId');
   const [copied, setCopied] = useState(false);
 
-  const referenceNumber = 'GYG-88429';
+  // Fetch booking details
+  const { data: booking, isLoading } = useQuery({
+    queryKey: ['booking-success', bookingId],
+    queryFn: async () => {
+      if (!bookingId) return null;
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          cars (id, brand, model, main_image, category)
+        `)
+        .eq('id', bookingId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as unknown as BookingWithCar;
+    },
+    enabled: !!bookingId,
+  });
+
+  const referenceNumber = booking?.id?.slice(0, 8).toUpperCase() || 'DEMO-001';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referenceNumber);
@@ -31,10 +77,21 @@ const BookingSuccess = () => {
     {
       icon: Key,
       title: 'Pick up your car',
-      description: "Head to the counter at your designated time. Don't forget your driver's license.",
+      description: "Head to the counter at your designated time. Don't forget your ID.",
       color: 'bg-gray-100 text-gray-600',
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-secondary/30">
+        <Header />
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-secondary/30">
@@ -73,31 +130,57 @@ const BookingSuccess = () => {
             <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
               <span className="text-primary text-xs">★</span>
             </div>
-            <span className="text-primary font-semibold text-sm uppercase tracking-wide">Premium Rental</span>
+            <span className="text-primary font-semibold text-sm uppercase tracking-wide">
+              {booking?.with_driver ? 'Premium Rental with Driver' : 'Self-Drive Rental'}
+            </span>
           </div>
 
           {/* Car Details */}
           <div className="p-6">
             <div className="flex gap-6">
               <div className="w-40 h-28 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
-                <img src={carTesla} alt="Tesla Model 3" className="w-full h-full object-cover" />
+                {booking?.cars?.main_image ? (
+                  <img 
+                    src={booking.cars.main_image} 
+                    alt={`${booking.cars.brand} ${booking.cars.model}`} 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Car className="w-12 h-12 text-muted-foreground" />
+                  </div>
+                )}
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-foreground mb-1">Tesla Model 3</h2>
-                <p className="text-sm text-muted-foreground mb-4">Or similar • Electric • Automatic</p>
+                <h2 className="text-xl font-bold text-foreground mb-1">
+                  {booking?.cars ? `${booking.cars.brand} ${booking.cars.model}` : 'Demo Car'}
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4 capitalize">
+                  {booking?.cars?.category || 'Premium'} • {booking?.with_driver ? 'With Driver' : 'Self-drive'}
+                </p>
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Oct 24, 10:00 AM</p>
+                      <p className="font-medium text-foreground">
+                        {booking?.start_date 
+                          ? format(parseISO(booking.start_date), 'MMM d, yyyy')
+                          : 'Oct 24, 2024'
+                        }
+                      </p>
                       <p className="text-muted-foreground">Pickup</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Oct 27, 10:00 AM</p>
+                      <p className="font-medium text-foreground">
+                        {booking?.end_date 
+                          ? format(parseISO(booking.end_date), 'MMM d, yyyy')
+                          : 'Oct 27, 2024'
+                        }
+                      </p>
                       <p className="text-muted-foreground">Dropoff</p>
                     </div>
                   </div>
@@ -107,7 +190,7 @@ const BookingSuccess = () => {
                   <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="font-medium text-foreground">Los Angeles Intl Airport (LAX)</p>
-                    <p className="text-muted-foreground">Terminal 4, Hertz Counter</p>
+                    <p className="text-muted-foreground">Terminal 4, Rental Counter</p>
                   </div>
                 </div>
               </div>
@@ -116,14 +199,18 @@ const BookingSuccess = () => {
             {/* Total */}
             <div className="flex items-center justify-between pt-6 mt-6 border-t border-border">
               <span className="text-muted-foreground">Total Paid</span>
-              <span className="text-2xl font-bold text-foreground">$245.00</span>
+              <span className="text-2xl font-bold text-foreground">
+                ${Number(booking?.total_price || 245).toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Confirmation Email */}
         <p className="text-center text-muted-foreground mb-6 animate-fade-in" style={{ animationDelay: '200ms' }}>
-          Confirmation sent to <span className="font-medium text-foreground">alex.user@example.com</span>
+          Confirmation sent to <span className="font-medium text-foreground">
+            {booking?.customer_email || 'demo@example.com'}
+          </span>
         </p>
 
         {/* Download Button */}
@@ -164,10 +251,10 @@ const BookingSuccess = () => {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{ animationDelay: '400ms' }}>
           <Link
-            to="/bookings"
+            to="/admin/bookings"
             className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-primary text-primary-foreground rounded-lg font-semibold btn-scale hover:bg-coral-hover transition-colors shadow-button"
           >
-            View My Bookings
+            View in Admin Panel
             <ArrowRight className="w-5 h-5" />
           </Link>
           <Link

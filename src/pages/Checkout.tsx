@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { 
   ChevronRight, Calendar, MapPin, Clock, Edit2, Trash2, Check, 
-  Lock, ThumbsUp, Shield, CreditCard, ChevronDown, Plane
+  Lock, ThumbsUp, Shield, CreditCard, ChevronDown, Loader2
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { format, parseISO, differenceInDays } from 'date-fns';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carTesla from '@/assets/car-tesla.jpg';
 import carMercedes from '@/assets/car-mercedes.jpg';
@@ -19,29 +23,103 @@ const recentCars = [
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  const carId = searchParams.get('carId');
+  const startDate = searchParams.get('startDate');
+  const endDate = searchParams.get('endDate');
+  const withDriver = searchParams.get('withDriver') === 'true';
+  
   const [paymentSchedule, setPaymentSchedule] = useState<'full' | 'deposit'>('full');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [createAccount, setCreateAccount] = useState(false);
-  const [cartEmpty, setCartEmpty] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
-  const [country, setCountry] = useState('United States');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [flightNumber, setFlightNumber] = useState('');
 
-  const rentalPrice = 540;
-  const taxesFees = 35;
+  // Fetch car details if carId is provided
+  const { data: car, isLoading: carLoading } = useQuery({
+    queryKey: ['checkout-car', carId],
+    queryFn: async () => {
+      if (!carId) return null;
+      const { data, error } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', carId)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!carId,
+  });
+
+  // Calculate prices
+  const rentalDays = startDate && endDate 
+    ? differenceInDays(parseISO(endDate), parseISO(startDate)) + 1 
+    : 3;
+  
+  const dailyRate = car 
+    ? (withDriver && car.price_with_driver ? Number(car.price_with_driver) : Number(car.price_per_day))
+    : 180;
+  
+  const rentalPrice = dailyRate * rentalDays;
+  const taxesFees = Math.round(rentalPrice * 0.06);
   const serviceCharge = 15;
-  const earlyBirdDiscount = 0;
-  const totalPrice = rentalPrice + taxesFees + serviceCharge - earlyBirdDiscount;
+  const totalPrice = rentalPrice + taxesFees + serviceCharge;
+
+  // Create booking mutation
+  const createBookingMutation = useMutation({
+    mutationFn: async () => {
+      const bookingData = {
+        car_id: carId || null,
+        start_date: startDate || format(new Date(), 'yyyy-MM-dd'),
+        end_date: endDate || format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
+        with_driver: withDriver,
+        total_price: totalPrice,
+        status: 'pending' as const,
+        customer_name: `${firstName} ${lastName}`.trim() || 'Demo Customer',
+        customer_email: email || 'demo@example.com',
+        customer_phone: phone || '+1 555-0123',
+        payment_option: paymentSchedule,
+        deposit_amount: paymentSchedule === 'deposit' ? totalPrice * 0.2 : 0,
+        remaining_balance: paymentSchedule === 'deposit' ? totalPrice * 0.8 : 0,
+        notes: `Demo booking - ${withDriver ? 'With driver' : 'Self-drive'}`,
+      };
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert(bookingData)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      toast({ title: 'Booking created successfully!' });
+      navigate(`/booking-success?bookingId=${data.id}`);
+    },
+    onError: (error) => {
+      toast({ 
+        title: 'Error creating booking', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+      setIsProcessing(false);
+    },
+  });
 
   const handleComplete = () => {
-    navigate('/booking-success');
+    setIsProcessing(true);
+    // Simulate payment processing delay for demo
+    setTimeout(() => {
+      createBookingMutation.mutate();
+    }, 1500);
   };
 
   const steps = [
@@ -50,7 +128,9 @@ const Checkout = () => {
     { label: 'Confirmation', active: false, completed: false },
   ];
 
-  if (cartEmpty) {
+  const cartEmpty = !carId && !car;
+
+  if (cartEmpty && !carLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -73,21 +153,21 @@ const Checkout = () => {
           <section className="mt-16">
             <h3 className="text-lg font-semibold text-foreground mb-6">Based on your recent search</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {recentCars.map((car, index) => (
+              {recentCars.map((recentCar, index) => (
                 <Link
-                  key={car.id}
-                  to={`/car/${car.id}`}
+                  key={recentCar.id}
+                  to={`/car/${recentCar.id}`}
                   className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
                 >
                   <div className="aspect-[4/3] overflow-hidden">
-                    <img src={car.image} alt={car.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <img src={recentCar.image} alt={recentCar.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <div className="p-4">
-                    <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{car.name}</h4>
-                    <p className="text-sm text-muted-foreground mb-2">{car.type}</p>
+                    <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{recentCar.name}</h4>
+                    <p className="text-sm text-muted-foreground mb-2">{recentCar.type}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-primary font-bold">${car.price}<span className="text-muted-foreground font-normal text-sm">/day</span></span>
+                      <span className="text-primary font-bold">${recentCar.price}<span className="text-muted-foreground font-normal text-sm">/day</span></span>
                       <button className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">+</button>
                     </div>
                   </div>
@@ -133,22 +213,30 @@ const Checkout = () => {
             <section className="bg-card rounded-xl p-6 shadow-card animate-fade-in">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-foreground">Your Cart (1)</h2>
-                <button className="text-primary text-sm font-medium hover:underline">Edit Cart</button>
+                <Link to="/cars" className="text-primary text-sm font-medium hover:underline">Edit Cart</Link>
               </div>
 
               <div className="flex gap-4">
-                <img src={carRangeRover} alt="Toyota Land Cruiser" className="w-32 h-24 object-cover rounded-lg" />
+                <img 
+                  src={car?.main_image || carRangeRover} 
+                  alt={car ? `${car.brand} ${car.model}` : "Car"} 
+                  className="w-32 h-24 object-cover rounded-lg" 
+                />
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
                       <span className="text-xs text-primary font-semibold uppercase">Car Rental</span>
-                      <h3 className="font-semibold text-foreground">Toyota Land Cruiser 2023</h3>
-                      <p className="text-sm text-muted-foreground">Premium Premium SUV</p>
+                      <h3 className="font-semibold text-foreground">
+                        {car ? `${car.brand} ${car.model}` : 'Toyota Land Cruiser 2023'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground capitalize">
+                        {car?.category || 'Premium'} • {withDriver ? 'With Driver' : 'Self-drive'}
+                      </p>
                     </div>
                     <div className="flex gap-2">
-                      <button className="text-primary text-sm flex items-center gap-1 hover:underline">
+                      <Link to={`/car/${carId}`} className="text-primary text-sm flex items-center gap-1 hover:underline">
                         <Edit2 className="w-3.5 h-3.5" /> Edit
-                      </button>
+                      </Link>
                       <button className="text-muted-foreground text-sm flex items-center gap-1 hover:text-destructive transition-colors">
                         <Trash2 className="w-3.5 h-3.5" /> Remove
                       </button>
@@ -157,11 +245,16 @@ const Checkout = () => {
                   <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      <span>Thu, Oct 12 - Sun, Oct 15</span>
+                      <span>
+                        {startDate && endDate 
+                          ? `${format(parseISO(startDate), 'MMM d')} - ${format(parseISO(endDate), 'MMM d, yyyy')}`
+                          : 'Thu, Oct 12 - Sun, Oct 15'
+                        }
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>3 Days</span>
+                      <span>{rentalDays} Days</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
@@ -250,78 +343,24 @@ const Checkout = () => {
               </label>
             </section>
 
-            {/* Driver's Information */}
+            {/* Payment Method */}
             <section className="bg-card rounded-xl p-6 shadow-card animate-fade-in" style={{ animationDelay: '200ms' }}>
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-6 h-6 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-medium">2</div>
-                <h2 className="font-semibold text-foreground">Driver's Information</h2>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-foreground mb-1">Driver's License Number *</label>
-                <input
-                  type="text"
-                  value={licenseNumber}
-                  onChange={(e) => setLicenseNumber(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Country of Issue *</label>
-                  <div className="relative">
-                    <select
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option>United States</option>
-                      <option>United Kingdom</option>
-                      <option>Japan</option>
-                      <option>Germany</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Expiry Date *</label>
-                  <input
-                    type="text"
-                    value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
-                    placeholder="mm/dd/yyyy"
-                    className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Flight Number (Optional)</label>
-                <div className="relative">
-                  <Plane className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={flightNumber}
-                    onChange={(e) => setFlightNumber(e.target.value)}
-                    placeholder="e.g. UA123"
-                    className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Helps the rental counter track delays.</p>
-              </div>
-            </section>
-
-            {/* Payment Method */}
-            <section className="bg-card rounded-xl p-6 shadow-card animate-fade-in" style={{ animationDelay: '300ms' }}>
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-6 h-6 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-medium">3</div>
                 <h2 className="font-semibold text-foreground">Payment Method</h2>
+              </div>
+
+              {/* Demo Payment Notice */}
+              <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-4">
+                <p className="text-sm text-warning font-medium">🧪 Demo Mode</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  This is a demo payment. No real payment will be processed. Click "Complete Booking" to test the full flow.
+                </p>
               </div>
 
               <div className="flex items-center gap-2 mb-4">
                 <CreditCard className="w-5 h-5 text-primary" />
-                <span className="font-medium text-primary">PayPal</span>
+                <span className="font-medium text-primary">Demo Payment</span>
               </div>
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -334,8 +373,9 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <div className="bg-[#0070BA] rounded-lg p-4 text-center mb-4">
-                <span className="text-white font-bold text-xl">PayPal</span>
+              <div className="bg-gradient-to-r from-primary to-primary/80 rounded-lg p-4 text-center mb-4">
+                <span className="text-primary-foreground font-bold text-xl">Demo Payment</span>
+                <p className="text-primary-foreground/80 text-sm mt-1">No card required</p>
               </div>
 
               {/* Trust badges */}
@@ -373,14 +413,21 @@ const Checkout = () => {
               {/* Submit */}
               <button
                 onClick={handleComplete}
-                disabled={!acceptTerms}
-                className={`w-full mt-6 py-4 rounded-lg font-semibold text-lg transition-all btn-scale ${
-                  acceptTerms
+                disabled={!acceptTerms || isProcessing}
+                className={`w-full mt-6 py-4 rounded-lg font-semibold text-lg transition-all btn-scale flex items-center justify-center gap-2 ${
+                  acceptTerms && !isProcessing
                     ? 'bg-primary text-primary-foreground hover:bg-coral-hover shadow-button'
                     : 'bg-muted text-muted-foreground cursor-not-allowed'
                 }`}
               >
-                Complete Booking • Pay ${totalPrice.toFixed(2)}
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing Payment...
+                  </>
+                ) : (
+                  <>Complete Booking • Pay ${totalPrice.toFixed(2)}</>
+                )}
               </button>
 
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
@@ -399,23 +446,17 @@ const Checkout = () => {
                 
                 <div className="space-y-3 pb-4 border-b border-border">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Car Rental (3 days)</span>
+                    <span className="text-muted-foreground">Car Rental ({rentalDays} days × ${dailyRate})</span>
                     <span className="text-foreground">${rentalPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Taxes & Fees</span>
+                    <span className="text-muted-foreground">Taxes & Fees (6%)</span>
                     <span className="text-foreground">${taxesFees.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Service Charge</span>
                     <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
                   </div>
-                  {earlyBirdDiscount > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-success">Early Bird Discount</span>
-                      <span className="text-success">-${earlyBirdDiscount.toFixed(2)}</span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex justify-between py-4">
