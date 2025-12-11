@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Clock, MapPin, ArrowRight } from 'lucide-react';
 
 interface RoadtripCardProps {
-  id: number;
+  id: string | number;
   image: string;
   title: string;
   days: number;

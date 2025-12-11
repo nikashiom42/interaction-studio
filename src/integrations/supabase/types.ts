@@ -286,6 +286,240 @@ export type Database = {
         }
         Relationships: []
       }
+      tour_availability: {
+        Row: {
+          date: string
+          id: string
+          is_available: boolean | null
+          reason: string | null
+          tour_id: string
+        }
+        Insert: {
+          date: string
+          id?: string
+          is_available?: boolean | null
+          reason?: string | null
+          tour_id: string
+        }
+        Update: {
+          date?: string
+          id?: string
+          is_available?: boolean | null
+          reason?: string | null
+          tour_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_availability_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tour_cars: {
+        Row: {
+          car_id: string
+          created_at: string
+          id: string
+          tour_id: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          id?: string
+          tour_id: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          id?: string
+          tour_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_cars_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_cars_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tour_highlights: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          highlight: string
+          id: string
+          tour_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          highlight: string
+          id?: string
+          tour_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          highlight?: string
+          id?: string
+          tour_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_highlights_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tour_itinerary: {
+        Row: {
+          created_at: string
+          day_number: number
+          description: string | null
+          id: string
+          title: string
+          tour_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          description?: string | null
+          id?: string
+          title: string
+          tour_id: string
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          description?: string | null
+          id?: string
+          title?: string
+          tour_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_itinerary_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tours: {
+        Row: {
+          additional_fees: Json | null
+          advance_booking_days: number | null
+          base_price: number
+          category: Database["public"]["Enums"]["tour_category"]
+          created_at: string
+          description: string
+          destinations: string[] | null
+          display_order: number | null
+          duration_days: number
+          duration_label: string | null
+          duration_type: Database["public"]["Enums"]["tour_duration_type"]
+          end_location: string | null
+          gallery_images: string[] | null
+          id: string
+          included_services: Json | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          main_image: string | null
+          max_participants: number | null
+          meta_description: string | null
+          meta_title: string | null
+          name: string
+          price_per_person: boolean | null
+          pricing_tiers: Json | null
+          rating: number | null
+          reviews_count: number | null
+          route_details: string | null
+          route_type: Database["public"]["Enums"]["tour_route_type"]
+          start_location: string | null
+          updated_at: string
+        }
+        Insert: {
+          additional_fees?: Json | null
+          advance_booking_days?: number | null
+          base_price: number
+          category: Database["public"]["Enums"]["tour_category"]
+          created_at?: string
+          description: string
+          destinations?: string[] | null
+          display_order?: number | null
+          duration_days?: number
+          duration_label?: string | null
+          duration_type?: Database["public"]["Enums"]["tour_duration_type"]
+          end_location?: string | null
+          gallery_images?: string[] | null
+          id?: string
+          included_services?: Json | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          main_image?: string | null
+          max_participants?: number | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name: string
+          price_per_person?: boolean | null
+          pricing_tiers?: Json | null
+          rating?: number | null
+          reviews_count?: number | null
+          route_details?: string | null
+          route_type?: Database["public"]["Enums"]["tour_route_type"]
+          start_location?: string | null
+          updated_at?: string
+        }
+        Update: {
+          additional_fees?: Json | null
+          advance_booking_days?: number | null
+          base_price?: number
+          category?: Database["public"]["Enums"]["tour_category"]
+          created_at?: string
+          description?: string
+          destinations?: string[] | null
+          display_order?: number | null
+          duration_days?: number
+          duration_label?: string | null
+          duration_type?: Database["public"]["Enums"]["tour_duration_type"]
+          end_location?: string | null
+          gallery_images?: string[] | null
+          id?: string
+          included_services?: Json | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          main_image?: string | null
+          max_participants?: number | null
+          meta_description?: string | null
+          meta_title?: string | null
+          name?: string
+          price_per_person?: boolean | null
+          pricing_tiers?: Json | null
+          rating?: number | null
+          reviews_count?: number | null
+          route_details?: string | null
+          route_type?: Database["public"]["Enums"]["tour_route_type"]
+          start_location?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -337,6 +571,17 @@ export type Database = {
         | "convertible"
         | "electric"
       fuel_type: "petrol" | "diesel" | "electric" | "hybrid"
+      tour_category:
+        | "beach"
+        | "mountains"
+        | "city_tours"
+        | "day_tours"
+        | "adventure"
+        | "cultural"
+        | "wildlife"
+        | "desert"
+      tour_duration_type: "fixed" | "flexible"
+      tour_route_type: "fixed" | "flexible"
       transmission_type: "manual" | "automatic"
     }
     CompositeTypes: {
@@ -483,6 +728,18 @@ export const Constants = {
         "electric",
       ],
       fuel_type: ["petrol", "diesel", "electric", "hybrid"],
+      tour_category: [
+        "beach",
+        "mountains",
+        "city_tours",
+        "day_tours",
+        "adventure",
+        "cultural",
+        "wildlife",
+        "desert",
+      ],
+      tour_duration_type: ["fixed", "flexible"],
+      tour_route_type: ["fixed", "flexible"],
       transmission_type: ["manual", "automatic"],
     },
   },

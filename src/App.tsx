@@ -17,6 +17,7 @@ import { AdminLayout } from "./components/admin/AdminLayout";
 import DashboardContent from "./pages/admin/DashboardContent";
 import CarsManagement from "./pages/admin/CarsManagement";
 import BookingsManagement from "./pages/admin/BookingsManagement";
+import ToursManagement from "./pages/admin/ToursManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,7 +46,7 @@ const App = () => (
               <Route path="cars" element={<CarsManagement />} />
               <Route path="bookings" element={<BookingsManagement />} />
               <Route path="users" element={<div className="text-foreground">Users Management - Coming Soon</div>} />
-              <Route path="tours" element={<div className="text-foreground">Tours Management - Coming Soon</div>} />
+              <Route path="tours" element={<ToursManagement />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
