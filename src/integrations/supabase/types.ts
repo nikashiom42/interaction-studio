@@ -16,15 +16,25 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          admin_notes: string | null
           car_id: string | null
+          confirmation_date: string | null
           created_at: string
           customer_email: string | null
           customer_name: string | null
           customer_phone: string | null
+          deposit_amount: number | null
+          dropoff_location_id: string | null
           end_date: string
           id: string
           notes: string | null
+          passengers: number | null
+          payment_date: string | null
+          payment_option: string | null
+          payment_status: string | null
+          payment_transaction_id: string | null
           pickup_location_id: string | null
+          remaining_balance: number | null
           start_date: string
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number
@@ -33,15 +43,25 @@ export type Database = {
           with_driver: boolean | null
         }
         Insert: {
+          admin_notes?: string | null
           car_id?: string | null
+          confirmation_date?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          deposit_amount?: number | null
+          dropoff_location_id?: string | null
           end_date: string
           id?: string
           notes?: string | null
+          passengers?: number | null
+          payment_date?: string | null
+          payment_option?: string | null
+          payment_status?: string | null
+          payment_transaction_id?: string | null
           pickup_location_id?: string | null
+          remaining_balance?: number | null
           start_date: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_price: number
@@ -50,15 +70,25 @@ export type Database = {
           with_driver?: boolean | null
         }
         Update: {
+          admin_notes?: string | null
           car_id?: string | null
+          confirmation_date?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
+          deposit_amount?: number | null
+          dropoff_location_id?: string | null
           end_date?: string
           id?: string
           notes?: string | null
+          passengers?: number | null
+          payment_date?: string | null
+          payment_option?: string | null
+          payment_status?: string | null
+          payment_transaction_id?: string | null
           pickup_location_id?: string | null
+          remaining_balance?: number | null
           start_date?: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number
@@ -72,6 +102,13 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_dropoff_location_id_fkey"
+            columns: ["dropoff_location_id"]
+            isOneToOne: false
+            referencedRelation: "pickup_locations"
             referencedColumns: ["id"]
           },
           {
