@@ -1,121 +1,103 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import tripPacific from '@/assets/trip-pacific.jpg';
-import tripRocky from '@/assets/trip-rocky.jpg';
-import tripDesert from '@/assets/trip-desert.jpg';
 
-const tripsData = [
-  {
-    id: '1',
-    image: tripPacific,
-    title: 'Pacific Coast Highway',
-    days: 5,
-    miles: 655,
-    description: 'Experience the breathtaking views of the California coastline in a convertible.',
-    fullDescription: 'Embark on the ultimate road trip along California\'s iconic Pacific Coast Highway. This 5-day journey takes you through stunning coastal cliffs, charming beach towns, and world-renowned landmarks. Drive a premium convertible as you wind along one of the most scenic routes in the world.',
-    price: 499,
-    badge: 'Bestseller',
-    rating: 4.9,
-    reviews: 128,
-    startLocation: 'San Francisco, CA',
-    endLocation: 'Los Angeles, CA',
-    highlights: [
-      'Big Sur coastal views',
-      'Bixby Creek Bridge photo stop',
-      'Carmel-by-the-Sea exploration',
-      'Santa Barbara wine country',
-      '17-Mile Drive through Pebble Beach'
-    ],
-    included: [
-      'Premium convertible rental',
-      'Curated route with GPS',
-      'Hotel recommendations',
-      '24/7 roadside assistance',
-      'Fuel card ($200 value)'
-    ],
-    itinerary: [
-      { day: 1, title: 'San Francisco to Monterey', description: 'Pick up your convertible and head south along the coast to Monterey.' },
-      { day: 2, title: 'Monterey to Big Sur', description: 'Drive the iconic stretch of Highway 1 through Big Sur.' },
-      { day: 3, title: 'Big Sur to San Simeon', description: 'Visit Hearst Castle and enjoy elephant seal viewing.' },
-      { day: 4, title: 'San Simeon to Santa Barbara', description: 'Continue south through wine country.' },
-      { day: 5, title: 'Santa Barbara to Los Angeles', description: 'Final leg through Malibu to LA.' }
-    ]
-  },
-  {
-    id: '2',
-    image: tripRocky,
-    title: 'Rocky Mountain Escape',
-    days: 3,
-    miles: 420,
-    description: 'Drive through the majestic peaks and serene lakes of the Rockies.',
-    fullDescription: 'Discover the majesty of the Rocky Mountains on this 3-day adventure. Navigate winding mountain roads, pristine alpine lakes, and breathtaking summit views. This trip offers the perfect blend of adventure and tranquility in one of America\'s most iconic landscapes.',
-    price: 350,
-    rating: 4.8,
-    reviews: 89,
-    startLocation: 'Denver, CO',
-    endLocation: 'Denver, CO',
-    highlights: [
-      'Trail Ridge Road',
-      'Rocky Mountain National Park',
-      'Estes Park town visit',
-      'Bear Lake scenic area',
-      'Continental Divide crossing'
-    ],
-    included: [
-      'SUV or Jeep rental',
-      'National Park pass',
-      'Curated mountain route',
-      '24/7 roadside assistance',
-      'Picnic essentials kit'
-    ],
-    itinerary: [
-      { day: 1, title: 'Denver to Estes Park', description: 'Pick up your vehicle and head into the mountains.' },
-      { day: 2, title: 'Rocky Mountain National Park', description: 'Full day exploring Trail Ridge Road and alpine lakes.' },
-      { day: 3, title: 'Return to Denver', description: 'Scenic return route through Boulder.' }
-    ]
-  },
-  {
-    id: '3',
-    image: tripDesert,
-    title: 'Desert Safari Route',
-    days: 2,
-    miles: 280,
-    description: 'An off-road adventure through canyons and dunes in a 4x4.',
-    fullDescription: 'Experience the raw beauty of the American Southwest on this 2-day desert adventure. Navigate red rock canyons, vast dune fields, and ancient landscapes in a rugged 4x4. This trip is perfect for those seeking adventure off the beaten path.',
-    price: 280,
-    rating: 4.7,
-    reviews: 56,
-    startLocation: 'Phoenix, AZ',
-    endLocation: 'Phoenix, AZ',
-    highlights: [
-      'Sonoran Desert exploration',
-      'Red rock canyon drives',
-      'Desert sunset photography',
-      'Stargazing experience',
-      'Off-road trail navigation'
-    ],
-    included: [
-      '4x4 Jeep Wrangler rental',
-      'Off-road trail maps',
-      'Camping gear (optional)',
-      '24/7 roadside assistance',
-      'Cooler with refreshments'
-    ],
-    itinerary: [
-      { day: 1, title: 'Phoenix to Desert Camp', description: 'Pick up your 4x4 and head into the Sonoran Desert.' },
-      { day: 2, title: 'Canyon Exploration & Return', description: 'Morning canyon drive before returning to Phoenix.' }
-    ]
-  }
-];
+type Tour = {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  duration_type: string;
+  duration_days: number;
+  duration_label: string | null;
+  main_image: string | null;
+  gallery_images: string[] | null;
+  is_active: boolean | null;
+  is_featured: boolean | null;
+  destinations: string[] | null;
+  route_type: string;
+  route_details: string | null;
+  start_location: string | null;
+  end_location: string | null;
+  base_price: number;
+  price_per_person: boolean | null;
+  pricing_tiers: any;
+  additional_fees: any;
+  included_services: any;
+  max_participants: number | null;
+  advance_booking_days: number | null;
+  display_order: number | null;
+  rating: number | null;
+  reviews_count: number | null;
+};
 
 const TripDetail = () => {
   const { id } = useParams();
-  const trip = tripsData.find(t => t.id === id);
 
-  if (!trip) {
+  const { data: tour, isLoading, error } = useQuery({
+    queryKey: ['tour', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tours')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data as Tour;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch itinerary
+  const { data: itinerary } = useQuery({
+    queryKey: ['tour-itinerary', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tour_itinerary')
+        .select('*')
+        .eq('tour_id', id)
+        .order('day_number', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch highlights
+  const { data: highlights } = useQuery({
+    queryKey: ['tour-highlights', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tour_highlights')
+        .select('*')
+        .eq('tour_id', id)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !tour) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -127,6 +109,9 @@ const TripDetail = () => {
       </div>
     );
   }
+
+  const includedServices = Array.isArray(tour.included_services) ? tour.included_services : [];
+  const tourHighlights = highlights?.map(h => h.highlight) || tour.destinations || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,14 +129,20 @@ const TripDetail = () => {
 
         {/* Hero Image */}
         <div className="relative rounded-2xl overflow-hidden mb-8 aspect-[21/9]">
-          <img 
-            src={trip.image} 
-            alt={trip.title}
-            className="w-full h-full object-cover"
-          />
-          {trip.badge && (
+          {tour.main_image ? (
+            <img 
+              src={tour.main_image} 
+              alt={tour.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <MapPin className="w-16 h-16 text-muted-foreground" />
+            </div>
+          )}
+          {tour.is_featured && (
             <div className="absolute top-4 left-4 px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg uppercase tracking-wide">
-              {trip.badge}
+              Featured
             </div>
           )}
         </div>
@@ -161,79 +152,92 @@ const TripDetail = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Title & Quick Info */}
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{trip.title}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{tour.name}</h1>
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">
                   <Clock className="w-5 h-5" />
-                  <span>{trip.days} Days</span>
+                  <span>{tour.duration_label || `${tour.duration_days} Days`}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <MapPin className="w-5 h-5" />
-                  <span>{trip.miles} miles</span>
+                  <span>{tour.destinations?.length || 0} destinations</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                  <span className="text-foreground font-medium">{trip.rating}</span>
-                  <span>({trip.reviews} reviews)</span>
-                </div>
+                {tour.rating && (
+                  <div className="flex items-center gap-1">
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <span className="text-foreground font-medium">{tour.rating}</span>
+                    <span>({tour.reviews_count} reviews)</span>
+                  </div>
+                )}
               </div>
-              <p className="text-lg text-muted-foreground leading-relaxed">{trip.fullDescription}</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">{tour.description}</p>
             </div>
 
             {/* Route Info */}
-            <div className="bg-secondary/50 rounded-xl p-6">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Car className="w-5 h-5 text-primary" />
-                Route Details
-              </h3>
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Start</p>
-                  <p className="font-medium text-foreground">{trip.startLocation}</p>
+            {(tour.start_location || tour.end_location) && (
+              <div className="bg-secondary/50 rounded-xl p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Car className="w-5 h-5 text-primary" />
+                  Route Details
+                </h3>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">Start</p>
+                    <p className="font-medium text-foreground">{tour.start_location}</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">End</p>
+                    <p className="font-medium text-foreground">{tour.end_location}</p>
+                  </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">End</p>
-                  <p className="font-medium text-foreground">{trip.endLocation}</p>
-                </div>
+                {tour.route_details && (
+                  <p className="text-sm text-muted-foreground mt-4">{tour.route_details}</p>
+                )}
               </div>
-            </div>
+            )}
 
             {/* Highlights */}
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Trip Highlights</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {trip.highlights.map((highlight, index) => (
-                  <div key={index} className="flex items-center gap-3 bg-card p-3 rounded-lg">
-                    <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-foreground">{highlight}</span>
-                  </div>
-                ))}
+            {tourHighlights.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-foreground mb-4">Trip Highlights</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {tourHighlights.map((highlight, index) => (
+                    <div key={index} className="flex items-center gap-3 bg-card p-3 rounded-lg">
+                      <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span className="text-foreground">{highlight}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Itinerary */}
-            <div>
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                Day-by-Day Itinerary
-              </h3>
-              <div className="space-y-4">
-                {trip.itinerary.map((day, index) => (
-                  <div 
-                    key={index}
-                    className="relative pl-8 pb-4 border-l-2 border-primary/30 last:border-transparent last:pb-0"
-                  >
-                    <div className="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 rounded-full bg-primary" />
-                    <div className="bg-card rounded-lg p-4 shadow-sm">
-                      <p className="text-sm text-primary font-medium mb-1">Day {day.day}</p>
-                      <h4 className="font-semibold text-foreground mb-2">{day.title}</h4>
-                      <p className="text-muted-foreground text-sm">{day.description}</p>
+            {itinerary && itinerary.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  Day-by-Day Itinerary
+                </h3>
+                <div className="space-y-4">
+                  {itinerary.map((day, index) => (
+                    <div 
+                      key={day.id}
+                      className="relative pl-8 pb-4 border-l-2 border-primary/30 last:border-transparent last:pb-0"
+                    >
+                      <div className="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 rounded-full bg-primary" />
+                      <div className="bg-card rounded-lg p-4 shadow-sm">
+                        <p className="text-sm text-primary font-medium mb-1">Day {day.day_number}</p>
+                        <h4 className="font-semibold text-foreground mb-2">{day.title}</h4>
+                        {day.description && (
+                          <p className="text-muted-foreground text-sm">{day.description}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Booking Sidebar */}
@@ -242,34 +246,40 @@ const TripDetail = () => {
               <div className="mb-6">
                 <p className="text-muted-foreground text-sm">Starting from</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-primary">${trip.price}</span>
-                  <span className="text-muted-foreground">/person</span>
+                  <span className="text-3xl font-bold text-primary">${tour.base_price}</span>
+                  <span className="text-muted-foreground">
+                    {tour.price_per_person ? '/person' : '/trip'}
+                  </span>
                 </div>
               </div>
 
               {/* What's Included */}
-              <div className="mb-6">
-                <h4 className="font-semibold text-foreground mb-3">What's Included</h4>
-                <ul className="space-y-2">
-                  {trip.included.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {includedServices.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-foreground mb-3">What's Included</h4>
+                  <ul className="space-y-2">
+                    {includedServices.map((item: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* Group Size */}
-              <div className="flex items-center gap-3 mb-6 p-3 bg-secondary/50 rounded-lg">
-                <Users className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">Group Size</p>
-                  <p className="text-xs text-muted-foreground">1-4 travelers per vehicle</p>
+              {tour.max_participants && (
+                <div className="flex items-center gap-3 mb-6 p-3 bg-secondary/50 rounded-lg">
+                  <Users className="w-5 h-5 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Group Size</p>
+                    <p className="text-xs text-muted-foreground">Up to {tour.max_participants} travelers</p>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <Link to={`/checkout?trip=${trip.id}&total=${trip.price}`}>
+              <Link to={`/checkout?tour=${tour.id}&tourName=${encodeURIComponent(tour.name)}&total=${tour.base_price}`}>
                 <Button className="w-full h-14 text-lg font-semibold">
                   Book This Trip
                 </Button>
