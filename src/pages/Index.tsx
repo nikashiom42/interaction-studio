@@ -5,6 +5,7 @@ import PopularCars from '@/components/PopularCars';
 import CuratedRoadtrips from '@/components/CuratedRoadtrips';
 import HowItWorks from '@/components/HowItWorks';
 import Testimonials from '@/components/Testimonials';
+import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -18,6 +19,7 @@ const Index = () => {
         <CuratedRoadtrips />
         <HowItWorks />
         <Testimonials />
+        <FAQ />
       </main>
       <Footer />
     </div>
