@@ -27,8 +27,8 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// PayPal configuration - Replace with your Client ID
-const PAYPAL_CLIENT_ID = "test"; // TODO: Add your PayPal Client ID
+// PayPal configuration
+const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
