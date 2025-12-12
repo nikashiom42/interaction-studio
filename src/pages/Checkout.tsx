@@ -3,8 +3,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { 
   ChevronRight, Calendar, MapPin, Clock, Edit2, Trash2, Check, 
-  Lock, ThumbsUp, Shield, CreditCard, ChevronDown, Loader2
+  Lock, ThumbsUp, Shield, ChevronDown, Loader2
 } from 'lucide-react';
+import PayPalButton from '@/components/PayPalButton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -138,12 +139,31 @@ const Checkout = () => {
     },
   });
 
-  const handleComplete = () => {
+  const handlePayPalSuccess = (details: any) => {
     setIsProcessing(true);
-    // Simulate payment processing delay for demo
-    setTimeout(() => {
-      createBookingMutation.mutate();
-    }, 1500);
+    createBookingMutation.mutate();
+  };
+
+  const handlePayPalError = (error: any) => {
+    toast({ 
+      title: 'Payment failed', 
+      description: 'Please try again or use a different payment method.',
+      variant: 'destructive' 
+    });
+    setIsProcessing(false);
+  };
+
+  const handlePayAtPickup = () => {
+    if (!acceptTerms) {
+      toast({ 
+        title: 'Please accept terms', 
+        description: 'You must accept the terms and conditions to continue.',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    setIsProcessing(true);
+    createBookingMutation.mutate();
   };
 
   const steps = [
@@ -380,39 +400,13 @@ const Checkout = () => {
                 <h2 className="font-semibold text-foreground">Payment Method</h2>
               </div>
 
-              {/* Demo Payment Notice */}
-              <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-4">
-                <p className="text-sm text-warning font-medium">🧪 Demo Mode</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  This is a demo payment. No real payment will be processed. Click "Complete Booking" to test the full flow.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 mb-4">
-                <CreditCard className="w-5 h-5 text-primary" />
-                <span className="font-medium text-primary">Demo Payment</span>
-              </div>
-
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                 <Lock className="w-4 h-4 text-success" />
                 <span>All transactions are secure and encrypted.</span>
-                <div className="flex gap-1 ml-auto">
-                  <div className="w-8 h-5 bg-muted rounded" />
-                  <div className="w-8 h-5 bg-muted rounded" />
-                  <div className="w-8 h-5 bg-muted rounded" />
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-primary to-primary/80 rounded-lg p-4 text-center mb-4">
-                <span className="text-primary-foreground font-bold text-xl">Demo Payment</span>
-                <p className="text-primary-foreground/80 text-sm mt-1">No card required</p>
               </div>
 
               {/* Trust badges */}
-              <div className="flex items-center justify-center gap-6 py-4 border-t border-b border-border my-4 text-sm text-muted-foreground">
-                <span className="text-center">Book with confidence.</span>
-              </div>
-              <div className="flex items-center justify-center gap-8 text-xs text-muted-foreground">
+              <div className="flex items-center justify-center gap-8 text-xs text-muted-foreground py-4 border-t border-b border-border mb-6">
                 <div className="flex flex-col items-center gap-1">
                   <ThumbsUp className="w-5 h-5" />
                   <span>Best Price</span>
@@ -428,7 +422,7 @@ const Checkout = () => {
               </div>
 
               {/* Terms */}
-              <label className="flex items-start gap-3 cursor-pointer group mt-6">
+              <label className="flex items-start gap-3 cursor-pointer group mb-6">
                 <input
                   type="checkbox"
                   checked={acceptTerms}
@@ -440,25 +434,49 @@ const Checkout = () => {
                 </span>
               </label>
 
-              {/* Submit */}
-              <button
-                onClick={handleComplete}
-                disabled={!acceptTerms || isProcessing}
-                className={`w-full mt-6 py-4 rounded-lg font-semibold text-lg transition-all btn-scale flex items-center justify-center gap-2 ${
-                  acceptTerms && !isProcessing
-                    ? 'bg-primary text-primary-foreground hover:bg-coral-hover shadow-button'
-                    : 'bg-muted text-muted-foreground cursor-not-allowed'
-                }`}
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Processing Payment...
-                  </>
-                ) : (
-                  <>Complete Booking {paymentAmounts.deposit > 0 ? `• Pay ${formatPrice(paymentAmounts.deposit)}` : ''}</>
-                )}
-              </button>
+              {/* PayPal or Pay at Pickup */}
+              {paymentSchedule === 'pickup' ? (
+                <button
+                  onClick={handlePayAtPickup}
+                  disabled={!acceptTerms || isProcessing}
+                  className={`w-full py-4 rounded-lg font-semibold text-lg transition-all btn-scale flex items-center justify-center gap-2 ${
+                    acceptTerms && !isProcessing
+                      ? 'bg-primary text-primary-foreground hover:bg-coral-hover shadow-button'
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                  }`}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>Confirm Booking • Pay at Pickup</>
+                  )}
+                </button>
+              ) : (
+                <div className={`${!acceptTerms ? 'opacity-50 pointer-events-none' : ''}`}>
+                  {isProcessing ? (
+                    <div className="flex items-center justify-center gap-2 py-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                      <span className="text-muted-foreground">Processing payment...</span>
+                    </div>
+                  ) : (
+                    <PayPalButton
+                      amount={paymentAmounts.deposit.toFixed(2)}
+                      currency="USD"
+                      onSuccess={handlePayPalSuccess}
+                      onError={handlePayPalError}
+                      onCancel={() => toast({ title: 'Payment cancelled' })}
+                    />
+                  )}
+                  {!acceptTerms && (
+                    <p className="text-sm text-muted-foreground text-center mt-2">
+                      Please accept the terms and conditions to continue
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
                 <Lock className="w-4 h-4" />
