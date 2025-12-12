@@ -33,6 +33,7 @@ const Checkout = () => {
   const { user } = useAuth();
   
   const carId = searchParams.get('carId');
+  const tourId = searchParams.get('tourId');
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const withDriver = searchParams.get('withDriver') === 'true';
@@ -41,6 +42,7 @@ const Checkout = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [createAccount, setCreateAccount] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paypalTransactionId, setPaypalTransactionId] = useState<string | null>(null);
 
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -98,22 +100,37 @@ const Checkout = () => {
 
   // Create booking mutation
   const createBookingMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (transactionId?: string) => {
+      // Determine payment status based on payment option and whether payment was made
+      let paymentStatus = 'pending';
+      if (paymentSchedule === 'pickup') {
+        paymentStatus = 'pending'; // Will pay at pickup
+      } else if (paymentSchedule === 'deposit') {
+        paymentStatus = 'partially_paid'; // 20% paid
+      } else if (paymentSchedule === 'full') {
+        paymentStatus = 'paid'; // Full amount paid
+      }
+
       const bookingData = {
         car_id: carId || null,
+        tour_id: tourId || null,
+        booking_type: tourId ? 'tour' : 'car',
         user_id: user?.id || null,
         start_date: startDate || format(new Date(), 'yyyy-MM-dd'),
         end_date: endDate || format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
         with_driver: withDriver,
         total_price: totalPrice,
-        status: 'pending' as const,
-        customer_name: `${firstName} ${lastName}`.trim() || 'Demo Customer',
-        customer_email: email || user?.email || 'demo@example.com',
-        customer_phone: `${countryCode} ${phone}` || '+1 555-0123',
+        status: 'confirmed' as const,
+        customer_name: `${firstName} ${lastName}`.trim() || 'Customer',
+        customer_email: email || user?.email || '',
+        customer_phone: `${countryCode} ${phone}` || '',
         payment_option: paymentSchedule,
+        payment_status: paymentStatus,
         deposit_amount: paymentAmounts.deposit,
         remaining_balance: paymentAmounts.remaining,
-        notes: `Demo booking - Self-drive`,
+        payment_transaction_id: transactionId || null,
+        payment_date: transactionId ? new Date().toISOString() : null,
+        notes: tourId ? 'Tour booking' : 'Car rental booking',
       };
 
       const { data, error } = await supabase
@@ -126,7 +143,7 @@ const Checkout = () => {
       return data;
     },
     onSuccess: (data) => {
-      toast({ title: 'Booking created successfully!' });
+      toast({ title: 'Booking confirmed successfully!' });
       navigate(`/booking-success?bookingId=${data.id}`);
     },
     onError: (error) => {
@@ -141,7 +158,9 @@ const Checkout = () => {
 
   const handlePayPalSuccess = (details: any) => {
     setIsProcessing(true);
-    createBookingMutation.mutate();
+    const transactionId = details?.id || details?.purchase_units?.[0]?.payments?.captures?.[0]?.id;
+    setPaypalTransactionId(transactionId);
+    createBookingMutation.mutate(transactionId);
   };
 
   const handlePayPalError = (error: any) => {
@@ -163,7 +182,7 @@ const Checkout = () => {
       return;
     }
     setIsProcessing(true);
-    createBookingMutation.mutate();
+    createBookingMutation.mutate(undefined);
   };
 
   const steps = [
