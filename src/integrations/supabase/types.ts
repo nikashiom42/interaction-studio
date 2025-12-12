@@ -17,6 +17,7 @@ export type Database = {
       bookings: {
         Row: {
           admin_notes: string | null
+          booking_type: string | null
           car_id: string | null
           confirmation_date: string | null
           created_at: string
@@ -38,12 +39,14 @@ export type Database = {
           start_date: string
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number
+          tour_id: string | null
           updated_at: string
           user_id: string | null
           with_driver: boolean | null
         }
         Insert: {
           admin_notes?: string | null
+          booking_type?: string | null
           car_id?: string | null
           confirmation_date?: string | null
           created_at?: string
@@ -65,12 +68,14 @@ export type Database = {
           start_date: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_price: number
+          tour_id?: string | null
           updated_at?: string
           user_id?: string | null
           with_driver?: boolean | null
         }
         Update: {
           admin_notes?: string | null
+          booking_type?: string | null
           car_id?: string | null
           confirmation_date?: string | null
           created_at?: string
@@ -92,6 +97,7 @@ export type Database = {
           start_date?: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number
+          tour_id?: string | null
           updated_at?: string
           user_id?: string | null
           with_driver?: boolean | null
@@ -116,6 +122,13 @@ export type Database = {
             columns: ["pickup_location_id"]
             isOneToOne: false
             referencedRelation: "pickup_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
             referencedColumns: ["id"]
           },
         ]
