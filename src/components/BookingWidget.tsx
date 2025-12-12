@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, Users, Lock, Minus, Plus, ChevronDown } from 'lucide-react';
+import { Calendar, MapPin, Lock, ChevronDown } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,6 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
   const [driveType, setDriveType] = useState<'self' | 'driver'>('self');
-  const [passengers, setPassengers] = useState(2);
   const [pickupOpen, setPickupOpen] = useState(false);
   const [dropoffOpen, setDropoffOpen] = useState(false);
 
@@ -181,28 +180,6 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
         </button>
       </div>
 
-      {/* Passengers */}
-      <div className="flex items-center justify-between p-3 border border-border rounded-lg mb-6">
-        <div className="flex items-center gap-3">
-          <Users className="w-5 h-5 text-muted-foreground" />
-          <span className="text-foreground">Passengers</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setPassengers(Math.max(1, passengers - 1))}
-            className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors btn-scale"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <span className="w-6 text-center font-medium text-foreground">{passengers}</span>
-          <button
-            onClick={() => setPassengers(Math.min(7, passengers + 1))}
-            className="w-8 h-8 rounded-full border border-primary bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors btn-scale"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
 
       {/* Price Breakdown */}
       <div className="space-y-3 mb-6 pb-6 border-b border-border">
