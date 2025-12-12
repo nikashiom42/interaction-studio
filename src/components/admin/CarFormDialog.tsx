@@ -76,7 +76,6 @@ const carFormSchema = z.object({
   seats: z.coerce.number().min(1).max(20),
   transmission: z.enum(['manual', 'automatic']),
   fuel_type: z.enum(['petrol', 'diesel', 'electric', 'hybrid']),
-  engine_volume: z.string().max(20).optional().nullable(),
   price_per_day: z.coerce.number().min(0),
   price_with_driver: z.coerce.number().min(0).optional().nullable(),
   features: z.array(z.string()).optional(),
@@ -110,7 +109,6 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       seats: 5,
       transmission: 'automatic',
       fuel_type: 'petrol',
-      engine_volume: '',
       price_per_day: 0,
       price_with_driver: null,
       features: [],
@@ -130,7 +128,6 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         seats: car.seats,
         transmission: car.transmission,
         fuel_type: car.fuel_type,
-        engine_volume: car.engine_volume || '',
         price_per_day: Number(car.price_per_day),
         price_with_driver: car.price_with_driver ? Number(car.price_with_driver) : null,
         features,
@@ -148,7 +145,6 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         seats: 5,
         transmission: 'automatic',
         fuel_type: 'petrol',
-        engine_volume: '',
         price_per_day: 0,
         price_with_driver: null,
         features: [],
@@ -170,7 +166,6 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         seats: values.seats,
         transmission: values.transmission,
         fuel_type: values.fuel_type,
-        engine_volume: values.engine_volume || null,
         price_per_day: values.price_per_day,
         price_with_driver: values.price_with_driver || null,
         features: values.features || [],
@@ -289,7 +284,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="transmission"
@@ -334,19 +329,6 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="engine_volume"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Engine Volume</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., 2.0L" {...field} value={field.value || ''} />
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

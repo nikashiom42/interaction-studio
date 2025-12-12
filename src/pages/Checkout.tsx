@@ -40,7 +40,6 @@ const Checkout = () => {
   
   const [paymentSchedule, setPaymentSchedule] = useState<PaymentOption>('full');
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [createAccount, setCreateAccount] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paypalTransactionId, setPaypalTransactionId] = useState<string | null>(null);
 
@@ -97,6 +96,7 @@ const Checkout = () => {
   };
 
   const paymentAmounts = getPaymentAmounts();
+  const canComplete = !!user && !!firstName.trim() && !!lastName.trim() && !!(email.trim() || user?.email) && !!phone.trim() && acceptTerms && !isProcessing;
 
   // Create booking mutation
   const createBookingMutation = useMutation({
@@ -110,27 +110,29 @@ const Checkout = () => {
       } else if (paymentSchedule === 'full') {
         paymentStatus = 'paid'; // Full amount paid
       }
+      
+      const bookingStatus = transactionId ? 'confirmed' : 'pending';
 
       const bookingData = {
         car_id: carId || null,
         tour_id: tourId || null,
         booking_type: tourId ? 'tour' : 'car',
-        user_id: user?.id || null,
+        user_id: user!.id,
         start_date: startDate || format(new Date(), 'yyyy-MM-dd'),
         end_date: endDate || format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
         with_driver: withDriver,
         total_price: totalPrice,
-        status: 'confirmed' as const,
-        customer_name: `${firstName} ${lastName}`.trim() || 'Customer',
-        customer_email: email || user?.email || '',
-        customer_phone: `${countryCode} ${phone}` || '',
+        status: bookingStatus,
+        customer_name: `${firstName} ${lastName}`.trim(),
+        customer_email: email || user?.email,
+        customer_phone: `${countryCode} ${phone}`.trim(),
         payment_option: paymentSchedule,
         payment_status: paymentStatus,
         deposit_amount: paymentAmounts.deposit,
         remaining_balance: paymentAmounts.remaining,
         payment_transaction_id: transactionId || null,
         payment_date: transactionId ? new Date().toISOString() : null,
-        notes: tourId ? 'Tour booking' : 'Car rental booking',
+        notes: tourId ? 'Tour booking' : (withDriver ? 'Booking - With driver' : 'Booking - Self-drive'),
       };
 
       const { data, error } = await supabase
@@ -156,14 +158,16 @@ const Checkout = () => {
     },
   });
 
-  const handlePayPalSuccess = (details: any) => {
+  const handlePayPalSuccess = (details: unknown) => {
     setIsProcessing(true);
-    const transactionId = details?.id || details?.purchase_units?.[0]?.payments?.captures?.[0]?.id;
+    const transactionId = typeof details === 'object' && details !== null && 'id' in details
+      ? String((details as { id: unknown }).id)
+      : undefined;
     setPaypalTransactionId(transactionId);
     createBookingMutation.mutate(transactionId);
   };
 
-  const handlePayPalError = (error: any) => {
+  const handlePayPalError = (error: unknown) => {
     toast({ 
       title: 'Payment failed', 
       description: 'Please try again or use a different payment method.',
@@ -188,10 +192,10 @@ const Checkout = () => {
   // Validation for personal details
   const isPersonalDetailsValid = firstName.trim() !== '' && 
     lastName.trim() !== '' && 
-    email.trim() !== '' && 
+    (email.trim() !== '' || !!user?.email) && 
     phone.trim() !== '';
 
-  const canProceedToPayment = isPersonalDetailsValid && acceptTerms;
+  const canProceedToPayment = canComplete;
 
   const steps = [
     { label: 'Cart', active: true, completed: true },
@@ -406,18 +410,6 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={createAccount}
-                  onChange={(e) => setCreateAccount(e.target.checked)}
-                  className="w-5 h-5 rounded border-border text-primary focus:ring-primary mt-0.5"
-                />
-                <div>
-                  <span className="font-medium text-foreground group-hover:text-primary transition-colors">Create an account for faster booking</span>
-                  <p className="text-sm text-muted-foreground">Save your details for future rentals and get access to exclusive deals.</p>
-                </div>
-              </label>
             </section>
 
             {/* Payment Method */}
@@ -460,6 +452,11 @@ const Checkout = () => {
                   I accept the <a href="#" className="text-primary hover:underline">Terms and Conditions</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>. I acknowledge that I will pay the total amount shown.
                 </span>
               </label>
+              {!user && (
+                <p className="text-sm text-muted-foreground mt-4">
+                  Please <Link to="/auth" className="text-primary hover:underline">sign in</Link> to complete your booking.
+                </p>
+              )}
 
               {/* PayPal or Pay at Pickup */}
               {paymentSchedule === 'pickup' ? (

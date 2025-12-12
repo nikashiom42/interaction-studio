@@ -64,6 +64,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
+import type { DateRange } from 'react-day-picker';
 
 type CarInfo = {
   id: string;
@@ -102,7 +103,7 @@ export default function BookingsManagement() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -126,11 +127,11 @@ export default function BookingsManagement() {
         query = query.eq('status', statusFilter as BookingStatus);
       }
 
-      if (dateRange.from) {
+      if (dateRange?.from) {
         query = query.gte('start_date', format(dateRange.from, 'yyyy-MM-dd'));
       }
 
-      if (dateRange.to) {
+      if (dateRange?.to) {
         query = query.lte('end_date', format(dateRange.to, 'yyyy-MM-dd'));
       }
 
@@ -239,7 +240,7 @@ export default function BookingsManagement() {
 
   const handleAddNotes = (booking: Booking) => {
     setSelectedBooking(booking);
-    setAdminNotes((booking as any).admin_notes || '');
+    setAdminNotes(booking.admin_notes || '');
     setIsNotesOpen(true);
   };
 
@@ -369,20 +370,20 @@ export default function BookingsManagement() {
               <PopoverContent className="w-auto p-0" align="end">
                 <Calendar
                   mode="range"
-                  selected={dateRange as any}
+                  selected={dateRange}
                   onSelect={(range) => {
-                    setDateRange({ from: range?.from, to: range?.to });
+                    setDateRange(range);
                     setCurrentPage(1);
                   }}
                   numberOfMonths={2}
                   className="pointer-events-auto"
                 />
-                {dateRange.from && (
+                {dateRange?.from && (
                   <div className="p-3 border-t">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setDateRange({})}
+                      onClick={() => setDateRange(undefined)}
                       className="w-full"
                     >
                       Clear dates
@@ -751,14 +752,14 @@ export default function BookingsManagement() {
               )}
 
               {/* Admin Notes */}
-              {(selectedBooking as any).admin_notes && (
+              {selectedBooking.admin_notes && (
                 <div className="space-y-3">
                   <h4 className="font-semibold flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
                     Admin Notes
                   </h4>
                   <p className="text-sm bg-muted/50 p-3 rounded-lg pl-6">
-                    {(selectedBooking as any).admin_notes}
+                    {selectedBooking.admin_notes}
                   </p>
                 </div>
               )}

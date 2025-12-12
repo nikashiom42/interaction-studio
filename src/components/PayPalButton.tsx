@@ -4,8 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface PayPalButtonProps {
   amount: string;
   currency?: string;
-  onSuccess?: (details: any) => void;
-  onError?: (error: any) => void;
+  onSuccess?: (details: unknown) => void;
+  onError?: (error: unknown) => void;
   onCancel?: () => void;
 }
 
@@ -54,12 +54,12 @@ const PayPalButton = ({
       onApprove={async (data, actions) => {
         if (actions.order) {
           const details = await actions.order.capture();
-          onSuccess?.(details);
+          onSuccess?.(details as unknown);
         }
       }}
       onError={(err) => {
         console.error("PayPal error:", err);
-        onError?.(err);
+        onError?.(err as unknown);
       }}
       onCancel={() => {
         onCancel?.();

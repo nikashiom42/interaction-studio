@@ -39,7 +39,6 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
     seats: 5,
     transmission: 'automatic',
     fuel_type: 'petrol',
-    engine_volume: '3.0L',
     price_per_day: 150,
     price_with_driver: 220,
     features: ['ac', 'gps', 'bluetooth', '4x4', 'usb_charging'],
@@ -55,7 +54,6 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
     seats: 2,
     transmission: 'automatic',
     fuel_type: 'petrol',
-    engine_volume: '6.2L',
     price_per_day: 195,
     price_with_driver: 280,
     features: ['ac', 'gps', 'bluetooth', 'usb_charging'],
@@ -71,7 +69,6 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
     seats: 5,
     transmission: 'automatic',
     fuel_type: 'petrol',
-    engine_volume: '3.0L',
     price_per_day: 210,
     price_with_driver: 300,
     features: ['ac', 'gps', 'bluetooth', 'sunroof', 'usb_charging'],
@@ -87,7 +84,6 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
     seats: 5,
     transmission: 'automatic',
     fuel_type: 'electric',
-    engine_volume: null,
     price_per_day: 85,
     price_with_driver: 150,
     features: ['ac', 'gps', 'bluetooth', 'usb_charging'],
@@ -103,7 +99,6 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
     seats: 7,
     transmission: 'automatic',
     fuel_type: 'diesel',
-    engine_volume: '3.0L',
     price_per_day: 285,
     price_with_driver: 360,
     features: ['ac', 'gps', 'bluetooth', '4x4', 'usb_charging'],
@@ -119,7 +114,6 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
     seats: 5,
     transmission: 'automatic',
     fuel_type: 'petrol',
-    engine_volume: '3.0L',
     price_per_day: 210,
     price_with_driver: 290,
     features: ['ac', 'gps', 'bluetooth', 'sunroof', 'usb_charging'],
@@ -335,7 +329,7 @@ export default function CarsManagement() {
                       <TableCell>
                         <div>
                           <div className="font-medium text-foreground">{car.brand} {car.model}</div>
-                          <div className="text-sm text-muted-foreground">{car.fuel_type} • {car.engine_volume || 'N/A'}</div>
+                          <div className="text-sm text-muted-foreground capitalize">{car.fuel_type}</div>
                         </div>
                       </TableCell>
                       <TableCell>

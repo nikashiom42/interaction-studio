@@ -25,6 +25,7 @@ const paymentStatusConfig = {
   pending: { label: 'Payment Pending', className: 'bg-warning/10 text-warning' },
   paid: { label: 'Paid', className: 'bg-success/10 text-success' },
   partial: { label: 'Partially Paid', className: 'bg-primary/10 text-primary' },
+  partially_paid: { label: 'Partially Paid', className: 'bg-primary/10 text-primary' },
   refunded: { label: 'Refunded', className: 'bg-muted text-muted-foreground' },
 };
 

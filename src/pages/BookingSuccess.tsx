@@ -65,8 +65,8 @@ const BookingSuccess = () => {
   const nextSteps = [
     {
       icon: Mail,
-      title: 'Check your email',
-      description: "We've sent your voucher and receipt. Keep them handy.",
+      title: 'Save your reference',
+      description: "Keep your reference number handy for check-in and support.",
       color: 'bg-primary/10 text-primary',
     },
     {
@@ -209,7 +209,7 @@ const BookingSuccess = () => {
 
         {/* Confirmation Email */}
         <p className="text-center text-muted-foreground mb-6 animate-fade-in" style={{ animationDelay: '200ms' }}>
-          Confirmation sent to <span className="font-medium text-foreground">
+          Booking details for <span className="font-medium text-foreground">
             {booking?.customer_email || 'demo@example.com'}
           </span>
         </p>
@@ -252,10 +252,10 @@ const BookingSuccess = () => {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{ animationDelay: '400ms' }}>
           <Link
-            to="/admin/bookings"
+            to="/dashboard"
             className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-primary text-primary-foreground rounded-lg font-semibold btn-scale hover:bg-coral-hover transition-colors shadow-button"
           >
-            View in Admin Panel
+            View in Dashboard
             <ArrowRight className="w-5 h-5" />
           </Link>
           <Link

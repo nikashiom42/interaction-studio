@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -66,7 +67,6 @@ export default function AdminLogin() {
     // Wait a moment for roles to be fetched, then check admin status
     const checkAdminRole = async () => {
       // Re-check admin status after login
-      const { supabase } = await import('@/integrations/supabase/client');
       const { data: userData } = await supabase.auth.getUser();
       const { data: roles } = await supabase
         .from('user_roles')

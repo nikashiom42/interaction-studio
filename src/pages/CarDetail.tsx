@@ -111,7 +111,6 @@ const CarDetail = () => {
     { icon: Settings, label: 'Transmission', value: car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1) },
     { icon: Users, label: 'Capacity', value: `${car.seats} People` },
     { icon: Wifi, label: 'AC', value: features.includes('ac') ? 'Yes' : 'No' },
-    { icon: Car, label: 'Engine', value: car.engine_volume || 'N/A' },
     { icon: Briefcase, label: 'GPS', value: features.includes('gps') ? 'Yes' : 'No' },
     { icon: DoorOpen, label: '4x4', value: features.includes('4x4') ? 'Yes' : 'No' },
     { icon: Wifi, label: 'Bluetooth', value: features.includes('bluetooth') ? 'Yes' : 'No' },
@@ -232,9 +231,9 @@ const CarDetail = () => {
             <section className="mb-8">
               <h2 className="text-xl font-bold text-foreground mb-3">About this car</h2>
               <p className={`text-muted-foreground leading-relaxed ${!showFullDesc ? 'line-clamp-3' : ''}`}>
-                Experience the ultimate driving experience with the {carName}. This {car.category} vehicle 
-                combines style with performance, featuring a {car.engine_volume || 'powerful'} {car.fuel_type} engine 
-                and {car.transmission} transmission. Perfect for {car.seats <= 4 ? 'couples or small groups' : 'families or groups'}, 
+                Experience the ultimate driving experience with the {carName}. This {car.category} vehicle
+                combines style with performance, featuring a powerful {car.fuel_type} engine
+                and {car.transmission} transmission. Perfect for {car.seats <= 4 ? 'couples or small groups' : 'families or groups'},
                 this car offers comfort and reliability for your journey. {features.includes('4x4') ? 'With 4x4 capability, tackle any terrain with confidence.' : ''}
               </p>
               <button
