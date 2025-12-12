@@ -185,13 +185,21 @@ const Checkout = () => {
     createBookingMutation.mutate(undefined);
   };
 
+  // Validation for personal details
+  const isPersonalDetailsValid = firstName.trim() !== '' && 
+    lastName.trim() !== '' && 
+    email.trim() !== '' && 
+    phone.trim() !== '';
+
+  const canProceedToPayment = isPersonalDetailsValid && acceptTerms;
+
   const steps = [
     { label: 'Cart', active: true, completed: true },
     { label: 'Checkout', active: true, completed: false },
     { label: 'Confirmation', active: false, completed: false },
   ];
 
-  const cartEmpty = !carId && !car;
+  const cartEmpty = !carId && !tourId && !car;
 
   if (cartEmpty && !carLoading) {
     return (
@@ -457,9 +465,9 @@ const Checkout = () => {
               {paymentSchedule === 'pickup' ? (
                 <button
                   onClick={handlePayAtPickup}
-                  disabled={!acceptTerms || isProcessing}
+                  disabled={!canProceedToPayment || isProcessing}
                   className={`w-full py-4 rounded-lg font-semibold text-lg transition-all btn-scale flex items-center justify-center gap-2 ${
-                    acceptTerms && !isProcessing
+                    canProceedToPayment && !isProcessing
                       ? 'bg-primary text-primary-foreground hover:bg-coral-hover shadow-button'
                       : 'bg-muted text-muted-foreground cursor-not-allowed'
                   }`}
@@ -474,7 +482,7 @@ const Checkout = () => {
                   )}
                 </button>
               ) : (
-                <div className={`${!acceptTerms ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className={`${!canProceedToPayment ? 'opacity-50 pointer-events-none' : ''}`}>
                   {isProcessing ? (
                     <div className="flex items-center justify-center gap-2 py-4">
                       <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -489,12 +497,19 @@ const Checkout = () => {
                       onCancel={() => toast({ title: 'Payment cancelled' })}
                     />
                   )}
-                  {!acceptTerms && (
-                    <p className="text-sm text-muted-foreground text-center mt-2">
-                      Please accept the terms and conditions to continue
-                    </p>
-                  )}
                 </div>
+              )}
+
+              {/* Validation messages */}
+              {!isPersonalDetailsValid && (
+                <p className="text-sm text-destructive text-center mt-2">
+                  Please fill in all personal details above
+                </p>
+              )}
+              {isPersonalDetailsValid && !acceptTerms && (
+                <p className="text-sm text-muted-foreground text-center mt-2">
+                  Please accept the terms and conditions to continue
+                </p>
               )}
 
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
