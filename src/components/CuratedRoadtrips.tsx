@@ -3,6 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import RoadtripCard from './RoadtripCard';
 import { Loader2, ArrowRight } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 type Tour = {
   id: string;
@@ -26,7 +33,7 @@ const CuratedRoadtrips = () => {
         .select('id, name, description, duration_days, duration_label, main_image, base_price, is_featured, destinations, rating')
         .eq('is_active', true)
         .order('display_order', { ascending: true })
-        .limit(6);
+        .limit(8);
 
       if (error) throw error;
       return data as Tour[];
@@ -64,22 +71,33 @@ const CuratedRoadtrips = () => {
           </Link>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tours.map((tour, index) => (
-            <RoadtripCard
-              key={tour.id}
-              id={tour.id}
-              image={tour.main_image || '/placeholder.svg'}
-              title={tour.name}
-              days={tour.duration_days}
-              miles={tour.destinations?.length ? tour.destinations.length * 100 : 0}
-              description={tour.description}
-              price={tour.base_price}
-              badge={tour.is_featured ? 'Featured' : undefined}
-              delay={index * 100}
-            />
-          ))}
-        </div>
+        <Carousel
+          opts={{
+            align: 'start',
+            loop: true,
+          }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-4">
+            {tours.map((tour, index) => (
+              <CarouselItem key={tour.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                <RoadtripCard
+                  id={tour.id}
+                  image={tour.main_image || '/placeholder.svg'}
+                  title={tour.name}
+                  days={tour.duration_days}
+                  miles={tour.destinations?.length ? tour.destinations.length * 100 : 0}
+                  description={tour.description}
+                  price={tour.base_price}
+                  badge={tour.is_featured ? 'Featured' : undefined}
+                  delay={index * 100}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden sm:flex -left-4 bg-background border-border hover:bg-accent" />
+          <CarouselNext className="hidden sm:flex -right-4 bg-background border-border hover:bg-accent" />
+        </Carousel>
       </div>
     </section>
   );

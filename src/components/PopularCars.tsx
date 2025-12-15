@@ -1,9 +1,16 @@
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import CarCard from './CarCard';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 type CarCategory = Database['public']['Enums']['car_category'];
 
@@ -26,7 +33,7 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
 
       const { data, error } = await query
         .order('created_at', { ascending: false })
-        .limit(4);
+        .limit(8);
 
       if (error) throw error;
       return data;
@@ -72,22 +79,34 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
           </Link>
         </div>
 
-        {/* Cars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cars.map((car, index) => (
-            <Link key={car.id} to={`/car/${car.id}`}>
-              <CarCard
-                image={car.main_image || '/placeholder.svg'}
-                name={`${car.brand} ${car.model}`}
-                type={`${car.category.charAt(0).toUpperCase() + car.category.slice(1)} • ${car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)}`}
-                rating={4.8}
-                originalPrice={Math.round(car.price_per_day * 1.2)}
-                price={car.price_per_day}
-                delay={index * 100}
-              />
-            </Link>
-          ))}
-        </div>
+        {/* Cars Carousel */}
+        <Carousel
+          opts={{
+            align: 'start',
+            loop: true,
+          }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-4">
+            {cars.map((car, index) => (
+              <CarouselItem key={car.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
+                <Link to={`/car/${car.id}`} className="block h-full">
+                  <CarCard
+                    image={car.main_image || '/placeholder.svg'}
+                    name={`${car.brand} ${car.model}`}
+                    type={`${car.category.charAt(0).toUpperCase() + car.category.slice(1)} • ${car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)}`}
+                    rating={4.8}
+                    originalPrice={Math.round(car.price_per_day * 1.2)}
+                    price={car.price_per_day}
+                    delay={index * 100}
+                  />
+                </Link>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden sm:flex -left-4 bg-background border-border hover:bg-accent" />
+          <CarouselNext className="hidden sm:flex -right-4 bg-background border-border hover:bg-accent" />
+        </Carousel>
       </div>
     </section>
   );
