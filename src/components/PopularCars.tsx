@@ -57,7 +57,7 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-foreground">Popular Cars Near You</h2>
+            <h2 className="text-2xl font-bold text-foreground">Popular Cars</h2>
           </div>
           <div className="text-center py-12 text-muted-foreground">
             No cars available in this category. Try selecting a different filter.
@@ -72,7 +72,7 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-foreground">Popular Cars Near You</h2>
+          <h2 className="text-2xl font-bold text-foreground">Popular Cars</h2>
           <Link to={`/cars${category !== 'all' ? `?category=${category}` : ''}`} className="flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all group">
             <span>View all</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
