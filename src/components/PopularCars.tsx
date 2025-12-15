@@ -3,15 +3,28 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import CarCard from './CarCard';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 
-const PopularCars = () => {
+type CarCategory = Database['public']['Enums']['car_category'];
+
+interface PopularCarsProps {
+  category?: 'all' | CarCategory;
+}
+
+const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
   const { data: cars, isLoading } = useQuery({
-    queryKey: ['popular-cars'],
+    queryKey: ['popular-cars', category],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('cars')
         .select('*')
-        .eq('is_active', true)
+        .eq('is_active', true);
+      
+      if (category !== 'all') {
+        query = query.eq('category', category);
+      }
+
+      const { data, error } = await query
         .order('created_at', { ascending: false })
         .limit(4);
 
@@ -40,7 +53,7 @@ const PopularCars = () => {
             <h2 className="text-2xl font-bold text-foreground">Popular Cars Near You</h2>
           </div>
           <div className="text-center py-12 text-muted-foreground">
-            No cars available at the moment. Check back soon!
+            No cars available in this category. Try selecting a different filter.
           </div>
         </div>
       </section>
@@ -53,7 +66,7 @@ const PopularCars = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-foreground">Popular Cars Near You</h2>
-          <Link to="/cars" className="flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all group">
+          <Link to={`/cars${category !== 'all' ? `?category=${category}` : ''}`} className="flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all group">
             <span>View all</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
