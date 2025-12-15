@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  ChevronRight, ChevronDown, ChevronUp, Star, MapPin, Share2, Users, Settings, 
+  ChevronRight, ChevronDown, ChevronUp, Star, MapPin, Users, Settings, 
   Check, Fuel, Car, Briefcase, DoorOpen, Wifi, Loader2
 } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
@@ -198,11 +198,7 @@ const CarDetail = () => {
                   alt={carName}
                   className="w-full h-full object-cover transition-opacity duration-300"
                 />
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <button className="w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors btn-scale">
-                    <Share2 className="w-5 h-5" />
-                  </button>
-                </div>
+                
                 <div className="absolute bottom-4 right-4 px-3 py-1 bg-foreground/70 backdrop-blur-sm text-background text-sm rounded-md">
                   {activeImage + 1}/{images.length} Photos
                 </div>
