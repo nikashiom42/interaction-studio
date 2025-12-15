@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { 
-  ChevronRight, Calendar, MapPin, Clock, Edit2, Trash2, Check, 
+import {
+  ChevronRight, Calendar, MapPin, Clock, Edit2, Trash2, Check,
   Lock, ThumbsUp, Shield, ChevronDown, Loader2
 } from 'lucide-react';
-import PayPalButton from '@/components/PayPalButton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,23 +24,22 @@ const recentCars = [
   { id: 3, name: 'Ford Mustang', type: 'Convertible • Automatic', price: 95, image: carCorvette },
 ];
 
-type PaymentOption = 'full' | 'deposit' | 'pickup';
+type PaymentOption = 'deposit' | 'pickup';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  
+
   const carId = searchParams.get('carId');
   const tourId = searchParams.get('tourId');
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const withDriver = searchParams.get('withDriver') === 'true';
-  
-  const [paymentSchedule, setPaymentSchedule] = useState<PaymentOption>('full');
+
+  const [paymentSchedule, setPaymentSchedule] = useState<PaymentOption>('pickup');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paypalTransactionId, setPaypalTransactionId] = useState<string | null>(null);
 
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -84,14 +82,12 @@ const Checkout = () => {
   // Calculate payment amounts based on option
   const getPaymentAmounts = () => {
     switch (paymentSchedule) {
-      case 'full':
-        return { deposit: totalPrice, remaining: 0 };
       case 'deposit':
-        return { deposit: totalPrice * 0.2, remaining: totalPrice * 0.8 };
+        return { deposit: totalPrice * 0.15, remaining: totalPrice * 0.85 };
       case 'pickup':
         return { deposit: 0, remaining: totalPrice };
       default:
-        return { deposit: totalPrice, remaining: 0 };
+        return { deposit: 0, remaining: totalPrice };
     }
   };
 
@@ -100,18 +96,10 @@ const Checkout = () => {
 
   // Create booking mutation
   const createBookingMutation = useMutation({
-    mutationFn: async (transactionId?: string) => {
-      // Determine payment status based on payment option and whether payment was made
-      let paymentStatus = 'pending';
-      if (paymentSchedule === 'pickup') {
-        paymentStatus = 'pending'; // Will pay at pickup
-      } else if (paymentSchedule === 'deposit') {
-        paymentStatus = 'partially_paid'; // 20% paid
-      } else if (paymentSchedule === 'full') {
-        paymentStatus = 'paid'; // Full amount paid
-      }
-      
-      const bookingStatus = transactionId ? 'confirmed' : 'pending';
+    mutationFn: async () => {
+      // Both options are pay on spot - payment status is pending until paid at location
+      const paymentStatus = 'pending';
+      const bookingStatus = 'confirmed';
 
       const bookingData = {
         car_id: carId || null,
@@ -130,8 +118,8 @@ const Checkout = () => {
         payment_status: paymentStatus,
         deposit_amount: paymentAmounts.deposit,
         remaining_balance: paymentAmounts.remaining,
-        payment_transaction_id: transactionId || null,
-        payment_date: transactionId ? new Date().toISOString() : null,
+        payment_transaction_id: null,
+        payment_date: null,
         notes: tourId ? 'Tour booking' : (withDriver ? 'Booking - With driver' : 'Booking - Self-drive'),
       };
 
@@ -158,35 +146,17 @@ const Checkout = () => {
     },
   });
 
-  const handlePayPalSuccess = (details: unknown) => {
-    setIsProcessing(true);
-    const transactionId = typeof details === 'object' && details !== null && 'id' in details
-      ? String((details as { id: unknown }).id)
-      : undefined;
-    setPaypalTransactionId(transactionId);
-    createBookingMutation.mutate(transactionId);
-  };
-
-  const handlePayPalError = (error: unknown) => {
-    toast({ 
-      title: 'Payment failed', 
-      description: 'Please try again or use a different payment method.',
-      variant: 'destructive' 
-    });
-    setIsProcessing(false);
-  };
-
-  const handlePayAtPickup = () => {
+  const handleConfirmBooking = () => {
     if (!acceptTerms) {
-      toast({ 
-        title: 'Please accept terms', 
+      toast({
+        title: 'Please accept terms',
         description: 'You must accept the terms and conditions to continue.',
-        variant: 'destructive' 
+        variant: 'destructive'
       });
       return;
     }
     setIsProcessing(true);
-    createBookingMutation.mutate(undefined);
+    createBookingMutation.mutate();
   };
 
   // Validation for personal details
@@ -458,44 +428,25 @@ const Checkout = () => {
                 </p>
               )}
 
-              {/* PayPal or Pay at Pickup */}
-              {paymentSchedule === 'pickup' ? (
-                <button
-                  onClick={handlePayAtPickup}
-                  disabled={!canProceedToPayment || isProcessing}
-                  className={`w-full py-4 rounded-lg font-semibold text-lg transition-all btn-scale flex items-center justify-center gap-2 ${
-                    canProceedToPayment && !isProcessing
-                      ? 'bg-primary text-primary-foreground hover:bg-coral-hover shadow-button'
-                      : 'bg-muted text-muted-foreground cursor-not-allowed'
-                  }`}
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>Confirm Booking • Pay at Pickup</>
-                  )}
-                </button>
-              ) : (
-                <div className={`${!canProceedToPayment ? 'opacity-50 pointer-events-none' : ''}`}>
-                  {isProcessing ? (
-                    <div className="flex items-center justify-center gap-2 py-4">
-                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                      <span className="text-muted-foreground">Processing payment...</span>
-                    </div>
-                  ) : (
-                    <PayPalButton
-                      amount={paymentAmounts.deposit.toFixed(2)}
-                      currency="USD"
-                      onSuccess={handlePayPalSuccess}
-                      onError={handlePayPalError}
-                      onCancel={() => toast({ title: 'Payment cancelled' })}
-                    />
-                  )}
-                </div>
-              )}
+              {/* Confirm Booking Button */}
+              <button
+                onClick={handleConfirmBooking}
+                disabled={!canProceedToPayment || isProcessing}
+                className={`w-full py-4 rounded-lg font-semibold text-lg transition-all btn-scale flex items-center justify-center gap-2 ${
+                  canProceedToPayment && !isProcessing
+                    ? 'bg-primary text-primary-foreground hover:bg-coral-hover shadow-button'
+                    : 'bg-muted text-muted-foreground cursor-not-allowed'
+                }`}
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>Confirm Booking • Pay on Spot</>
+                )}
+              </button>
 
               {/* Validation messages */}
               {!isPersonalDetailsValid && (
@@ -555,26 +506,9 @@ const Checkout = () => {
               {/* Payment Schedule */}
               <div className="bg-card rounded-xl p-6 shadow-card">
                 <h3 className="font-semibold text-foreground mb-4">Payment Options</h3>
-                
-                <div className="space-y-3">
-                  <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                    paymentSchedule === 'full' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                  }`}>
-                    <input
-                      type="radio"
-                      checked={paymentSchedule === 'full'}
-                      onChange={() => setPaymentSchedule('full')}
-                      className="w-5 h-5 text-primary focus:ring-primary mt-0.5"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-foreground">Pay Full Amount</span>
-                        <span className="text-sm font-semibold text-primary">{formatPrice(totalPrice)}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Pay the total amount now</p>
-                    </div>
-                  </label>
+                <p className="text-sm text-muted-foreground mb-4">All payments are made on the spot when you pick up your vehicle</p>
 
+                <div className="space-y-3">
                   <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                     paymentSchedule === 'deposit' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                   }`}>
@@ -586,10 +520,10 @@ const Checkout = () => {
                     />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-foreground">Pay 20% Deposit</span>
-                        <span className="text-sm font-semibold text-primary">{formatPrice(totalPrice * 0.2)}</span>
+                        <span className="font-medium text-foreground">Pay 15% in Advance</span>
+                        <span className="text-sm font-semibold text-primary">{formatPrice(totalPrice * 0.15)}</span>
                       </div>
-                      <p className="text-sm text-muted-foreground">Pay {formatPrice(totalPrice * 0.2)} now, {formatPrice(totalPrice * 0.8)} at pickup</p>
+                      <p className="text-sm text-muted-foreground">Pay {formatPrice(totalPrice * 0.15)} on spot to secure booking, {formatPrice(totalPrice * 0.85)} when picking up car</p>
                     </div>
                   </label>
 
@@ -604,10 +538,10 @@ const Checkout = () => {
                     />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-foreground">Pay at Pickup</span>
+                        <span className="font-medium text-foreground">Pay All at Pickup</span>
                         <span className="text-sm font-semibold text-muted-foreground">{CURRENCY_SYMBOL}0 now</span>
                       </div>
-                      <p className="text-sm text-muted-foreground">Pay full amount ({formatPrice(totalPrice)}) when you pickup the car</p>
+                      <p className="text-sm text-muted-foreground">Pay full amount ({formatPrice(totalPrice)}) on spot when you pick up the car</p>
                     </div>
                   </label>
                 </div>

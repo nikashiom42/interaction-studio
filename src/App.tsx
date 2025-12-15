@@ -3,7 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import CarList from "./pages/CarList";
@@ -27,17 +26,13 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// PayPal configuration
-const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/cars" element={<CarList />} />
@@ -67,7 +62,6 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
-    </PayPalScriptProvider>
   </QueryClientProvider>
 );
 
