@@ -24,7 +24,6 @@ const staticFaq = [
     question: 'Driver Requirements', 
     answer: 'Minimum age is 25 years. Driver must hold a full, valid driving license for at least 2 years. International Driving Permit (IDP) required if your license is not in English.' 
   },
-  { question: 'Security Deposit', answer: `A security deposit of ${CURRENCY_SYMBOL}500 is required upon pickup. This will be refunded within 7-14 business days after the return of the vehicle.` },
   { question: 'Mileage Policy', answer: 'Unlimited mileage is included with all rentals. No additional charges for distance traveled.' },
 ];
 
