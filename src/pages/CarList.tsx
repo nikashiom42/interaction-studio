@@ -7,6 +7,7 @@ import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 
 type CarType = Tables<'cars'>;
 type CarCategory = Database['public']['Enums']['car_category'];
@@ -77,6 +78,12 @@ const CarList = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Rent a Car"
+        description="Browse our fleet of premium cars available for rent in Georgia. SUVs, luxury cars, economy vehicles and more. Best prices guaranteed."
+        url="/cars"
+        keywords="rent car Georgia, car hire Tbilisi, SUV rental, luxury car Georgia"
+      />
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
@@ -14,15 +15,6 @@ import { format, parseISO, differenceInDays } from 'date-fns';
 import { countryCodes } from '@/data/countryCodes';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import carRangeRover from '@/assets/car-range-rover.jpg';
-import carTesla from '@/assets/car-tesla.jpg';
-import carMercedes from '@/assets/car-mercedes.jpg';
-import carCorvette from '@/assets/car-corvette.jpg';
-
-const recentCars = [
-  { id: 1, name: 'Tesla Model 3', type: 'Electric • Automatic', price: 85, image: carTesla },
-  { id: 2, name: 'VW Golf', type: 'Compact • Manual', price: 45, image: carMercedes },
-  { id: 3, name: 'Ford Mustang', type: 'Convertible • Automatic', price: 95, image: carCorvette },
-];
 
 type PaymentOption = 'deposit' | 'pickup';
 
@@ -63,6 +55,22 @@ const Checkout = () => {
       return data;
     },
     enabled: !!carId,
+  });
+
+  // Fetch related cars for empty cart suggestions
+  const { data: relatedCars } = useQuery({
+    queryKey: ['related-cars'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cars')
+        .select('id, brand, model, category, transmission, price_per_day, main_image')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+      
+      if (error) throw error;
+      return data;
+    },
   });
 
   // Calculate prices
@@ -178,6 +186,7 @@ const Checkout = () => {
   if (cartEmpty && !carLoading) {
     return (
       <div className="min-h-screen bg-background">
+        <SEO title="Checkout" description="Complete your car rental booking" url="/checkout" noIndex />
         <Header />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center py-16">
@@ -194,32 +203,34 @@ const Checkout = () => {
             </Link>
           </div>
 
-          {/* Recent Search */}
-          <section className="mt-16">
-            <h3 className="text-lg font-semibold text-foreground mb-6">Based on your recent search</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {recentCars.map((recentCar, index) => (
-                <Link
-                  key={recentCar.id}
-                  to={`/car/${recentCar.id}`}
-                  className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
-                  style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
-                >
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img src={recentCar.image} alt={recentCar.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{recentCar.name}</h4>
-                    <p className="text-sm text-muted-foreground mb-2">{recentCar.type}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-primary font-bold">{formatPrice(recentCar.price)}<span className="text-muted-foreground font-normal text-sm">/day</span></span>
-                      <button className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">+</button>
+          {/* Related Cars */}
+          {relatedCars && relatedCars.length > 0 && (
+            <section className="mt-16">
+              <h3 className="text-lg font-semibold text-foreground mb-6">Popular Cars You Might Like</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {relatedCars.map((relatedCar, index) => (
+                  <Link
+                    key={relatedCar.id}
+                    to={`/car/${relatedCar.id}`}
+                    className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
+                    style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
+                  >
+                    <div className="aspect-[4/3] overflow-hidden">
+                      <img src={relatedCar.main_image || '/placeholder.svg'} alt={`${relatedCar.brand} ${relatedCar.model}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
+                    <div className="p-4">
+                      <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{relatedCar.brand} {relatedCar.model}</h4>
+                      <p className="text-sm text-muted-foreground mb-2">{relatedCar.category.charAt(0).toUpperCase() + relatedCar.category.slice(1)} • {relatedCar.transmission.charAt(0).toUpperCase() + relatedCar.transmission.slice(1)}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-primary font-bold">{formatPrice(relatedCar.price_per_day)}<span className="text-muted-foreground font-normal text-sm">/day</span></span>
+                        <span className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">+</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </main>
         <Footer />
       </div>
@@ -228,6 +239,7 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-secondary/30">
+      <SEO title="Checkout" description="Complete your car rental booking" url="/checkout" noIndex />
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

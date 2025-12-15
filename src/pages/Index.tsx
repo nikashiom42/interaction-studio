@@ -8,6 +8,7 @@ import HowItWorks from '@/components/HowItWorks';
 import Testimonials from '@/components/Testimonials';
 import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { Database } from '@/integrations/supabase/types';
 
 type CarCategory = Database['public']['Enums']['car_category'];
@@ -17,6 +18,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Rent Cars in Georgia"
+        description="Premium car rental in Georgia. Explore Tbilisi, Batumi, Gudauri and more. Self-drive or with driver. Best prices, free cancellation, 24/7 support."
+        url="/"
+      />
       <Header />
       <main>
         <HeroSection />

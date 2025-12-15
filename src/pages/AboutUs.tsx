@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { Car, Users, Award, MapPin } from 'lucide-react';
 
 const stats = [
@@ -30,6 +31,11 @@ const team = [
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="About Us"
+        description="Learn about Rentals Georgia - your trusted car rental partner since 2017. 150+ cars, 10,000+ happy customers, 24/7 support."
+        url="/about"
+      />
       <Header />
       
       <main>
