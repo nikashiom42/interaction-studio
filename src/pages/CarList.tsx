@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
+import { Tables, Database } from '@/integrations/supabase/types';
 import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 type CarType = Tables<'cars'>;
+type CarCategory = Database['public']['Enums']['car_category'];
 
 const filters = [
   { id: 'dates', label: 'Dates', icon: Calendar, hasDropdown: false, isActive: true },
@@ -27,15 +28,35 @@ const CarList = () => {
   const [activeTab, setActiveTab] = useState('Explore Cars');
   const [activeFilters, setActiveFilters] = useState<string[]>(['dates']);
 
-  // Fetch cars from database
+  // Fetch cars from database with filters
   const { data: cars, isLoading } = useQuery({
-    queryKey: ['cars'],
+    queryKey: ['cars', activeFilters],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('cars')
         .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .eq('is_active', true);
+      
+      // Apply category filters
+      const validCategories: CarCategory[] = ['economy', 'suv', 'luxury', 'minivan', 'sports', 'convertible', 'electric'];
+      const categoryFilters = activeFilters.filter(f => validCategories.includes(f as CarCategory)) as CarCategory[];
+      if (categoryFilters.length > 0) {
+        query = query.in('category', categoryFilters);
+      }
+
+      // Apply transmission filter
+      if (activeFilters.includes('automatic')) {
+        query = query.eq('transmission', 'automatic');
+      }
+
+      // Apply electric filter (fuel_type)
+      if (activeFilters.includes('electric') && !categoryFilters.includes('electric')) {
+        query = query.eq('fuel_type', 'electric');
+      }
+
+      query = query.order('created_at', { ascending: false });
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       return data as CarType[];
