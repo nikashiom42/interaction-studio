@@ -7,6 +7,7 @@ import { ChevronRight, ChevronDown, Clock, MapPin, ArrowRight, Loader2, Compass,
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 
 type TourType = Tables<'tours'>;
 type TourCategory = Database['public']['Enums']['tour_category'];
@@ -67,6 +68,12 @@ const TourList = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Tours & Road Trips"
+        description="Discover amazing road trips and guided tours across Georgia. Beach getaways, mountain adventures, cultural tours and more."
+        url="/tours"
+        keywords="Georgia tours, road trips Georgia, guided tours Tbilisi, adventure travel Georgia"
+      />
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

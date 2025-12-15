@@ -96,7 +96,7 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
                     image={car.main_image || '/placeholder.svg'}
                     name={`${car.brand} ${car.model}`}
                     type={`${car.category.charAt(0).toUpperCase() + car.category.slice(1)} • ${car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)}`}
-                    rating={4.8}
+                    rating={Number((car as any).rating) || 0}
                     originalPrice={Math.round(car.price_per_day * 1.2)}
                     price={car.price_per_day}
                     delay={index * 100}

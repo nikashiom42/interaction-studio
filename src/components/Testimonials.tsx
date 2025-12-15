@@ -3,33 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import TestimonialCard from './TestimonialCard';
 import { Loader2 } from 'lucide-react';
 
-const fallbackTestimonials = [
-  {
-    id: 'fallback-1',
-    quote: "The booking process was incredibly smooth. The car was in pristine condition and the customer service was top-notch. Highly recommend!",
-    name: 'Sarah Jenkins',
-    memberSince: '2021',
-    avatar: 'SJ',
-    rating: 5,
-  },
-  {
-    id: 'fallback-2',
-    quote: "I rented a convertible for a weekend trip to Napa. It made the experience unforgettable. Will definitely use this service again.",
-    name: 'Michael Chen',
-    memberSince: '2022',
-    avatar: 'MC',
-    rating: 5,
-  },
-  {
-    id: 'fallback-3',
-    quote: "Great selection of electric vehicles. I loved trying out the new Tesla Model S. Seamless pickup and dropoff!",
-    name: 'Emma Wilson',
-    memberSince: '2023',
-    avatar: 'EW',
-    rating: 4,
-  },
-];
-
 const Testimonials = () => {
   const { data: reviews, isLoading } = useQuery({
     queryKey: ['featured-reviews'],
@@ -43,6 +16,7 @@ const Testimonials = () => {
         .limit(3);
 
       if (error) throw error;
+      if (!data || data.length === 0) return [];
 
       // Fetch user profiles
       const userIds = [...new Set(data.map(r => r.user_id))];
@@ -64,7 +38,10 @@ const Testimonials = () => {
     },
   });
 
-  const testimonials = reviews?.length ? reviews : fallbackTestimonials;
+  // Don't render section if no featured reviews exist
+  if (!isLoading && (!reviews || reviews.length === 0)) {
+    return null;
+  }
 
   return (
     <section className="py-16">
@@ -77,7 +54,7 @@ const Testimonials = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
+            {reviews.map((testimonial, index) => (
               <TestimonialCard
                 key={testimonial.id}
                 {...testimonial}

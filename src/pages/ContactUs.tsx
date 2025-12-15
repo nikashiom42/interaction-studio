@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -68,6 +69,11 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Contact Us"
+        description="Get in touch with Rentals Georgia. 24/7 customer support, phone, email, and office location in Tbilisi."
+        url="/contact"
+      />
       <Header />
 
       <main>
