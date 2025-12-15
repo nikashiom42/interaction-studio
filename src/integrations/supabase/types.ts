@@ -173,6 +173,7 @@ export type Database = {
           category: Database["public"]["Enums"]["car_category"]
           created_at: string
           delivery_available: boolean | null
+          engine_volume: string | null
           features: Json | null
           fuel_type: Database["public"]["Enums"]["fuel_type"]
           gallery_images: string[] | null
@@ -193,6 +194,7 @@ export type Database = {
           category: Database["public"]["Enums"]["car_category"]
           created_at?: string
           delivery_available?: boolean | null
+          engine_volume?: string | null
           features?: Json | null
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
           gallery_images?: string[] | null
@@ -213,6 +215,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["car_category"]
           created_at?: string
           delivery_available?: boolean | null
+          engine_volume?: string | null
           features?: Json | null
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
           gallery_images?: string[] | null

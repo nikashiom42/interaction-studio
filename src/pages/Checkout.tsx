@@ -99,7 +99,7 @@ const Checkout = () => {
     mutationFn: async () => {
       // Both options are pay on spot - payment status is pending until paid at location
       const paymentStatus = 'pending';
-      const bookingStatus = 'confirmed';
+      const bookingStatus: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' = 'confirmed';
 
       const bookingData = {
         car_id: carId || null,
@@ -125,7 +125,7 @@ const Checkout = () => {
 
       const { data, error } = await supabase
         .from('bookings')
-        .insert(bookingData)
+        .insert([bookingData])
         .select()
         .single();
 
