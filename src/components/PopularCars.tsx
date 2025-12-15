@@ -84,6 +84,7 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
           opts={{
             align: 'start',
             loop: true,
+            dragFree: true,
           }}
           className="w-full"
         >
