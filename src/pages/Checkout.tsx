@@ -100,7 +100,7 @@ const Checkout = () => {
   };
 
   const paymentAmounts = getPaymentAmounts();
-  const canComplete = !!user && !!firstName.trim() && !!lastName.trim() && !!(email.trim() || user?.email) && !!phone.trim() && acceptTerms && !isProcessing;
+  const canComplete = !!firstName.trim() && !!lastName.trim() && !!email.trim() && !!phone.trim() && acceptTerms && !isProcessing;
 
   // Create booking mutation
   const createBookingMutation = useMutation({
@@ -113,14 +113,14 @@ const Checkout = () => {
         car_id: carId || null,
         tour_id: tourId || null,
         booking_type: tourId ? 'tour' : 'car',
-        user_id: user!.id,
+        user_id: user?.id || null,
         start_date: startDate || format(new Date(), 'yyyy-MM-dd'),
         end_date: endDate || format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
         with_driver: withDriver,
         total_price: totalPrice,
         status: bookingStatus,
         customer_name: `${firstName} ${lastName}`.trim(),
-        customer_email: email || user?.email,
+        customer_email: email,
         customer_phone: `${countryCode} ${phone}`.trim(),
         payment_option: paymentSchedule,
         payment_status: paymentStatus,
@@ -170,7 +170,7 @@ const Checkout = () => {
   // Validation for personal details
   const isPersonalDetailsValid = firstName.trim() !== '' && 
     lastName.trim() !== '' && 
-    (email.trim() !== '' || !!user?.email) && 
+    email.trim() !== '' && 
     phone.trim() !== '';
 
   const canProceedToPayment = canComplete;
