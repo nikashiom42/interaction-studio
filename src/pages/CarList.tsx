@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
-import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car } from 'lucide-react';
+import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -26,12 +26,14 @@ const filters = [
 const tabs = ['Explore Cars', 'Places to See', 'Things to Do', 'Trip Inspiration'];
 
 const CarList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
   const [activeTab, setActiveTab] = useState('Explore Cars');
   const [activeFilters, setActiveFilters] = useState<string[]>(['dates']);
 
   // Fetch cars from database with filters
   const { data: cars, isLoading } = useQuery({
-    queryKey: ['cars', activeFilters],
+    queryKey: ['cars', activeFilters, searchQuery],
     queryFn: async () => {
       let query = supabase
         .from('cars')
@@ -60,9 +62,26 @@ const CarList = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      return data as CarType[];
+      
+      // Apply search filter client-side for brand/model matching
+      let filteredData = data as CarType[];
+      if (searchQuery) {
+        const lowerSearch = searchQuery.toLowerCase();
+        filteredData = filteredData.filter(car => 
+          car.brand.toLowerCase().includes(lowerSearch) ||
+          car.model.toLowerCase().includes(lowerSearch) ||
+          car.category.toLowerCase().includes(lowerSearch)
+        );
+      }
+      
+      return filteredData;
     },
   });
+
+  const clearSearch = () => {
+    searchParams.delete('search');
+    setSearchParams(searchParams);
+  };
 
   const toggleFilter = (id: string) => {
     setActiveFilters(prev => 
@@ -138,6 +157,22 @@ const CarList = () => {
             );
           })}
         </div>
+
+        {/* Search Results Header */}
+        {searchQuery && (
+          <div className="flex items-center gap-2 mb-4 p-3 bg-secondary rounded-lg">
+            <span className="text-sm text-muted-foreground">
+              Search results for: <span className="font-medium text-foreground">"{searchQuery}"</span>
+            </span>
+            <button 
+              onClick={clearSearch}
+              className="ml-auto flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+              Clear
+            </button>
+          </div>
+        )}
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
