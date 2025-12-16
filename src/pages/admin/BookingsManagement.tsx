@@ -354,7 +354,7 @@ export default function BookingsManagement() {
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full sm:w-auto">
                   <CalendarIcon className="h-4 w-4 mr-2" />
-                  {dateRange.from ? (
+                  {dateRange?.from ? (
                     dateRange.to ? (
                       <>
                         {format(dateRange.from, 'MMM d')} - {format(dateRange.to, 'MMM d')}
