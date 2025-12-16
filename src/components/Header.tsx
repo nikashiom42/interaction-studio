@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, ShoppingCart, ChevronDown, LogOut, LayoutDashboard } from 'lucide-react';
+import { Search, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
   DropdownMenu,
@@ -14,10 +14,19 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, signOut, isAdmin } = useAuth();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/cars?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
   };
 
   return (
@@ -33,7 +42,7 @@ const Header = () => {
           </Link>
 
           {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-8">
             <div
               className={`flex items-center w-full bg-secondary rounded-full px-4 py-2 transition-all duration-300 ${
                 isSearchFocused ? 'ring-2 ring-primary shadow-lg' : ''
@@ -42,20 +51,18 @@ const Header = () => {
               <Search className="w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search destinations, cars, or tours..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search cars..."
                 className="flex-1 bg-transparent border-none outline-none px-3 text-sm text-foreground placeholder:text-muted-foreground"
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setIsSearchFocused(false)}
               />
             </div>
-          </div>
+          </form>
 
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <span className="hidden sm:inline">USD</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
             
             {user ? (
               <DropdownMenu>
@@ -101,12 +108,6 @@ const Header = () => {
               </Link>
             )}
             
-            <Link to="/checkout" className="relative p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-full">
-              <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                0
-              </span>
-            </Link>
           </div>
         </div>
       </div>
