@@ -12,7 +12,7 @@ import TripDetail from "./pages/TripDetail";
 import Checkout from "./pages/Checkout";
 import BookingSuccess from "./pages/BookingSuccess";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
+import UserDashboard from "./pages/UserDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
@@ -22,6 +22,8 @@ import CarsManagement from "./pages/admin/CarsManagement";
 import BookingsManagement from "./pages/admin/BookingsManagement";
 import ToursManagement from "./pages/admin/ToursManagement";
 import UsersManagement from "./pages/admin/UsersManagement";
+import ReviewsManagement from "./pages/admin/ReviewsManagement";
+import MessagesManagement from "./pages/admin/MessagesManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,7 +44,7 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/booking-success" element={<BookingSuccess />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<UserDashboard />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/admin/login" element={<AdminLogin />} />
@@ -54,6 +56,8 @@ const App = () => (
                 <Route path="bookings" element={<BookingsManagement />} />
                 <Route path="users" element={<UsersManagement />} />
                 <Route path="tours" element={<ToursManagement />} />
+                <Route path="reviews" element={<ReviewsManagement />} />
+                <Route path="messages" element={<MessagesManagement />} />
               </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
