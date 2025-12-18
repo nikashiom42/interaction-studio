@@ -434,11 +434,6 @@ const Checkout = () => {
                   I accept the <a href="#" className="text-primary hover:underline">Terms and Conditions</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>. I acknowledge that I will pay the total amount shown.
                 </span>
               </label>
-              {!user && (
-                <p className="text-sm text-muted-foreground mt-4">
-                  Please <Link to="/auth" className="text-primary hover:underline">sign in</Link> to complete your booking.
-                </p>
-              )}
 
               {/* Confirm Booking Button */}
               <button
