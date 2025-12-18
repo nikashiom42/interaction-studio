@@ -28,6 +28,8 @@ const Checkout = () => {
   const tourId = searchParams.get('tourId');
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
+  const pickupTime = searchParams.get('pickupTime') || '10:00';
+  const dropoffTime = searchParams.get('dropoffTime') || '10:00';
   const withDriver = searchParams.get('withDriver') === 'true';
   const locationId = searchParams.get('location') || 'tbs'; // Default to Tbilisi Airport
 
@@ -120,6 +122,8 @@ const Checkout = () => {
         user_id: user?.id || null,
         start_date: startDate || format(new Date(), 'yyyy-MM-dd'),
         end_date: endDate || format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
+        pickup_time: pickupTime,
+        dropoff_time: dropoffTime,
         with_driver: withDriver,
         total_price: totalPrice,
         status: bookingStatus,
@@ -307,8 +311,8 @@ const Checkout = () => {
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        {startDate && endDate 
-                          ? `${format(parseISO(startDate), 'MMM d')} - ${format(parseISO(endDate), 'MMM d, yyyy')}`
+                        {startDate && endDate
+                          ? `${format(parseISO(startDate), 'MMM d')} ${pickupTime} - ${format(parseISO(endDate), 'MMM d, yyyy')} ${dropoffTime}`
                           : 'Thu, Oct 12 - Sun, Oct 15'
                         }
                       </span>

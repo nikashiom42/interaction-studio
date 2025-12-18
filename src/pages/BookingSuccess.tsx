@@ -13,6 +13,8 @@ type BookingWithCar = {
   car_id: string | null;
   start_date: string;
   end_date: string;
+  pickup_time: string | null;
+  dropoff_time: string | null;
   with_driver: boolean | null;
   total_price: number;
   status: string;
@@ -165,24 +167,28 @@ const BookingSuccess = () => {
                     <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium text-foreground">
-                        {booking?.start_date 
+                        {booking?.start_date
                           ? format(parseISO(booking.start_date), 'MMM d, yyyy')
                           : 'Oct 24, 2024'
                         }
                       </p>
-                      <p className="text-muted-foreground">Pickup</p>
+                      <p className="text-muted-foreground">
+                        Pickup {booking?.pickup_time ? `• ${booking.pickup_time}` : ''}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium text-foreground">
-                        {booking?.end_date 
+                        {booking?.end_date
                           ? format(parseISO(booking.end_date), 'MMM d, yyyy')
                           : 'Oct 27, 2024'
                         }
                       </p>
-                      <p className="text-muted-foreground">Dropoff</p>
+                      <p className="text-muted-foreground">
+                        Dropoff {booking?.dropoff_time ? `• ${booking.dropoff_time}` : ''}
+                      </p>
                     </div>
                   </div>
                 </div>

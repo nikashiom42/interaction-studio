@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, Lock, ChevronDown } from 'lucide-react';
+import { Calendar, MapPin, Lock, ChevronDown, Clock } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,8 @@ interface BookingWidgetProps {
 const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
+  const [pickupTime, setPickupTime] = useState('10:00');
+  const [dropoffTime, setDropoffTime] = useState('10:00');
   const [driveType, setDriveType] = useState<'self' | 'driver'>('self');
   const [pickupOpen, setPickupOpen] = useState(false);
   const [dropoffOpen, setDropoffOpen] = useState(false);
@@ -140,6 +142,37 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
           </PopoverContent>
         </Popover>
 
+        {/* Time Pickers */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Pickup Time */}
+          <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
+            <Clock className="w-5 h-5 text-primary flex-shrink-0" />
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground block">Pickup Time</label>
+              <input
+                type="time"
+                value={pickupTime}
+                onChange={(e) => setPickupTime(e.target.value)}
+                className="w-full font-medium text-foreground bg-transparent border-none outline-none focus:ring-0 p-0"
+              />
+            </div>
+          </div>
+
+          {/* Dropoff Time */}
+          <div className="flex items-center gap-3 p-3 border border-border rounded-lg">
+            <Clock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground block">Dropoff Time</label>
+              <input
+                type="time"
+                value={dropoffTime}
+                onChange={(e) => setDropoffTime(e.target.value)}
+                className="w-full font-medium text-foreground bg-transparent border-none outline-none focus:ring-0 p-0"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Location */}
         <Popover open={locationOpen} onOpenChange={setLocationOpen}>
           <PopoverTrigger asChild>
@@ -258,7 +291,7 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
 
       {/* Book Button */}
       <Link
-        to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&withDriver=${driveType === 'driver'}&location=${selectedLocation}`}
+        to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&pickupTime=${pickupTime}&dropoffTime=${dropoffTime}&withDriver=${driveType === 'driver'}&location=${selectedLocation}`}
         className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
       >
         Book Now • {formatPrice(total)}

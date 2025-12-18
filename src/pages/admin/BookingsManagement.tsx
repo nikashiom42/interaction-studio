@@ -478,8 +478,8 @@ export default function BookingsManagement() {
                         <TableCell>
                           <div>
                             <p className="text-sm text-foreground">
-                              {format(parseISO(booking.start_date), 'MMM d')} -{' '}
-                              {format(parseISO(booking.end_date), 'MMM d, yyyy')}
+                              {format(parseISO(booking.start_date), 'MMM d')} {booking.pickup_time || ''} -{' '}
+                              {format(parseISO(booking.end_date), 'MMM d, yyyy')} {booking.dropoff_time || ''}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {getRentalDays(booking.start_date, booking.end_date)} days
@@ -686,16 +686,22 @@ export default function BookingsManagement() {
                 </h4>
                 <div className="grid grid-cols-2 gap-4 pl-6">
                   <div>
-                    <p className="text-xs text-muted-foreground">Pick-up Date</p>
+                    <p className="text-xs text-muted-foreground">Pick-up Date & Time</p>
                     <p className="font-medium">
                       {format(parseISO(selectedBooking.start_date), 'PPP')}
                     </p>
+                    {selectedBooking.pickup_time && (
+                      <p className="text-sm text-muted-foreground">{selectedBooking.pickup_time}</p>
+                    )}
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Drop-off Date</p>
+                    <p className="text-xs text-muted-foreground">Drop-off Date & Time</p>
                     <p className="font-medium">
                       {format(parseISO(selectedBooking.end_date), 'PPP')}
                     </p>
+                    {selectedBooking.dropoff_time && (
+                      <p className="text-sm text-muted-foreground">{selectedBooking.dropoff_time}</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Duration</p>

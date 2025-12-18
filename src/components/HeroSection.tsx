@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Search, ChevronDown } from 'lucide-react';
+import { MapPin, Calendar, Search, ChevronDown, Clock } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
@@ -19,6 +19,8 @@ const HeroSection = () => {
   const [locationOpen, setLocationOpen] = useState(false);
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
+  const [pickupTime, setPickupTime] = useState('10:00');
+  const [dropoffTime, setDropoffTime] = useState('10:00');
   const [pickupOpen, setPickupOpen] = useState(false);
   const [dropoffOpen, setDropoffOpen] = useState(false);
 
@@ -27,6 +29,8 @@ const HeroSection = () => {
     if (selectedLocation) params.set('location', selectedLocation);
     if (pickupDate) params.set('startDate', format(pickupDate, 'yyyy-MM-dd'));
     if (dropoffDate) params.set('endDate', format(dropoffDate, 'yyyy-MM-dd'));
+    params.set('pickupTime', pickupTime);
+    params.set('dropoffTime', dropoffTime);
     navigate(`/cars?${params.toString()}`);
   };
 
@@ -183,8 +187,30 @@ const HeroSection = () => {
                 </PopoverContent>
               </Popover>
 
+              {/* Time Pickers - Compact */}
+              <div className="flex gap-2">
+                <div className="flex-1 flex items-center gap-2 px-3 py-3 bg-secondary rounded-lg">
+                  <Clock className="w-4 h-4 text-primary flex-shrink-0" />
+                  <input
+                    type="time"
+                    value={pickupTime}
+                    onChange={(e) => setPickupTime(e.target.value)}
+                    className="flex-1 text-sm font-medium text-foreground bg-transparent border-none outline-none"
+                  />
+                </div>
+                <div className="flex-1 flex items-center gap-2 px-3 py-3 bg-secondary rounded-lg">
+                  <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <input
+                    type="time"
+                    value={dropoffTime}
+                    onChange={(e) => setDropoffTime(e.target.value)}
+                    className="flex-1 text-sm font-medium text-foreground bg-transparent border-none outline-none"
+                  />
+                </div>
+              </div>
+
               {/* Search Button */}
-              <button 
+              <button
                 onClick={handleSearch}
                 className="flex items-center justify-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium btn-scale hover:bg-coral-hover transition-colors shadow-button"
               >
