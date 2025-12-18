@@ -14,6 +14,7 @@ import { toast } from '@/hooks/use-toast';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { countryCodes } from '@/data/countryCodes';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
+import { getDeliveryFee, getLocationById } from '@/lib/locations';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 
 type PaymentOption = 'deposit' | 'pickup';
@@ -28,6 +29,7 @@ const Checkout = () => {
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const withDriver = searchParams.get('withDriver') === 'true';
+  const locationId = searchParams.get('location') || 'tbs'; // Default to Tbilisi Airport
 
   const [paymentSchedule, setPaymentSchedule] = useState<PaymentOption>('pickup');
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -74,18 +76,20 @@ const Checkout = () => {
   });
 
   // Calculate prices
-  const rentalDays = startDate && endDate 
-    ? differenceInDays(parseISO(endDate), parseISO(startDate)) + 1 
+  const rentalDays = startDate && endDate
+    ? differenceInDays(parseISO(endDate), parseISO(startDate)) + 1
     : 3;
-  
-  const dailyRate = car 
+
+  const dailyRate = car
     ? (withDriver && car.price_with_driver ? Number(car.price_with_driver) : Number(car.price_per_day))
     : 180;
-  
+
   const rentalPrice = dailyRate * rentalDays;
   const taxesFees = Math.round(rentalPrice * 0.06);
   const serviceCharge = 15;
-  const totalPrice = rentalPrice + taxesFees + serviceCharge;
+  const deliveryFee = getDeliveryFee(locationId);
+  const selectedLocation = getLocationById(locationId);
+  const totalPrice = rentalPrice + taxesFees + serviceCharge + deliveryFee;
 
   // Calculate payment amounts based on option
   const getPaymentAmounts = () => {
@@ -494,6 +498,17 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Service Charge</span>
                     <span className="text-foreground">{formatPrice(serviceCharge)}</span>
                   </div>
+                  {deliveryFee > 0 ? (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Delivery Fee ({selectedLocation?.city})</span>
+                      <span className="text-foreground">${deliveryFee}</span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-success">Delivery Fee (Tbilisi)</span>
+                      <span className="text-success font-medium">Free</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-between py-4">

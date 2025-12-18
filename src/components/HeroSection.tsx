@@ -9,16 +9,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import LocationMap from '@/components/LocationMap';
+import { pickupLocations } from '@/lib/locations';
 import heroCar from '@/assets/hero-car.jpg';
-
-const pickupLocations = [
-  { id: 'tbs', name: 'Tbilisi Airport (TBS)', city: 'Tbilisi' },
-  { id: 'tbilisi-center', name: 'Tbilisi City Center', city: 'Tbilisi' },
-  { id: 'batumi', name: 'Batumi Airport', city: 'Batumi' },
-  { id: 'batumi-center', name: 'Batumi City Center', city: 'Batumi' },
-  { id: 'kutaisi', name: 'Kutaisi Airport', city: 'Kutaisi' },
-  { id: 'gudauri', name: 'Gudauri Ski Resort', city: 'Gudauri' },
-];
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -94,27 +87,40 @@ const HeroSection = () => {
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64 p-0 bg-card border border-border shadow-lg z-50" align="start">
-                  <div className="py-2">
-                    {pickupLocations.map((location) => (
-                      <button
-                        key={location.id}
-                        onClick={() => {
-                          setSelectedLocation(location.id);
-                          setLocationOpen(false);
+                <PopoverContent className="w-[500px] p-0 bg-card border border-border shadow-lg z-50" align="start">
+                  <div className="grid grid-cols-2 gap-0">
+                    {/* Map */}
+                    <div className="h-[300px] border-r border-border">
+                      <LocationMap
+                        locations={pickupLocations}
+                        selectedLocationId={selectedLocation}
+                        onLocationSelect={(id) => {
+                          setSelectedLocation(id);
                         }}
-                        className={cn(
-                          "w-full px-4 py-2 text-left hover:bg-secondary transition-colors flex items-center gap-3",
-                          selectedLocation === location.id && "bg-primary/10"
-                        )}
-                      >
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{location.name}</p>
-                          <p className="text-xs text-muted-foreground">{location.city}</p>
-                        </div>
-                      </button>
-                    ))}
+                      />
+                    </div>
+                    {/* List */}
+                    <div className="py-2 overflow-y-auto max-h-[300px]">
+                      {pickupLocations.map((location) => (
+                        <button
+                          key={location.id}
+                          onClick={() => {
+                            setSelectedLocation(location.id);
+                            setLocationOpen(false);
+                          }}
+                          className={cn(
+                            "w-full px-4 py-2 text-left hover:bg-secondary transition-colors flex items-center gap-3",
+                            selectedLocation === location.id && "bg-primary/10"
+                          )}
+                        >
+                          <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{location.name}</p>
+                            <p className="text-xs text-muted-foreground">{location.city}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </PopoverContent>
               </Popover>

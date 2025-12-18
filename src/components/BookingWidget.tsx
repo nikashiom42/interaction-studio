@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { pickupLocations, getDeliveryFee } from '@/lib/locations';
 
 interface BookingWidgetProps {
   pricePerDay: number;
@@ -23,27 +24,31 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
   const [driveType, setDriveType] = useState<'self' | 'driver'>('self');
   const [pickupOpen, setPickupOpen] = useState(false);
   const [dropoffOpen, setDropoffOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState('tbs'); // Default to Tbilisi Airport
 
   // Calculate number of days and pricing
-  const { days, subtotal, serviceFee, driverFee, total } = useMemo(() => {
+  const { days, subtotal, serviceFee, driverFee, deliveryFee, total } = useMemo(() => {
     if (!pickupDate || !dropoffDate) {
-      return { days: 0, subtotal: 0, serviceFee: 0, driverFee: 0, total: 0 };
+      return { days: 0, subtotal: 0, serviceFee: 0, driverFee: 0, deliveryFee: 0, total: 0 };
     }
-    
+
     const calculatedDays = Math.max(1, differenceInDays(dropoffDate, pickupDate));
     const calculatedSubtotal = pricePerDay * calculatedDays;
     const calculatedServiceFee = Math.round(calculatedSubtotal * 0.05); // 5% service fee
     const calculatedDriverFee = driveType === 'driver' ? 50 * calculatedDays : 0;
-    const calculatedTotal = calculatedSubtotal + calculatedServiceFee + calculatedDriverFee;
+    const calculatedDeliveryFee = getDeliveryFee(selectedLocation);
+    const calculatedTotal = calculatedSubtotal + calculatedServiceFee + calculatedDriverFee + calculatedDeliveryFee;
 
     return {
       days: calculatedDays,
       subtotal: calculatedSubtotal,
       serviceFee: calculatedServiceFee,
       driverFee: calculatedDriverFee,
+      deliveryFee: calculatedDeliveryFee,
       total: calculatedTotal,
     };
-  }, [pickupDate, dropoffDate, pricePerDay, driveType]);
+  }, [pickupDate, dropoffDate, pricePerDay, driveType, selectedLocation]);
 
   // Handle pickup date change
   const handlePickupSelect = (date: Date | undefined) => {
@@ -136,14 +141,51 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
         </Popover>
 
         {/* Location */}
-        <div className="flex items-center gap-3 p-3 border border-border rounded-lg hover:border-primary transition-colors cursor-pointer">
-          <MapPin className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <span className="text-xs text-muted-foreground block">Pick-up Location</span>
-            <span className="font-medium text-foreground truncate block">Tbilisi International Airport (TBS)</span>
-          </div>
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-        </div>
+        <Popover open={locationOpen} onOpenChange={setLocationOpen}>
+          <PopoverTrigger asChild>
+            <button className="w-full flex items-center gap-3 p-3 border border-border rounded-lg hover:border-primary transition-colors text-left group">
+              <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <span className="text-xs text-muted-foreground block">Pick-up Location</span>
+                <span className="font-medium text-foreground truncate block">
+                  {pickupLocations.find(loc => loc.id === selectedLocation)?.name || 'Select location'}
+                </span>
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-0 bg-card border border-border shadow-lg z-50" align="start">
+            <div className="py-2 max-h-[300px] overflow-y-auto">
+              {pickupLocations.map((location) => (
+                <button
+                  key={location.id}
+                  onClick={() => {
+                    setSelectedLocation(location.id);
+                    setLocationOpen(false);
+                  }}
+                  className={cn(
+                    "w-full px-4 py-2 text-left hover:bg-secondary transition-colors flex items-center justify-between gap-3",
+                    selectedLocation === location.id && "bg-primary/10"
+                  )}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{location.name}</p>
+                      <p className="text-xs text-muted-foreground">{location.city}</p>
+                    </div>
+                  </div>
+                  {location.deliveryFee > 0 && (
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">+${location.deliveryFee}</span>
+                  )}
+                  {location.deliveryFee === 0 && (
+                    <span className="text-xs text-success whitespace-nowrap">Free</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Duration Badge */}
@@ -197,6 +239,17 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
           <span>Service fee (5%)</span>
           <span className="font-medium text-foreground">{formatPrice(serviceFee)}</span>
         </div>
+        {deliveryFee > 0 ? (
+          <div className="flex items-center justify-between text-muted-foreground text-sm animate-fade-in">
+            <span>Delivery fee</span>
+            <span className="font-medium text-foreground">${deliveryFee}</span>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between text-success text-sm animate-fade-in">
+            <span>Delivery fee (Tbilisi)</span>
+            <span className="font-medium">Free</span>
+          </div>
+        )}
         <div className="flex items-center justify-between pt-3 border-t border-dashed border-border">
           <span className="font-semibold text-foreground">Total</span>
           <span className="text-2xl font-bold text-foreground">{formatPrice(total)}</span>
@@ -204,8 +257,8 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
       </div>
 
       {/* Book Button */}
-      <Link 
-        to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&withDriver=${driveType === 'driver'}`}
+      <Link
+        to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&withDriver=${driveType === 'driver'}&location=${selectedLocation}`}
         className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
       >
         Book Now • {formatPrice(total)}

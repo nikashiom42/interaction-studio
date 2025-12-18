@@ -3,11 +3,16 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
-import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X } from 'lucide-react';
+import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X, DollarSign } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 type CarType = Tables<'cars'>;
 type CarCategory = Database['public']['Enums']['car_category'];
@@ -30,10 +35,13 @@ const CarList = () => {
   const searchQuery = searchParams.get('search') || '';
   const [activeTab, setActiveTab] = useState('Explore Cars');
   const [activeFilters, setActiveFilters] = useState<string[]>(['dates']);
+  const [minPrice, setMinPrice] = useState<number | ''>('');
+  const [maxPrice, setMaxPrice] = useState<number | ''>('');
+  const [priceFilterOpen, setPriceFilterOpen] = useState(false);
 
   // Fetch cars from database with filters
   const { data: cars, isLoading } = useQuery({
-    queryKey: ['cars', activeFilters, searchQuery],
+    queryKey: ['cars', activeFilters, searchQuery, minPrice, maxPrice],
     queryFn: async () => {
       let query = supabase
         .from('cars')
@@ -67,13 +75,21 @@ const CarList = () => {
       let filteredData = data as CarType[];
       if (searchQuery) {
         const lowerSearch = searchQuery.toLowerCase();
-        filteredData = filteredData.filter(car => 
+        filteredData = filteredData.filter(car =>
           car.brand.toLowerCase().includes(lowerSearch) ||
           car.model.toLowerCase().includes(lowerSearch) ||
           car.category.toLowerCase().includes(lowerSearch)
         );
       }
-      
+
+      // Apply price range filter
+      if (minPrice !== '') {
+        filteredData = filteredData.filter(car => car.price_per_day >= minPrice);
+      }
+      if (maxPrice !== '') {
+        filteredData = filteredData.filter(car => car.price_per_day <= maxPrice);
+      }
+
       return filteredData;
     },
   });
@@ -156,6 +172,71 @@ const CarList = () => {
               </button>
             );
           })}
+
+          {/* Price Range Filter */}
+          <Popover open={priceFilterOpen} onOpenChange={setPriceFilterOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 btn-scale border ${
+                  minPrice !== '' || maxPrice !== ''
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-background text-foreground border-border hover:border-foreground'
+                }`}
+              >
+                <DollarSign className="w-4 h-4" />
+                <span>Price Range</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-4 bg-card border border-border shadow-lg z-50" align="start">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">Price Range (₾/day)</label>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <label className="text-xs text-muted-foreground mb-1 block">Min Price</label>
+                      <input
+                        type="number"
+                        placeholder="0"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                        className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <span className="text-muted-foreground pt-5">-</span>
+                    <div className="flex-1">
+                      <label className="text-xs text-muted-foreground mb-1 block">Max Price</label>
+                      <input
+                        type="number"
+                        placeholder="500"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                        className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setMinPrice('');
+                      setMaxPrice('');
+                      setPriceFilterOpen(false);
+                    }}
+                    className="flex-1 px-3 py-2 bg-secondary text-foreground rounded-lg text-sm font-medium hover:bg-accent transition-colors"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={() => setPriceFilterOpen(false)}
+                    className="flex-1 px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-coral-hover transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Search Results Header */}
