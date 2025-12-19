@@ -27,6 +27,7 @@ import ToursManagement from "./pages/admin/ToursManagement";
 import UsersManagement from "./pages/admin/UsersManagement";
 import ReviewsManagement from "./pages/admin/ReviewsManagement";
 import MessagesManagement from "./pages/admin/MessagesManagement";
+import BlogsManagement from "./pages/admin/BlogsManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
                 <Route path="users" element={<UsersManagement />} />
                 <Route path="tours" element={<ToursManagement />} />
                 <Route path="reviews" element={<ReviewsManagement />} />
+                <Route path="blogs" element={<BlogsManagement />} />
                 <Route path="messages" element={<MessagesManagement />} />
               </Route>
               
