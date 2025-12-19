@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Check, Copy, Calendar, MapPin, Download, Mail, Smartphone, Key, ArrowRight, Loader2, Car } from 'lucide-react';
+import { Check, Copy, Calendar, MapPin, Download, Mail, Smartphone, Key, ArrowRight, Loader2, Car, Baby, Tent } from 'lucide-react';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/currency';
@@ -22,6 +22,12 @@ type BookingWithCar = {
   customer_email: string | null;
   customer_phone: string | null;
   created_at: string;
+  // Add-ons
+  child_seats: number | null;
+  child_seats_total: number | null;
+  camping_equipment: boolean | null;
+  camping_equipment_total: number | null;
+  addons_total: number | null;
   cars?: {
     id: string;
     brand: string;
@@ -202,6 +208,29 @@ const BookingSuccess = () => {
                 </div>
               </div>
             </div>
+
+            {/* Add-ons Section */}
+            {((booking?.child_seats && booking.child_seats > 0) || booking?.camping_equipment) && (
+              <div className="pt-4 mt-4 border-t border-border">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">Add-ons Included</h4>
+                <div className="flex flex-wrap gap-2">
+                  {booking.child_seats && booking.child_seats > 0 && (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
+                      <Baby className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">Child Seat ×{booking.child_seats}</span>
+                      <span className="text-sm text-muted-foreground">({formatPrice(Number(booking.child_seats_total || 0))})</span>
+                    </div>
+                  )}
+                  {booking.camping_equipment && (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
+                      <Tent className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">Camping Equipment</span>
+                      <span className="text-sm text-muted-foreground">({formatPrice(Number(booking.camping_equipment_total || 0))})</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Total */}
             <div className="flex items-center justify-between pt-6 mt-6 border-t border-border">

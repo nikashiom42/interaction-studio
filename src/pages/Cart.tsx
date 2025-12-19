@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Trash2, ShoppingCart, Calendar, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { Trash2, ShoppingCart, Calendar, MapPin, Clock, ArrowRight, Baby, Tent } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -127,9 +127,28 @@ const Cart = () => {
                         </div>
                       )}
 
+                      {/* Add-ons display */}
+                      {((item.childSeats && item.childSeats > 0) || item.campingEquipment) && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {item.childSeats && item.childSeats > 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                              <Baby className="w-3 h-3" />
+                              Child Seat ×{item.childSeats} ({formatPrice(item.childSeatsTotal || 0)})
+                            </span>
+                          )}
+                          {item.campingEquipment && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                              <Tent className="w-3 h-3" />
+                              Camping Equipment ({formatPrice(item.campingEquipmentTotal || 0)})
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
                         <div className="text-sm text-muted-foreground">
                           {formatPrice(item.pricePerDay)} × {item.days} days
+                          {(item.addonsTotal && item.addonsTotal > 0) && ` + ${formatPrice(item.addonsTotal)} add-ons`}
                         </div>
                         <div className="text-xl font-bold text-foreground">
                           {formatPrice(item.totalPrice)}

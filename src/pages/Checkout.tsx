@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   ChevronRight, Calendar, MapPin, Clock, Trash2, Check,
-  Lock, ThumbsUp, Shield, ChevronDown, Loader2
+  Lock, ThumbsUp, Shield, ChevronDown, Loader2, Baby, Tent
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -105,6 +105,12 @@ const Checkout = () => {
         payment_transaction_id: null,
         payment_date: null,
         notes: item.type === 'tour' ? 'Tour booking' : (item.withDriver ? 'Booking - With driver' : 'Booking - Self-drive'),
+        // Add-ons
+        child_seats: item.childSeats || 0,
+        child_seats_total: item.childSeatsTotal || 0,
+        camping_equipment: item.campingEquipment || false,
+        camping_equipment_total: item.campingEquipmentTotal || 0,
+        addons_total: item.addonsTotal || 0,
       }));
 
       // Insert all bookings at once
@@ -311,11 +317,29 @@ const Checkout = () => {
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-muted-foreground">
                             {formatPrice(item.pricePerDay)} × {item.days} days
+                            {(item.addonsTotal && item.addonsTotal > 0) ? ` + ${formatPrice(item.addonsTotal)} add-ons` : ''}
                           </span>
                           <span className="font-semibold text-foreground">
                             {formatPrice(item.totalPrice)}
                           </span>
                         </div>
+                        {/* Show Add-ons */}
+                        {((item.childSeats && item.childSeats > 0) || item.campingEquipment) && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {item.childSeats && item.childSeats > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                                <Baby className="w-3 h-3" />
+                                Child Seat ×{item.childSeats}
+                              </span>
+                            )}
+                            {item.campingEquipment && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                                <Tent className="w-3 h-3" />
+                                Camping Equipment
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
