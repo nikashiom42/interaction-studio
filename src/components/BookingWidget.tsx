@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Lock, ChevronDown, Clock, Info, ShoppingCart, Check } from 'lucide-react';
+import { Calendar, MapPin, Lock, ChevronDown, Clock, Info, ShoppingCart, Check, Baby, Tent, Plus, Minus } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useCart } from '@/hooks/useCart';
+import { useCart, ADDON_PRICING } from '@/hooks/useCart';
 import { toast } from '@/hooks/use-toast';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
@@ -34,11 +34,15 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
   const [dropoffOpen, setDropoffOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('tbs'); // Default to Tbilisi Airport
+  
+  // Add-ons state
+  const [childSeats, setChildSeats] = useState(0);
+  const [campingEquipment, setCampingEquipment] = useState(false);
 
   // Calculate number of days and pricing
-  const { days, subtotal, serviceFee, driverFee, deliveryFee, total } = useMemo(() => {
+  const { days, subtotal, serviceFee, driverFee, deliveryFee, childSeatsTotal, campingEquipmentTotal, addonsTotal, total } = useMemo(() => {
     if (!pickupDate || !dropoffDate) {
-      return { days: 0, subtotal: 0, serviceFee: 0, driverFee: 0, deliveryFee: 0, total: 0 };
+      return { days: 0, subtotal: 0, serviceFee: 0, driverFee: 0, deliveryFee: 0, childSeatsTotal: 0, campingEquipmentTotal: 0, addonsTotal: 0, total: 0 };
     }
 
     const calculatedDays = Math.max(1, differenceInDays(dropoffDate, pickupDate));
@@ -46,7 +50,13 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
     const calculatedServiceFee = Math.round(calculatedSubtotal * 0.05); // 5% service fee
     const calculatedDriverFee = driveType === 'driver' ? 50 * calculatedDays : 0;
     const calculatedDeliveryFee = getDeliveryFee(selectedLocation);
-    const calculatedTotal = calculatedSubtotal + calculatedServiceFee + calculatedDriverFee + calculatedDeliveryFee;
+    
+    // Calculate add-ons
+    const calculatedChildSeatsTotal = childSeats * ADDON_PRICING.childSeat.pricePerDay * calculatedDays;
+    const calculatedCampingEquipmentTotal = campingEquipment ? ADDON_PRICING.campingEquipment.pricePerDay * calculatedDays : 0;
+    const calculatedAddonsTotal = calculatedChildSeatsTotal + calculatedCampingEquipmentTotal;
+    
+    const calculatedTotal = calculatedSubtotal + calculatedServiceFee + calculatedDriverFee + calculatedDeliveryFee + calculatedAddonsTotal;
 
     return {
       days: calculatedDays,
@@ -54,9 +64,12 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
       serviceFee: calculatedServiceFee,
       driverFee: calculatedDriverFee,
       deliveryFee: calculatedDeliveryFee,
+      childSeatsTotal: calculatedChildSeatsTotal,
+      campingEquipmentTotal: calculatedCampingEquipmentTotal,
+      addonsTotal: calculatedAddonsTotal,
       total: calculatedTotal,
     };
-  }, [pickupDate, dropoffDate, pricePerDay, driveType, selectedLocation]);
+  }, [pickupDate, dropoffDate, pricePerDay, driveType, selectedLocation, childSeats, campingEquipment]);
 
   // Handle pickup date change
   const handlePickupSelect = (date: Date | undefined) => {
@@ -114,6 +127,12 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
       days,
       category,
       image,
+      // Add-ons
+      childSeats,
+      childSeatsTotal,
+      campingEquipment,
+      campingEquipmentTotal,
+      addonsTotal,
     });
 
     toast({
@@ -314,6 +333,86 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
       </div>
 
 
+      {/* Optional Add-ons */}
+      <div className="space-y-3 mb-4 pb-4 border-b border-border">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span>Optional Add-ons</span>
+          <span className="text-xs font-normal text-muted-foreground">(per day)</span>
+        </h4>
+        
+        {/* Child Seat */}
+        <div className="flex items-center justify-between p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Baby className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <span className="text-sm font-medium text-foreground">Child Seat</span>
+              <p className="text-xs text-muted-foreground">${ADDON_PRICING.childSeat.pricePerDay}/day each</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setChildSeats(Math.max(0, childSeats - 1))}
+              disabled={childSeats === 0}
+              className={cn(
+                "w-7 h-7 rounded-full flex items-center justify-center transition-colors",
+                childSeats === 0 
+                  ? "bg-secondary text-muted-foreground cursor-not-allowed" 
+                  : "bg-secondary text-foreground hover:bg-accent"
+              )}
+            >
+              <Minus className="w-3 h-3" />
+            </button>
+            <span className="w-6 text-center font-medium text-foreground">{childSeats}</span>
+            <button
+              onClick={() => setChildSeats(Math.min(ADDON_PRICING.childSeat.maxQuantity, childSeats + 1))}
+              disabled={childSeats === ADDON_PRICING.childSeat.maxQuantity}
+              className={cn(
+                "w-7 h-7 rounded-full flex items-center justify-center transition-colors",
+                childSeats === ADDON_PRICING.childSeat.maxQuantity 
+                  ? "bg-secondary text-muted-foreground cursor-not-allowed" 
+                  : "bg-primary text-primary-foreground hover:bg-coral-hover"
+              )}
+            >
+              <Plus className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+
+        {/* Camping Equipment */}
+        <button
+          onClick={() => setCampingEquipment(!campingEquipment)}
+          className={cn(
+            "w-full flex items-center justify-between p-3 border rounded-lg transition-colors",
+            campingEquipment 
+              ? "border-primary bg-primary/5" 
+              : "border-border hover:border-primary/50"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center",
+              campingEquipment ? "bg-primary/20" : "bg-primary/10"
+            )}>
+              <Tent className={cn("w-4 h-4", campingEquipment ? "text-primary" : "text-primary")} />
+            </div>
+            <div className="text-left">
+              <span className="text-sm font-medium text-foreground">Camping Equipment</span>
+              <p className="text-xs text-muted-foreground">For 2 people • ${ADDON_PRICING.campingEquipment.pricePerDay}/day</p>
+            </div>
+          </div>
+          <div className={cn(
+            "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
+            campingEquipment 
+              ? "border-primary bg-primary" 
+              : "border-border"
+          )}>
+            {campingEquipment && <Check className="w-3 h-3 text-primary-foreground" />}
+          </div>
+        </button>
+      </div>
+
       {/* Price Breakdown */}
       <div className="space-y-3 mb-6 pb-6 border-b border-border">
         <div className="flex items-center justify-between text-muted-foreground text-sm">
@@ -339,6 +438,25 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
           <div className="flex items-center justify-between text-success text-sm animate-fade-in">
             <span>Delivery fee (Tbilisi)</span>
             <span className="font-medium">Free</span>
+          </div>
+        )}
+        {/* Add-ons in price breakdown */}
+        {childSeatsTotal > 0 && (
+          <div className="flex items-center justify-between text-muted-foreground text-sm animate-fade-in">
+            <span className="flex items-center gap-1">
+              <Baby className="w-3 h-3" />
+              Child seat × {childSeats}
+            </span>
+            <span className="font-medium text-foreground">{formatPrice(childSeatsTotal)}</span>
+          </div>
+        )}
+        {campingEquipmentTotal > 0 && (
+          <div className="flex items-center justify-between text-muted-foreground text-sm animate-fade-in">
+            <span className="flex items-center gap-1">
+              <Tent className="w-3 h-3" />
+              Camping equipment
+            </span>
+            <span className="font-medium text-foreground">{formatPrice(campingEquipmentTotal)}</span>
           </div>
         )}
         <div className="flex items-center justify-between pt-3 border-t border-dashed border-border">
@@ -370,7 +488,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
 
         {/* Book Now Button */}
         <Link
-          to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&pickupTime=${pickupTime}&dropoffTime=${dropoffTime}&withDriver=${driveType === 'driver'}&location=${selectedLocation}`}
+          to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&pickupTime=${pickupTime}&dropoffTime=${dropoffTime}&withDriver=${driveType === 'driver'}&location=${selectedLocation}&childSeats=${childSeats}&campingEquipment=${campingEquipment}`}
           className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
         >
           Book Now • {formatPrice(total)}

@@ -1,5 +1,16 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+// Add-ons pricing configuration
+export const ADDON_PRICING = {
+  childSeat: {
+    pricePerDay: 3, // $3 per day per seat
+    maxQuantity: 4,
+  },
+  campingEquipment: {
+    pricePerDay: 10, // $10 per day for 2-person camping equipment
+  },
+};
+
 export interface CartItem {
   id: string;
   type: 'car' | 'tour';
@@ -18,6 +29,12 @@ export interface CartItem {
   days: number;
   category?: string;
   image?: string;
+  // Add-ons
+  childSeats?: number;
+  childSeatsTotal?: number;
+  campingEquipment?: boolean;
+  campingEquipmentTotal?: number;
+  addonsTotal?: number;
 }
 
 interface CartContextType {

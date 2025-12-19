@@ -16,9 +16,14 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          addons_total: number | null
           admin_notes: string | null
           booking_type: string | null
+          camping_equipment: boolean | null
+          camping_equipment_total: number | null
           car_id: string | null
+          child_seats: number | null
+          child_seats_total: number | null
           confirmation_date: string | null
           created_at: string
           customer_email: string | null
@@ -47,9 +52,14 @@ export type Database = {
           with_driver: boolean | null
         }
         Insert: {
+          addons_total?: number | null
           admin_notes?: string | null
           booking_type?: string | null
+          camping_equipment?: boolean | null
+          camping_equipment_total?: number | null
           car_id?: string | null
+          child_seats?: number | null
+          child_seats_total?: number | null
           confirmation_date?: string | null
           created_at?: string
           customer_email?: string | null
@@ -78,9 +88,14 @@ export type Database = {
           with_driver?: boolean | null
         }
         Update: {
+          addons_total?: number | null
           admin_notes?: string | null
           booking_type?: string | null
+          camping_equipment?: boolean | null
+          camping_equipment_total?: number | null
           car_id?: string | null
+          child_seats?: number | null
+          child_seats_total?: number | null
           confirmation_date?: string | null
           created_at?: string
           customer_email?: string | null
