@@ -26,6 +26,7 @@ export type Database = {
           customer_phone: string | null
           deposit_amount: number | null
           dropoff_location_id: string | null
+          dropoff_time: string | null
           end_date: string
           id: string
           notes: string | null
@@ -35,6 +36,7 @@ export type Database = {
           payment_status: string | null
           payment_transaction_id: string | null
           pickup_location_id: string | null
+          pickup_time: string | null
           remaining_balance: number | null
           start_date: string
           status: Database["public"]["Enums"]["booking_status"]
@@ -55,6 +57,7 @@ export type Database = {
           customer_phone?: string | null
           deposit_amount?: number | null
           dropoff_location_id?: string | null
+          dropoff_time?: string | null
           end_date: string
           id?: string
           notes?: string | null
@@ -64,6 +67,7 @@ export type Database = {
           payment_status?: string | null
           payment_transaction_id?: string | null
           pickup_location_id?: string | null
+          pickup_time?: string | null
           remaining_balance?: number | null
           start_date: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -84,6 +88,7 @@ export type Database = {
           customer_phone?: string | null
           deposit_amount?: number | null
           dropoff_location_id?: string | null
+          dropoff_time?: string | null
           end_date?: string
           id?: string
           notes?: string | null
@@ -93,6 +98,7 @@ export type Database = {
           payment_status?: string | null
           payment_transaction_id?: string | null
           pickup_location_id?: string | null
+          pickup_time?: string | null
           remaining_balance?: number | null
           start_date?: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -183,6 +189,8 @@ export type Database = {
           model: string
           price_per_day: number
           price_with_driver: number | null
+          rating: number | null
+          reviews_count: number | null
           seats: number
           transmission: Database["public"]["Enums"]["transmission_type"]
           updated_at: string
@@ -204,6 +212,8 @@ export type Database = {
           model: string
           price_per_day: number
           price_with_driver?: number | null
+          rating?: number | null
+          reviews_count?: number | null
           seats?: number
           transmission?: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string
@@ -225,6 +235,8 @@ export type Database = {
           model?: string
           price_per_day?: number
           price_with_driver?: number | null
+          rating?: number | null
+          reviews_count?: number | null
           seats?: number
           transmission?: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string
