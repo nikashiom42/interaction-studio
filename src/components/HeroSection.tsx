@@ -63,12 +63,12 @@ const HeroSection = () => {
           <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium text-primary bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20">
             Premium Car Rentals in Georgia
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 leading-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-background mb-4 leading-tight">
             Drive Your Adventure<br />
             <span className="text-primary">Across Georgia</span>
           </h1>
-          <p className="text-background/80 text-lg md:text-xl mb-10 max-w-lg">
-            Premium vehicles and curated tours through stunning landscapes. Book with confidence.
+          <p className="text-background/80 text-base md:text-lg mb-8 max-w-lg">
+            Premium vehicles and curated tours through stunning landscapes.
           </p>
         </div>
 
@@ -76,25 +76,25 @@ const HeroSection = () => {
         <div className="max-w-4xl animate-fade-in" style={{ animationDelay: '0.15s' }}>
           <div className="bg-background/95 backdrop-blur-md rounded-2xl shadow-2xl border border-border/50 overflow-hidden">
             {/* Form Fields */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="p-4 md:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 {/* Pick-up Location */}
                 <Popover open={locationOpen} onOpenChange={setLocationOpen}>
                   <PopoverTrigger asChild>
-                    <button className="flex items-center gap-3 p-4 bg-secondary/50 hover:bg-secondary rounded-xl transition-all text-left group border border-transparent hover:border-primary/20">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-5 h-5 text-primary" />
+                    <button className="flex items-center gap-2 p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all text-left group border border-transparent hover:border-primary/20">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-4 h-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide block mb-0.5">Location</span>
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Location</span>
                         <span className={cn(
-                          "font-semibold truncate block",
+                          "text-sm font-semibold truncate block",
                           selectedLocation ? "text-foreground" : "text-muted-foreground"
                         )}>
-                          {selectedLocationName || "Select location"}
+                          {selectedLocationName || "Pick location"}
                         </span>
                       </div>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[500px] p-0 bg-card border border-border shadow-xl z-50" align="start" sideOffset={8}>
@@ -141,20 +141,20 @@ const HeroSection = () => {
                 {/* Pick-up Date */}
                 <Popover open={pickupOpen} onOpenChange={setPickupOpen}>
                   <PopoverTrigger asChild>
-                    <button className="flex items-center gap-3 p-4 bg-secondary/50 hover:bg-secondary rounded-xl transition-all text-left group border border-transparent hover:border-primary/20">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-5 h-5 text-primary" />
+                    <button className="flex items-center gap-2 p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all text-left group border border-transparent hover:border-primary/20">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 h-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide block mb-0.5">Pick-up</span>
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Pick-up</span>
                         <span className={cn(
-                          "font-semibold truncate block",
+                          "text-sm font-semibold truncate block",
                           pickupDate ? "text-foreground" : "text-muted-foreground"
                         )}>
                           {pickupDate ? format(pickupDate, "MMM d, yyyy") : "Select date"}
                         </span>
                       </div>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 bg-card border border-border shadow-xl z-50" align="start" sideOffset={8}>
@@ -172,20 +172,20 @@ const HeroSection = () => {
                 {/* Drop-off Date */}
                 <Popover open={dropoffOpen} onOpenChange={setDropoffOpen}>
                   <PopoverTrigger asChild>
-                    <button className="flex items-center gap-3 p-4 bg-secondary/50 hover:bg-secondary rounded-xl transition-all text-left group border border-transparent hover:border-primary/20">
-                      <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-5 h-5 text-muted-foreground" />
+                    <button className="flex items-center gap-2 p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all text-left group border border-transparent hover:border-primary/20">
+                      <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide block mb-0.5">Drop-off</span>
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Drop-off</span>
                         <span className={cn(
-                          "font-semibold truncate block",
+                          "text-sm font-semibold truncate block",
                           dropoffDate ? "text-foreground" : "text-muted-foreground"
                         )}>
                           {dropoffDate ? format(dropoffDate, "MMM d, yyyy") : "Select date"}
                         </span>
                       </div>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 bg-card border border-border shadow-xl z-50" align="start" sideOffset={8}>
@@ -203,27 +203,27 @@ const HeroSection = () => {
                 {/* Search Button */}
                 <button
                   onClick={handleSearch}
-                  className="flex items-center justify-center gap-3 p-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                  className="flex items-center justify-center gap-2 p-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                 >
-                  <Search className="w-5 h-5" />
-                  <span className="hidden sm:inline">Search Cars</span>
+                  <Search className="w-4 h-4" />
+                  <span className="hidden sm:inline text-sm">Search Cars</span>
                   <ArrowRight className="w-4 h-4 sm:hidden" />
                 </button>
               </div>
             </div>
 
             {/* Bottom Stats Bar */}
-            <div className="px-6 py-4 bg-secondary/30 border-t border-border/50 flex flex-wrap items-center justify-center gap-6 md:gap-12 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            <div className="px-4 py-3 md:px-6 md:py-4 bg-secondary/30 border-t border-border/50 flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm">
+              <div className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
                 <span className="text-muted-foreground">Instant Confirmation</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary"></div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                 <span className="text-muted-foreground">Free Cancellation</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
                 <span className="text-muted-foreground">24/7 Support</span>
               </div>
             </div>
