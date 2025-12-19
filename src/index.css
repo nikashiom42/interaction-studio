@@ -134,4 +134,24 @@ All colors MUST be HSL.
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Enhanced mobile carousel scrolling */
+  .snap-x {
+    -webkit-overflow-scrolling: touch; /* Momentum scrolling on iOS */
+    overscroll-behavior-x: contain; /* Prevent scroll chaining */
+  }
+
+  /* Smooth snap behavior */
+  .snap-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  /* Smooth scrolling with CSS */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
 }

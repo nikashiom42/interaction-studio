@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
-  ChevronRight, Calendar, MapPin, Clock, Edit2, Trash2, Check,
+  ChevronRight, Calendar, MapPin, Clock, Trash2, Check,
   Lock, ThumbsUp, Shield, ChevronDown, Loader2
 } from 'lucide-react';
 import Header from '@/components/Header';
@@ -10,28 +10,20 @@ import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { toast } from '@/hooks/use-toast';
-import { format, parseISO, differenceInDays } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { countryCodes } from '@/data/countryCodes';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
-import { getDeliveryFee, getLocationById } from '@/lib/locations';
+import { getLocationById } from '@/lib/locations';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 
 type PaymentOption = 'deposit' | 'pickup';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { user } = useAuth();
-
-  const carId = searchParams.get('carId');
-  const tourId = searchParams.get('tourId');
-  const startDate = searchParams.get('startDate');
-  const endDate = searchParams.get('endDate');
-  const pickupTime = searchParams.get('pickupTime') || '10:00';
-  const dropoffTime = searchParams.get('dropoffTime') || '10:00';
-  const withDriver = searchParams.get('withDriver') === 'true';
-  const locationId = searchParams.get('location') || 'tbs'; // Default to Tbilisi Airport
+  const { items: cartItems, itemCount, totalPrice: cartTotal, removeItem, clearCart } = useCart();
 
   const [paymentSchedule, setPaymentSchedule] = useState<PaymentOption>('pickup');
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -44,23 +36,6 @@ const Checkout = () => {
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+995');
 
-  // Fetch car details if carId is provided
-  const { data: car, isLoading: carLoading } = useQuery({
-    queryKey: ['checkout-car', carId],
-    queryFn: async () => {
-      if (!carId) return null;
-      const { data, error } = await supabase
-        .from('cars')
-        .select('*')
-        .eq('id', carId)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!carId,
-  });
-
   // Fetch related cars for empty cart suggestions
   const { data: relatedCars } = useQuery({
     queryKey: ['related-cars'],
@@ -71,27 +46,16 @@ const Checkout = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(3);
-      
+
       if (error) throw error;
       return data;
     },
   });
 
-  // Calculate prices
-  const rentalDays = startDate && endDate
-    ? differenceInDays(parseISO(endDate), parseISO(startDate)) + 1
-    : 3;
-
-  const dailyRate = car
-    ? (withDriver && car.price_with_driver ? Number(car.price_with_driver) : Number(car.price_per_day))
-    : 180;
-
-  const rentalPrice = dailyRate * rentalDays;
-  const taxesFees = Math.round(rentalPrice * 0.06);
+  // Calculate total prices from cart
+  const taxesFees = Math.round(cartTotal * 0.06);
   const serviceCharge = 15;
-  const deliveryFee = getDeliveryFee(locationId);
-  const selectedLocation = getLocationById(locationId);
-  const totalPrice = rentalPrice + taxesFees + serviceCharge + deliveryFee;
+  const totalPrice = cartTotal + taxesFees + serviceCharge;
 
   // Calculate payment amounts based on option
   const getPaymentAmounts = () => {
@@ -108,55 +72,61 @@ const Checkout = () => {
   const paymentAmounts = getPaymentAmounts();
   const canComplete = !!firstName.trim() && !!lastName.trim() && !!email.trim() && !!phone.trim() && acceptTerms && !isProcessing;
 
-  // Create booking mutation
+  // Create booking mutation - creates multiple bookings for all cart items
   const createBookingMutation = useMutation({
     mutationFn: async () => {
-      // Both options are pay on spot - payment status is pending until paid at location
+      if (cartItems.length === 0) {
+        throw new Error('Cart is empty');
+      }
+
       const paymentStatus = 'pending';
       const bookingStatus: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' = 'confirmed';
 
-      const bookingData = {
-        car_id: carId || null,
-        tour_id: tourId || null,
-        booking_type: tourId ? 'tour' : 'car',
+      // Create booking data for each cart item
+      const bookingsData = cartItems.map(item => ({
+        car_id: item.carId || null,
+        tour_id: item.tourId || null,
+        booking_type: item.type,
         user_id: user?.id || null,
-        start_date: startDate || format(new Date(), 'yyyy-MM-dd'),
-        end_date: endDate || format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-        pickup_time: pickupTime,
-        dropoff_time: dropoffTime,
-        with_driver: withDriver,
-        total_price: totalPrice,
+        start_date: item.startDate,
+        end_date: item.endDate,
+        pickup_time: item.pickupTime || '10:00',
+        dropoff_time: item.dropoffTime || '10:00',
+        with_driver: item.withDriver || false,
+        total_price: item.totalPrice,
         status: bookingStatus,
         customer_name: `${firstName} ${lastName}`.trim(),
         customer_email: email,
         customer_phone: `${countryCode} ${phone}`.trim(),
         payment_option: paymentSchedule,
         payment_status: paymentStatus,
-        deposit_amount: paymentAmounts.deposit,
-        remaining_balance: paymentAmounts.remaining,
+        deposit_amount: paymentAmounts.deposit * (item.totalPrice / cartTotal), // Proportional deposit
+        remaining_balance: paymentAmounts.remaining * (item.totalPrice / cartTotal), // Proportional balance
         payment_transaction_id: null,
         payment_date: null,
-        notes: tourId ? 'Tour booking' : (withDriver ? 'Booking - With driver' : 'Booking - Self-drive'),
-      };
+        notes: item.type === 'tour' ? 'Tour booking' : (item.withDriver ? 'Booking - With driver' : 'Booking - Self-drive'),
+      }));
 
+      // Insert all bookings at once
       const { data, error } = await supabase
         .from('bookings')
-        .insert([bookingData])
-        .select()
-        .single();
+        .insert(bookingsData)
+        .select();
 
       if (error) throw error;
       return data;
     },
     onSuccess: (data) => {
-      toast({ title: 'Booking confirmed successfully!' });
-      navigate(`/booking-success?bookingId=${data.id}`);
+      clearCart(); // Clear cart after successful booking
+      toast({ title: `${data.length} booking${data.length > 1 ? 's' : ''} confirmed successfully!` });
+      // Navigate to success page with first booking ID
+      navigate(`/booking-success?bookingId=${data[0].id}`);
     },
     onError: (error) => {
-      toast({ 
-        title: 'Error creating booking', 
+      toast({
+        title: 'Error creating bookings',
         description: error.message,
-        variant: 'destructive' 
+        variant: 'destructive'
       });
       setIsProcessing(false);
     },
@@ -189,9 +159,7 @@ const Checkout = () => {
     { label: 'Confirmation', active: false, completed: false },
   ];
 
-  const cartEmpty = !carId && !tourId && !car;
-
-  if (cartEmpty && !carLoading) {
+  if (itemCount === 0) {
     return (
       <div className="min-h-screen bg-background">
         <SEO title="Checkout" description="Complete your car rental booking" url="/checkout" noIndex />
@@ -274,63 +242,84 @@ const Checkout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Cart Item */}
+            {/* Cart Items */}
             <section className="bg-card rounded-xl p-6 shadow-card animate-fade-in">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-foreground">Your Cart (1)</h2>
-                <Link to="/cars" className="text-primary text-sm font-medium hover:underline">Edit Cart</Link>
+                <h2 className="font-semibold text-foreground">Your Cart ({itemCount})</h2>
+                <Link to="/cart" className="text-primary text-sm font-medium hover:underline">View Cart</Link>
               </div>
 
-              <div className="flex gap-4">
-                <img 
-                  src={car?.main_image || carRangeRover} 
-                  alt={car ? `${car.brand} ${car.model}` : "Car"} 
-                  className="w-32 h-24 object-cover rounded-lg" 
-                />
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-xs text-primary font-semibold uppercase">Car Rental</span>
-                      <h3 className="font-semibold text-foreground">
-                        {car ? `${car.brand} ${car.model}` : 'Toyota Land Cruiser 2023'}
-                      </h3>
-                      <p className="text-sm text-muted-foreground capitalize">
-                        {car?.category || 'Premium'} • {withDriver ? 'With Driver' : 'Self-drive'}
-                      </p>
+              <div className="space-y-4">
+                {cartItems.map((item) => {
+                  const location = getLocationById(item.location || 'tbs');
+
+                  return (
+                    <div key={item.id} className="flex gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
+                      <div className="w-24 h-20 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.carName || item.tourName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-2xl">🚗</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-xs text-primary font-semibold uppercase">
+                              {item.type === 'car' ? 'Car Rental' : 'Tour Package'}
+                            </span>
+                            <h3 className="font-semibold text-foreground text-sm">
+                              {item.carName || item.tourName}
+                            </h3>
+                            {item.category && (
+                              <p className="text-xs text-muted-foreground capitalize">
+                                {item.category} • {item.withDriver ? 'With Driver' : 'Self-drive'}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>
+                              {format(parseISO(item.startDate), 'MMM d')} {item.pickupTime} - {format(parseISO(item.endDate), 'MMM d')} {item.dropoffTime}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{item.days} Days</span>
+                          </div>
+                          {location && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span>{location.name}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-xs text-muted-foreground">
+                            {formatPrice(item.pricePerDay)} × {item.days} days
+                          </span>
+                          <span className="font-semibold text-foreground">
+                            {formatPrice(item.totalPrice)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Link to={`/car/${carId}`} className="text-primary text-sm flex items-center gap-1 hover:underline">
-                        <Edit2 className="w-3.5 h-3.5" /> Edit
-                      </Link>
-                      <button className="text-muted-foreground text-sm flex items-center gap-1 hover:text-destructive transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" /> Remove
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {startDate && endDate
-                          ? `${format(parseISO(startDate), 'MMM d')} ${pickupTime} - ${format(parseISO(endDate), 'MMM d, yyyy')} ${dropoffTime}`
-                          : 'Thu, Oct 12 - Sun, Oct 15'
-                        }
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{rentalDays} Days</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    <span>Tbilisi Intl. Airport (TBS)</span>
-                  </div>
-                  <div className="flex items-center gap-1 mt-2 text-sm text-success">
-                    <Check className="w-4 h-4" />
-                    <span>Free cancellation until 48h before pickup</span>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             </section>
 
@@ -488,11 +477,11 @@ const Checkout = () => {
               {/* Order Summary */}
               <div className="bg-card rounded-xl p-6 shadow-card">
                 <h2 className="font-semibold text-foreground mb-4">Order Summary</h2>
-                
+
                 <div className="space-y-3 pb-4 border-b border-border">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Car Rental ({rentalDays} days × {formatPrice(dailyRate)})</span>
-                    <span className="text-foreground">{formatPrice(rentalPrice)}</span>
+                    <span className="text-muted-foreground">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
+                    <span className="text-foreground">{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Taxes & Fees (6%)</span>
@@ -502,17 +491,6 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Service Charge</span>
                     <span className="text-foreground">{formatPrice(serviceCharge)}</span>
                   </div>
-                  {deliveryFee > 0 ? (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Delivery Fee ({selectedLocation?.city})</span>
-                      <span className="text-foreground">${deliveryFee}</span>
-                    </div>
-                  ) : (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-success">Delivery Fee (Tbilisi)</span>
-                      <span className="text-success font-medium">Free</span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex justify-between py-4">

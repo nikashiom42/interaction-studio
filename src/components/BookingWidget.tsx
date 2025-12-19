@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Calendar, MapPin, Lock, ChevronDown, Clock } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Calendar, MapPin, Lock, ChevronDown, Clock, Info, ShoppingCart, Check } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useCart } from '@/hooks/useCart';
+import { toast } from '@/hooks/use-toast';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
   Popover,
@@ -16,9 +18,13 @@ interface BookingWidgetProps {
   pricePerDay: number;
   carName?: string;
   carId?: string;
+  category?: string;
+  image?: string;
 }
 
-const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
+const BookingWidget = ({ pricePerDay, carName, carId, category, image }: BookingWidgetProps) => {
+  const navigate = useNavigate();
+  const { addItem, isInCart } = useCart();
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
   const [pickupTime, setPickupTime] = useState('10:00');
@@ -67,6 +73,58 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
     setDropoffDate(date);
     setDropoffOpen(false);
   };
+
+  // Handle add to cart
+  const handleAddToCart = () => {
+    if (!pickupDate || !dropoffDate || !carId) {
+      toast({
+        title: 'Missing information',
+        description: 'Please select pickup and dropoff dates',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const startDateStr = format(pickupDate, 'yyyy-MM-dd');
+    const endDateStr = format(dropoffDate, 'yyyy-MM-dd');
+
+    // Check if already in cart
+    if (isInCart(carId, undefined, startDateStr, endDateStr)) {
+      toast({
+        title: 'Already in cart',
+        description: 'This car with these dates is already in your cart',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    addItem({
+      id: '', // Will be set by addItem
+      type: 'car',
+      carId,
+      carName,
+      startDate: startDateStr,
+      endDate: endDateStr,
+      pickupTime,
+      dropoffTime,
+      withDriver: driveType === 'driver',
+      location: selectedLocation,
+      pricePerDay,
+      totalPrice: total,
+      days,
+      category,
+      image,
+    });
+
+    toast({
+      title: 'Added to cart!',
+      description: `${carName} has been added to your cart`,
+    });
+  };
+
+  const alreadyInCart = pickupDate && dropoffDate && carId ?
+    isInCart(carId, undefined, format(pickupDate, 'yyyy-MM-dd'), format(dropoffDate, 'yyyy-MM-dd')) :
+    false;
 
   return (
     <div className="bg-card rounded-xl shadow-card-hover p-6 border border-border">
@@ -289,13 +347,52 @@ const BookingWidget = ({ pricePerDay, carName, carId }: BookingWidgetProps) => {
         </div>
       </div>
 
-      {/* Book Button */}
-      <Link
-        to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&pickupTime=${pickupTime}&dropoffTime=${dropoffTime}&withDriver=${driveType === 'driver'}&location=${selectedLocation}`}
-        className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
-      >
-        Book Now • {formatPrice(total)}
-      </Link>
+      {/* Action Buttons */}
+      <div className="space-y-3">
+        {/* Add to Cart Button */}
+        {alreadyInCart ? (
+          <button
+            onClick={() => navigate('/cart')}
+            className="w-full py-4 bg-success text-white font-semibold rounded-lg btn-scale hover:bg-success/90 transition-colors shadow-button flex items-center justify-center gap-2"
+          >
+            <Check className="w-5 h-5" />
+            In Cart • View Cart
+          </button>
+        ) : (
+          <button
+            onClick={handleAddToCart}
+            className="w-full py-4 bg-secondary text-foreground font-semibold rounded-lg btn-scale hover:bg-accent transition-colors border border-border flex items-center justify-center gap-2"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            Add to Cart • {formatPrice(total)}
+          </button>
+        )}
+
+        {/* Book Now Button */}
+        <Link
+          to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&pickupTime=${pickupTime}&dropoffTime=${dropoffTime}&withDriver=${driveType === 'driver'}&location=${selectedLocation}`}
+          className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
+        >
+          Book Now • {formatPrice(total)}
+        </Link>
+      </div>
+
+      {/* Availability Info */}
+      {category === 'sports' ? (
+        <div className="flex items-start gap-2 mt-4 p-3 bg-warning/10 border border-warning/20 rounded-lg text-sm">
+          <Info className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
+          <span className="text-warning">
+            <strong>Exclusive Booking:</strong> Sport cars can only be booked by one customer at a time. Please ensure your dates don't conflict with existing reservations.
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-start gap-2 mt-4 p-3 bg-success/10 border border-success/20 rounded-lg text-sm">
+          <Info className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
+          <span className="text-success">
+            <strong>Flexible Availability:</strong> This vehicle supports multiple bookings. You can reserve it even if others have booked for the same period.
+          </span>
+        </div>
+      )}
 
       <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
         <Lock className="w-4 h-4" />

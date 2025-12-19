@@ -4,11 +4,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/useCart";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import Index from "./pages/Index";
 import CarList from "./pages/CarList";
 import TourList from "./pages/TourList";
 import CarDetail from "./pages/CarDetail";
 import TripDetail from "./pages/TripDetail";
+import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import BookingSuccess from "./pages/BookingSuccess";
 import Auth from "./pages/Auth";
@@ -31,21 +34,23 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
+      <CartProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/cars" element={<CarList />} />
               <Route path="/tours" element={<TourList />} />
               <Route path="/car/:id" element={<CarDetail />} />
               <Route path="/trip/:id" element={<TripDetail />} />
+              <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/booking-success" element={<BookingSuccess />} />
               <Route path="/auth" element={<Auth />} />
@@ -68,9 +73,13 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+
+            {/* WhatsApp Floating Button - Available on all pages */}
+            <WhatsAppButton />
           </BrowserRouter>
         </TooltipProvider>
-      </AuthProvider>
+      </CartProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

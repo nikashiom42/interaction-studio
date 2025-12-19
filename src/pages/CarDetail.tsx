@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  ChevronRight, ChevronDown, ChevronUp, Star, MapPin, Users, Settings, 
+import {
+  ChevronRight, ChevronDown, ChevronUp, MapPin, Users, Settings,
   Check, Fuel, Car, Briefcase, DoorOpen, Wifi, Loader2
 } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BookingWidget from '@/components/BookingWidget';
-import ReviewForm from '@/components/ReviewForm';
-import ReviewsList from '@/components/ReviewsList';
 import { supabase } from '@/integrations/supabase/client';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carCorvette from '@/assets/car-corvette.jpg';
@@ -152,20 +150,8 @@ const CarDetail = () => {
             <div className="mb-6">
               <span className="text-primary text-sm font-semibold uppercase tracking-wide">Premium Selection</span>
               <h1 className="text-3xl font-bold text-foreground mt-1">{carName}</h1>
-              
+
               <div className="flex flex-wrap items-center gap-4 mt-3">
-                <div className="flex items-center gap-1">
-                  <div className="flex">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${i < 4 ? 'fill-star text-star' : 'text-gray-200'}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="font-medium text-foreground">4.8</span>
-                  <span className="text-primary underline cursor-pointer">(124 reviews)</span>
-                </div>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <MapPin className="w-4 h-4" />
                   <span>Tbilisi, Georgia</span>
@@ -300,15 +286,6 @@ const CarDetail = () => {
               </div>
             </section>
 
-            {/* Reviews */}
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-foreground mb-6">Customer Reviews</h2>
-              <ReviewsList carId={id} />
-              <div className="mt-8">
-                <ReviewForm carId={id} />
-              </div>
-            </section>
-
             {/* Similar Cars */}
             {similarCars && similarCars.length > 0 && (
               <section>
@@ -329,15 +306,9 @@ const CarDetail = () => {
                         />
                       </div>
                       <div className="p-4">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {similarCar.brand} {similarCar.model}
-                          </h3>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-star text-star" />
-                            <span className="text-sm font-medium">4.8</span>
-                          </div>
-                        </div>
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
+                          {similarCar.brand} {similarCar.model}
+                        </h3>
                         <p className="text-sm text-muted-foreground mb-3 capitalize">
                           {similarCar.category} • {similarCar.transmission}
                         </p>
@@ -361,10 +332,12 @@ const CarDetail = () => {
           {/* Right Column - Booking Widget */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <BookingWidget 
-                pricePerDay={Number(car.price_per_day)} 
-                carName={carName} 
+              <BookingWidget
+                pricePerDay={Number(car.price_per_day)}
+                carName={carName}
                 carId={car.id}
+                category={car.category}
+                image={car.main_image || undefined}
               />
             </div>
           </div>

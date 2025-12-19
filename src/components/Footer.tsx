@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { Phone, Mail, MapPin } from 'lucide-react';
+import { contactConfig, getPhoneLink, getEmailLink } from '@/config/contact';
 
 const footerLinks = {
   support: {
@@ -32,7 +34,7 @@ const Footer = () => {
     <footer className="bg-secondary/70 pt-12 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {Object.entries(footerLinks).map(([key, section]) => (
             <div key={key}>
               <h3 className="font-semibold text-foreground mb-4">{section.title}</h3>
@@ -50,6 +52,37 @@ const Footer = () => {
               </ul>
             </div>
           ))}
+
+          {/* Contact Section */}
+          <div>
+            <h3 className="font-semibold text-foreground mb-4">Contact</h3>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href={getPhoneLink()}
+                  className="flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground transition-colors group"
+                >
+                  <Phone className="w-4 h-4 flex-shrink-0 group-hover:text-primary transition-colors" />
+                  <span>{contactConfig.phone.displayLocal}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={getEmailLink()}
+                  className="flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground transition-colors group"
+                >
+                  <Mail className="w-4 h-4 flex-shrink-0 group-hover:text-primary transition-colors" />
+                  <span className="truncate">{contactConfig.email}</span>
+                </a>
+              </li>
+              <li>
+                <div className="flex items-start gap-2 text-muted-foreground text-sm">
+                  <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>{contactConfig.address}</span>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Bottom Bar */}

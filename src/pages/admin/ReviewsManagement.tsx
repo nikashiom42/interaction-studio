@@ -136,6 +136,25 @@ export default function ReviewsManagement() {
         <p className="text-muted-foreground">Approve, feature, or delete customer reviews.</p>
       </div>
 
+      {/* Reviews Disabled Notice */}
+      <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 mt-0.5">
+            <X className="h-5 w-5 text-yellow-600 dark:text-yellow-500" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-yellow-800 dark:text-yellow-500 mb-1">
+              Reviews Feature Disabled
+            </h3>
+            <p className="text-sm text-yellow-700 dark:text-yellow-600">
+              The reviews and ratings feature has been disabled on the public-facing site.
+              Customers can no longer submit new reviews or see existing ratings.
+              This page shows existing reviews for reference only (read-only mode).
+            </p>
+          </div>
+        </div>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>All Reviews ({reviews?.length || 0})</CardTitle>

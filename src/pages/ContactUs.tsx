@@ -9,30 +9,31 @@ import { Label } from '@/components/ui/label';
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { contactConfig, getPhoneLink, getEmailLink } from '@/config/contact';
 
 const contactInfo = [
   {
     icon: Phone,
     label: 'Phone',
-    value: '+995 555 123 456',
-    href: 'tel:+995555123456',
+    value: contactConfig.phone.display,
+    href: getPhoneLink(),
   },
   {
     icon: Mail,
     label: 'Email',
-    value: 'info@rentals.ge',
-    href: 'mailto:info@rentals.ge',
+    value: contactConfig.email,
+    href: getEmailLink(),
   },
   {
     icon: MapPin,
     label: 'Office',
-    value: '12 Rustaveli Ave, Tbilisi, Georgia',
-    href: 'https://maps.google.com/?q=Rustaveli+Avenue+Tbilisi',
+    value: contactConfig.address,
+    href: 'https://maps.google.com/?q=Tbilisi+Georgia',
   },
   {
     icon: Clock,
     label: 'Working Hours',
-    value: 'Mon-Sun: 24/7',
+    value: `Weekdays: ${contactConfig.hours.weekdays} | Weekends: ${contactConfig.hours.weekends}`,
     href: null,
   },
 ];
@@ -198,7 +199,7 @@ const ContactUs = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="+995 555 123 456"
+                        placeholder={contactConfig.phone.display}
                       />
                     </div>
                     <div className="space-y-2">

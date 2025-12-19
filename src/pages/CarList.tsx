@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
-import { ChevronRight, Calendar, ChevronDown, Check, Star, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X, DollarSign } from 'lucide-react';
+import { ChevronRight, Calendar, ChevronDown, Check, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X, DollarSign } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -38,6 +38,8 @@ const CarList = () => {
   const [minPrice, setMinPrice] = useState<number | ''>('');
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
   const [priceFilterOpen, setPriceFilterOpen] = useState(false);
+  const [activeCarIndex, setActiveCarIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch cars from database with filters
   const { data: cars, isLoading } = useQuery({
@@ -100,10 +102,26 @@ const CarList = () => {
   };
 
   const toggleFilter = (id: string) => {
-    setActiveFilters(prev => 
+    setActiveFilters(prev =>
       prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
     );
   };
+
+  // Handle scroll to update active indicator
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || !cars || cars.length === 0) return;
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = container.scrollWidth / cars.length;
+      const newIndex = Math.round(scrollLeft / cardWidth);
+      setActiveCarIndex(Math.min(newIndex, cars.length - 1));
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [cars]);
 
   // Check if car has a specific feature
   const hasFeature = (car: CarType, feature: string) => {
@@ -283,16 +301,27 @@ const CarList = () => {
           </div>
         )}
 
-        {/* Cars Grid */}
+        {/* Cars Grid/Carousel */}
         {cars && cars.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {cars.map((car, index) => (
-              <Link
-                key={car.id}
-                to={`/car/${car.id}`}
-                className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
-                style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
-              >
+          <div className="relative mb-8">
+            {/* Mobile: Horizontal Scroll Carousel */}
+            <div
+              ref={scrollContainerRef}
+              className="md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-4 px-4 scroll-smooth"
+            >
+              <div className="flex gap-4" style={{ width: 'max-content' }}>
+                {cars.map((car, index) => (
+                  <Link
+                    key={car.id}
+                    to={`/car/${car.id}`}
+                    className="group bg-card rounded-xl overflow-hidden shadow-card card-hover snap-start opacity-0 animate-fade-in-up"
+                    style={{
+                      animationDelay: `${index * 80}ms`,
+                      animationFillMode: 'forwards',
+                      width: '85vw',
+                      maxWidth: '340px'
+                    }}
+                  >
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                   {car.main_image ? (
@@ -319,22 +348,9 @@ const CarList = () => {
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-semibold text-foreground text-lg mb-1 group-hover:text-primary transition-colors">
+                  <h3 className="font-semibold text-foreground text-lg mb-3 group-hover:text-primary transition-colors">
                     {car.brand} {car.model}
                   </h3>
-                  
-                  {/* Rating placeholder */}
-                  <div className="flex items-center gap-1 mb-3">
-                    <div className="flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3.5 h-3.5 ${i < 4 ? 'fill-star text-star' : 'text-gray-200'}`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-muted-foreground">New</span>
-                  </div>
 
                   {/* Specs Row 1 */}
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
@@ -380,6 +396,120 @@ const CarList = () => {
                 </div>
               </Link>
             ))}
+              </div>
+            </div>
+
+            {/* Yellow Scroll Indicator for Mobile */}
+            <div className="md:hidden flex justify-center gap-1 mt-2">
+              {cars.length <= 10 ? (
+                // Show individual dots for 10 or fewer cars
+                cars.map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-1 rounded-full transition-all duration-300"
+                    style={{
+                      width: index === activeCarIndex ? '24px' : '8px',
+                      backgroundColor: index === activeCarIndex ? '#F59E0B' : '#e5e7eb'
+                    }}
+                  />
+                ))
+              ) : (
+                // Show progress bar for many cars
+                <div className="w-32 h-1 bg-secondary rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-yellow-500 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${((activeCarIndex + 1) / cars.length) * 100}%`
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Desktop: Grid Layout */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {cars.map((car, index) => (
+                <Link
+                  key={car.id}
+                  to={`/car/${car.id}`}
+                  className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
+                >
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    {car.main_image ? (
+                      <img
+                        src={car.main_image}
+                        alt={`${car.brand} ${car.model}`}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Car className="h-16 w-16 text-muted-foreground" />
+                      </div>
+                    )}
+                    {/* Category Badge */}
+                    <div className="absolute top-3 left-3 px-3 py-1 bg-foreground/80 backdrop-blur-sm text-background text-xs font-medium rounded-md capitalize">
+                      {car.category}
+                    </div>
+                    {/* Free Cancellation */}
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 bg-background/90 backdrop-blur-sm rounded-md">
+                      <Check className="w-3.5 h-3.5 text-success" />
+                      <span className="text-xs font-medium text-success">FREE CANCELLATION</span>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-foreground text-lg mb-3 group-hover:text-primary transition-colors">
+                      {car.brand} {car.model}
+                    </h3>
+
+                    {/* Specs Row 1 */}
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>{car.seats} Seats</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Settings className="w-4 h-4" />
+                        <span className="capitalize">{car.transmission}</span>
+                      </div>
+                      {hasFeature(car, '4x4') && (
+                        <div className="flex items-center gap-1">
+                          <Mountain className="w-4 h-4" />
+                          <span>4x4</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Specs Row 2 */}
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                      <div className="flex items-center gap-1">
+                        <Fuel className="w-4 h-4" />
+                        <span className="capitalize">{car.fuel_type}</span>
+                      </div>
+                      {hasFeature(car, 'ac') && (
+                        <div className="flex items-center gap-1">
+                          <Snowflake className="w-4 h-4" />
+                          <span>A/C</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-border pt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm">Price for 1 day</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-foreground text-2xl font-bold">{formatPrice(car.price_per_day)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
