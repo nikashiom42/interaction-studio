@@ -8,6 +8,7 @@ import HowItWorks from '@/components/HowItWorks';
 import Testimonials from '@/components/Testimonials';
 import FAQ from '@/components/FAQ';
 import BlogSection from '@/components/BlogSection';
+import MapSection from '@/components/MapSection';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { Database } from '@/integrations/supabase/types';
@@ -37,6 +38,7 @@ const Index = () => {
         <Testimonials />
         <FAQ />
         <BlogSection />
+        <MapSection />
       </main>
       <Footer />
     </div>

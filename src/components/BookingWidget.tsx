@@ -40,28 +40,26 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
   const [campingEquipment, setCampingEquipment] = useState(false);
 
   // Calculate number of days and pricing
-  const { days, subtotal, serviceFee, driverFee, deliveryFee, childSeatsTotal, campingEquipmentTotal, addonsTotal, total } = useMemo(() => {
+  const { days, subtotal, driverFee, deliveryFee, childSeatsTotal, campingEquipmentTotal, addonsTotal, total } = useMemo(() => {
     if (!pickupDate || !dropoffDate) {
-      return { days: 0, subtotal: 0, serviceFee: 0, driverFee: 0, deliveryFee: 0, childSeatsTotal: 0, campingEquipmentTotal: 0, addonsTotal: 0, total: 0 };
+      return { days: 0, subtotal: 0, driverFee: 0, deliveryFee: 0, childSeatsTotal: 0, campingEquipmentTotal: 0, addonsTotal: 0, total: 0 };
     }
 
     const calculatedDays = Math.max(1, differenceInDays(dropoffDate, pickupDate));
     const calculatedSubtotal = pricePerDay * calculatedDays;
-    const calculatedServiceFee = Math.round(calculatedSubtotal * 0.05); // 5% service fee
     const calculatedDriverFee = driveType === 'driver' ? 50 * calculatedDays : 0;
     const calculatedDeliveryFee = getDeliveryFee(selectedLocation);
-    
+
     // Calculate add-ons
     const calculatedChildSeatsTotal = childSeats * ADDON_PRICING.childSeat.pricePerDay * calculatedDays;
     const calculatedCampingEquipmentTotal = campingEquipment ? ADDON_PRICING.campingEquipment.pricePerDay * calculatedDays : 0;
     const calculatedAddonsTotal = calculatedChildSeatsTotal + calculatedCampingEquipmentTotal;
-    
-    const calculatedTotal = calculatedSubtotal + calculatedServiceFee + calculatedDriverFee + calculatedDeliveryFee + calculatedAddonsTotal;
+
+    const calculatedTotal = calculatedSubtotal + calculatedDriverFee + calculatedDeliveryFee + calculatedAddonsTotal;
 
     return {
       days: calculatedDays,
       subtotal: calculatedSubtotal,
-      serviceFee: calculatedServiceFee,
       driverFee: calculatedDriverFee,
       deliveryFee: calculatedDeliveryFee,
       childSeatsTotal: calculatedChildSeatsTotal,
@@ -425,10 +423,6 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
             <span className="font-medium text-foreground">{formatPrice(driverFee)}</span>
           </div>
         )}
-        <div className="flex items-center justify-between text-muted-foreground text-sm">
-          <span>Service fee (5%)</span>
-          <span className="font-medium text-foreground">{formatPrice(serviceFee)}</span>
-        </div>
         {deliveryFee > 0 ? (
           <div className="flex items-center justify-between text-muted-foreground text-sm animate-fade-in">
             <span>Delivery fee</span>

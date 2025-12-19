@@ -53,9 +53,7 @@ const Checkout = () => {
   });
 
   // Calculate total prices from cart
-  const taxesFees = Math.round(cartTotal * 0.06);
-  const serviceCharge = 15;
-  const totalPrice = cartTotal + taxesFees + serviceCharge;
+  const totalPrice = cartTotal;
 
   // Calculate payment amounts based on option
   const getPaymentAmounts = () => {
@@ -507,21 +505,13 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
                     <span className="text-foreground">{formatPrice(cartTotal)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Taxes & Fees (6%)</span>
-                    <span className="text-foreground">{formatPrice(taxesFees)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Service Charge</span>
-                    <span className="text-foreground">{formatPrice(serviceCharge)}</span>
-                  </div>
                 </div>
 
                 <div className="flex justify-between py-4">
                   <span className="font-semibold text-foreground">Total Price</span>
                   <div className="text-right">
                     <span className="text-2xl font-bold text-foreground">{formatPrice(totalPrice)}</span>
-                    <p className="text-xs text-muted-foreground">Includes all taxes</p>
+                    <p className="text-xs text-muted-foreground">Final price</p>
                   </div>
                 </div>
 

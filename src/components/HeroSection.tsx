@@ -72,150 +72,190 @@ const HeroSection = () => {
           </p>
 
           {/* Search Form */}
-          <div className="bg-background rounded-xl p-2 shadow-2xl animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="flex flex-col md:flex-row gap-2">
-              {/* Pick-up Location */}
-              <Popover open={locationOpen} onOpenChange={setLocationOpen}>
-                <PopoverTrigger asChild>
-                  <button className="flex-1 flex items-center gap-3 px-4 py-3 bg-secondary rounded-lg group hover:bg-accent transition-colors text-left">
-                    <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs text-muted-foreground block">Pick-up Location</span>
-                      <span className={cn(
-                        "font-medium truncate block text-sm",
-                        selectedLocation ? "text-foreground" : "text-muted-foreground"
-                      )}>
-                        {selectedLocationName || "Select location"}
-                      </span>
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[500px] p-0 bg-card border border-border shadow-lg z-50" align="start">
-                  <div className="grid grid-cols-2 gap-0">
-                    {/* Map */}
-                    <div className="h-[300px] border-r border-border">
-                      <LocationMap
-                        locations={pickupLocations}
-                        selectedLocationId={selectedLocation}
-                        onLocationSelect={(id) => {
-                          setSelectedLocation(id);
-                        }}
-                      />
-                    </div>
-                    {/* List */}
-                    <div className="py-2 overflow-y-auto max-h-[300px]">
-                      {pickupLocations.map((location) => (
-                        <button
-                          key={location.id}
-                          onClick={() => {
-                            setSelectedLocation(location.id);
-                            setLocationOpen(false);
+          <div className="bg-background/95 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl animate-fade-in border border-border/50" style={{ animationDelay: '0.2s' }}>
+            <div className="space-y-4">
+              {/* Location Selection */}
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
+                  Location
+                </label>
+                <Popover open={locationOpen} onOpenChange={setLocationOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="w-full flex items-center gap-3 px-4 py-4 bg-secondary/50 rounded-xl group hover:bg-accent hover:shadow-md transition-all text-left border border-transparent hover:border-primary/20">
+                      <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                        <MapPin className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-muted-foreground block mb-0.5">Pick-up Location</span>
+                        <span className={cn(
+                          "font-semibold truncate block",
+                          selectedLocation ? "text-foreground" : "text-muted-foreground"
+                        )}>
+                          {selectedLocationName || "Select your location"}
+                        </span>
+                      </div>
+                      <ChevronDown className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[500px] p-0 bg-card border border-border shadow-xl z-50 rounded-xl" align="start">
+                    <div className="grid grid-cols-2 gap-0">
+                      {/* Map */}
+                      <div className="h-[300px] border-r border-border">
+                        <LocationMap
+                          locations={pickupLocations}
+                          selectedLocationId={selectedLocation}
+                          onLocationSelect={(id) => {
+                            setSelectedLocation(id);
                           }}
-                          className={cn(
-                            "w-full px-4 py-2 text-left hover:bg-secondary transition-colors flex items-center gap-3",
-                            selectedLocation === location.id && "bg-primary/10"
-                          )}
-                        >
-                          <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{location.name}</p>
-                            <p className="text-xs text-muted-foreground">{location.city}</p>
+                        />
+                      </div>
+                      {/* List */}
+                      <div className="py-2 overflow-y-auto max-h-[300px]">
+                        {pickupLocations.map((location) => (
+                          <button
+                            key={location.id}
+                            onClick={() => {
+                              setSelectedLocation(location.id);
+                              setLocationOpen(false);
+                            }}
+                            className={cn(
+                              "w-full px-4 py-2.5 text-left hover:bg-secondary transition-colors flex items-center gap-3 group",
+                              selectedLocation === location.id && "bg-primary/10"
+                            )}
+                          >
+                            <MapPin className="w-4 h-4 text-muted-foreground group-hover:text-primary flex-shrink-0 transition-colors" />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{location.name}</p>
+                              <p className="text-xs text-muted-foreground">{location.city}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Pick-up and Drop-off Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Pick-up Date & Time */}
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+                    Pick-up
+                  </label>
+                  <div className="space-y-2">
+                    {/* Pick-up Date */}
+                    <Popover open={pickupOpen} onOpenChange={setPickupOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="w-full flex items-center gap-3 px-4 py-3.5 bg-secondary/50 rounded-xl group hover:bg-accent hover:shadow-md transition-all text-left border border-transparent hover:border-primary/20">
+                          <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                            <Calendar className="w-4 h-4 text-primary" />
                           </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-xs text-muted-foreground block mb-0.5">Date</span>
+                            <span className={cn(
+                              "font-semibold truncate block text-sm",
+                              pickupDate ? "text-foreground" : "text-muted-foreground"
+                            )}>
+                              {pickupDate ? format(pickupDate, "MMM d, yyyy") : "Select date"}
+                            </span>
+                          </div>
+                          <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                         </button>
-                      ))}
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-card border border-border shadow-xl z-50 rounded-xl" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={pickupDate}
+                          onSelect={handlePickupSelect}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className="p-3 pointer-events-auto rounded-xl"
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Pick-up Time */}
+                    <div className="flex items-center gap-3 px-4 py-3.5 bg-secondary/50 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-md transition-all group">
+                      <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                        <Clock className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-xs text-muted-foreground block mb-0.5">Time</span>
+                        <input
+                          type="time"
+                          value={pickupTime}
+                          onChange={(e) => setPickupTime(e.target.value)}
+                          className="w-full text-sm font-semibold text-foreground bg-transparent border-none outline-none cursor-pointer"
+                        />
+                      </div>
                     </div>
                   </div>
-                </PopoverContent>
-              </Popover>
-
-              {/* Pick-up Date */}
-              <Popover open={pickupOpen} onOpenChange={setPickupOpen}>
-                <PopoverTrigger asChild>
-                  <button className="flex-1 flex items-center gap-3 px-4 py-3 bg-secondary rounded-lg group hover:bg-accent transition-colors text-left">
-                    <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs text-muted-foreground block">Pick-up</span>
-                      <span className={cn(
-                        "font-medium truncate block text-sm",
-                        pickupDate ? "text-foreground" : "text-muted-foreground"
-                      )}>
-                        {pickupDate ? format(pickupDate, "MMM d, yyyy") : "Select date"}
-                      </span>
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-card border border-border shadow-lg z-50" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={pickupDate}
-                    onSelect={handlePickupSelect}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-
-              {/* Drop-off Date */}
-              <Popover open={dropoffOpen} onOpenChange={setDropoffOpen}>
-                <PopoverTrigger asChild>
-                  <button className="flex-1 flex items-center gap-3 px-4 py-3 bg-secondary rounded-lg group hover:bg-accent transition-colors text-left">
-                    <Calendar className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs text-muted-foreground block">Drop-off</span>
-                      <span className={cn(
-                        "font-medium truncate block text-sm",
-                        dropoffDate ? "text-foreground" : "text-muted-foreground"
-                      )}>
-                        {dropoffDate ? format(dropoffDate, "MMM d, yyyy") : "Select date"}
-                      </span>
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-card border border-border shadow-lg z-50" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={dropoffDate}
-                    onSelect={handleDropoffSelect}
-                    disabled={(date) => date <= (pickupDate || new Date())}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-
-              {/* Time Pickers - Compact */}
-              <div className="flex gap-2">
-                <div className="flex-1 flex items-center gap-2 px-3 py-3 bg-secondary rounded-lg">
-                  <Clock className="w-4 h-4 text-primary flex-shrink-0" />
-                  <input
-                    type="time"
-                    value={pickupTime}
-                    onChange={(e) => setPickupTime(e.target.value)}
-                    className="flex-1 text-sm font-medium text-foreground bg-transparent border-none outline-none"
-                  />
                 </div>
-                <div className="flex-1 flex items-center gap-2 px-3 py-3 bg-secondary rounded-lg">
-                  <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  <input
-                    type="time"
-                    value={dropoffTime}
-                    onChange={(e) => setDropoffTime(e.target.value)}
-                    className="flex-1 text-sm font-medium text-foreground bg-transparent border-none outline-none"
-                  />
+
+                {/* Drop-off Date & Time */}
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+                    Drop-off
+                  </label>
+                  <div className="space-y-2">
+                    {/* Drop-off Date */}
+                    <Popover open={dropoffOpen} onOpenChange={setDropoffOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="w-full flex items-center gap-3 px-4 py-3.5 bg-secondary/50 rounded-xl group hover:bg-accent hover:shadow-md transition-all text-left border border-transparent hover:border-border/50">
+                          <div className="p-2 rounded-lg bg-secondary group-hover:bg-accent transition-colors">
+                            <Calendar className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-xs text-muted-foreground block mb-0.5">Date</span>
+                            <span className={cn(
+                              "font-semibold truncate block text-sm",
+                              dropoffDate ? "text-foreground" : "text-muted-foreground"
+                            )}>
+                              {dropoffDate ? format(dropoffDate, "MMM d, yyyy") : "Select date"}
+                            </span>
+                          </div>
+                          <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-card border border-border shadow-xl z-50 rounded-xl" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={dropoffDate}
+                          onSelect={handleDropoffSelect}
+                          disabled={(date) => date <= (pickupDate || new Date())}
+                          initialFocus
+                          className="p-3 pointer-events-auto rounded-xl"
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Drop-off Time */}
+                    <div className="flex items-center gap-3 px-4 py-3.5 bg-secondary/50 rounded-xl border border-transparent hover:border-border/50 hover:shadow-md transition-all group">
+                      <div className="p-2 rounded-lg bg-secondary group-hover:bg-accent transition-colors">
+                        <Clock className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-xs text-muted-foreground block mb-0.5">Time</span>
+                        <input
+                          type="time"
+                          value={dropoffTime}
+                          onChange={(e) => setDropoffTime(e.target.value)}
+                          className="w-full text-sm font-semibold text-foreground bg-transparent border-none outline-none cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Search Button */}
               <button
                 onClick={handleSearch}
-                className="flex items-center justify-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium btn-scale hover:bg-coral-hover transition-colors shadow-button"
+                className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold text-lg btn-scale hover:bg-coral-hover transition-all shadow-lg hover:shadow-xl"
               >
                 <Search className="w-5 h-5" />
-                <span>Search</span>
+                <span>Search Available Cars</span>
               </button>
             </div>
           </div>
