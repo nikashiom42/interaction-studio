@@ -107,11 +107,11 @@ export const getPhoneLink = (): string => {
 
 /**
  * Get WhatsApp URL with optional custom message
+ * Using custom wa.link short URL
  */
 export const getWhatsAppLink = (message?: string): string => {
-  const defaultMessage = 'Hello! I am interested in renting a car.';
-  const text = message || defaultMessage;
-  return `https://wa.me/${contactConfig.whatsapp.number}?text=${encodeURIComponent(text)}`;
+  // Use custom WhatsApp short link
+  return 'https://wa.link/1a2bes';
 };
 
 /**
