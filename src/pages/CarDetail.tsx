@@ -144,8 +144,8 @@ const CarDetail = () => {
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2">
+          {/* Left Column - Order 2 on mobile, 1 on desktop */}
+          <div className="lg:col-span-2 order-2 lg:order-1">
             {/* Header */}
             <div className="mb-6">
               <span className="text-primary text-sm font-semibold uppercase tracking-wide">Premium Selection</span>
@@ -329,9 +329,9 @@ const CarDetail = () => {
             )}
           </div>
 
-          {/* Right Column - Booking Widget */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
+          {/* Right Column - Booking Widget - Order 1 on mobile, 2 on desktop */}
+          <div className="lg:col-span-1 order-1 lg:order-2">
+            <div className="lg:sticky lg:top-24">
               <BookingWidget
                 pricePerDay={Number(car.price_per_day)}
                 carName={carName}

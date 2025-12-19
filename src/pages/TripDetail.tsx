@@ -151,8 +151,8 @@ const TripDetail = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          {/* Main Content - Order 2 on mobile, 1 on desktop */}
+          <div className="lg:col-span-2 space-y-8 order-2 lg:order-1">
             {/* Title & Quick Info */}
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{tour.name}</h1>
@@ -252,9 +252,9 @@ const TripDetail = () => {
             </div>
           </div>
 
-          {/* Booking Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-card rounded-xl p-6 shadow-card border border-border">
+          {/* Booking Sidebar - Order 1 on mobile, 2 on desktop */}
+          <div className="lg:col-span-1 order-1 lg:order-2">
+            <div className="lg:sticky lg:top-24 bg-card rounded-xl p-6 shadow-card border border-border">
               <div className="mb-6">
                 <p className="text-muted-foreground text-sm">Starting from</p>
                 <div className="flex items-baseline gap-1">
