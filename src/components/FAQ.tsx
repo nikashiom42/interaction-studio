@@ -1,3 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -5,34 +8,44 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const faqs = [
-  {
-    question: 'What documents do I need to rent a car in Georgia?',
-    answer: 'You need a valid driving license (international or from your home country), a passport or ID, and a credit/debit card for the deposit. Drivers must be at least 21 years old with at least 1 year of driving experience.',
-  },
-  {
-    question: 'Is insurance included in the rental price?',
-    answer: 'Yes, basic insurance (CDW - Collision Damage Waiver) is included in all our rentals. You can upgrade to full coverage insurance for additional peace of mind at checkout.',
-  },
-  {
-    question: 'Can I pick up the car at Tbilisi Airport?',
-    answer: 'Absolutely! We offer convenient pickup and drop-off at Tbilisi International Airport (TBS), as well as Batumi and Kutaisi airports. Airport pickup is available 24/7.',
-  },
-  {
-    question: 'What is your cancellation policy?',
-    answer: 'Free cancellation up to 48 hours before your pickup time for a full refund. Cancellations within 48 hours may be subject to a cancellation fee of one day\'s rental.',
-  },
-  {
-    question: 'Do you offer one-way rentals?',
-    answer: 'Yes, we offer one-way rentals between major cities in Georgia. Pick up in Tbilisi and drop off in Batumi, or vice versa. Additional fees may apply for one-way rentals.',
-  },
-  {
-    question: 'What fuel policy do you have?',
-    answer: 'We operate a "full-to-full" fuel policy. You receive the car with a full tank and should return it with a full tank. Fuel costs are not included in the rental price.',
-  },
-];
+type FAQ = {
+  id: string;
+  question: string;
+  answer: string;
+  display_order: number;
+  is_active: boolean;
+};
 
 const FAQ = () => {
+  const { data: faqs, isLoading } = useQuery({
+    queryKey: ['faqs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data as FAQ[];
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!faqs || faqs.length === 0) {
+    return null;
+  }
   return (
     <section className="py-16 bg-background">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,10 +59,10 @@ const FAQ = () => {
         </div>
 
         <Accordion type="single" collapsible className="w-full space-y-3">
-          {faqs.map((faq, index) => (
+          {faqs.map((faq) => (
             <AccordionItem
-              key={index}
-              value={`item-${index}`}
+              key={faq.id}
+              value={faq.id}
               className="bg-secondary/50 rounded-xl px-6 border-none"
             >
               <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline py-5">

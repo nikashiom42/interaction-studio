@@ -1,4 +1,4 @@
-import { Car, CalendarCheck, Users, LayoutDashboard, Map, LogOut, Mail, FileText } from "lucide-react";
+import { Car, CalendarCheck, Users, LayoutDashboard, Map, LogOut, Mail, FileText, HelpCircle, MapPin, Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,8 +23,11 @@ const menuItems = [
   { title: "Tours", url: "/admin/tours", icon: Map },
   { title: "Bookings", url: "/admin/bookings", icon: CalendarCheck },
   { title: "Users", url: "/admin/users", icon: Users },
+  { title: "FAQs", url: "/admin/faqs", icon: HelpCircle },
   { title: "Blogs", url: "/admin/blogs", icon: FileText },
   { title: "Messages", url: "/admin/messages", icon: Mail },
+  { title: "Locations", url: "/admin/locations", icon: MapPin },
+  { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {

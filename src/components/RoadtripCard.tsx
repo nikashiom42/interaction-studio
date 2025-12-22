@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Clock, MapPin, ArrowRight } from 'lucide-react';
+import { Clock, MapPin, ArrowRight, Users } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 
 interface RoadtripCardProps {
@@ -12,9 +12,10 @@ interface RoadtripCardProps {
   price: number;
   badge?: string;
   delay?: number;
+  maxParticipants?: number | null;
 }
 
-const RoadtripCard = ({ id, image, title, days, miles, description, price, badge, delay = 0 }: RoadtripCardProps) => {
+const RoadtripCard = ({ id, image, title, days, miles, description, price, badge, delay = 0, maxParticipants }: RoadtripCardProps) => {
   return (
     <Link 
       to={`/trip/${id}`}
@@ -51,6 +52,12 @@ const RoadtripCard = ({ id, image, title, days, miles, description, price, badge
             <MapPin className="w-4 h-4" />
             <span>{miles} miles</span>
           </div>
+          {maxParticipants && (
+            <div className="flex items-center gap-1">
+              <Users className="w-4 h-4" />
+              <span>Up to {maxParticipants}</span>
+            </div>
+          )}
         </div>
 
         <p className="text-muted-foreground text-sm mb-4 line-clamp-2">

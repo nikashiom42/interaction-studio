@@ -1,13 +1,14 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2, DollarSign, Info } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
+import { format, addDays } from 'date-fns';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import ReviewsList from '@/components/ReviewsList';
-import ReviewForm from '@/components/ReviewForm';
+import { useCart } from '@/hooks/useCart';
+import { toast } from '@/hooks/use-toast';
 
 type Tour = {
   id: string;
@@ -40,6 +41,8 @@ type Tour = {
 
 const TripDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { addItem, isInCart } = useCart();
 
   const { data: tour, isLoading, error } = useQuery({
     queryKey: ['tour', id],
@@ -87,6 +90,42 @@ const TripDetail = () => {
     },
     enabled: !!id,
   });
+
+  // Handle book tour - add to cart and navigate to cart page
+  const handleBookTour = () => {
+    if (!tour || !id) {
+      toast({
+        title: 'Error',
+        description: 'Tour information is not available',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Use default dates (tomorrow to 4 days from now) for tours
+    const startDate = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+    const endDate = format(addDays(new Date(), 1 + tour.duration_days), 'yyyy-MM-dd');
+
+    // Check if already in cart
+    if (!isInCart(undefined, id, startDate, endDate)) {
+      // Add to cart if not already there
+      addItem({
+        id: '', // Will be set by addItem
+        type: 'tour',
+        tourId: id,
+        tourName: tour.name,
+        startDate,
+        endDate,
+        pricePerDay: tour.base_price / tour.duration_days,
+        totalPrice: tour.base_price,
+        days: tour.duration_days,
+        image: tour.main_image || undefined,
+      });
+    }
+
+    // Navigate to cart page
+    navigate('/cart');
+  };
 
   if (isLoading) {
     return (
@@ -242,14 +281,6 @@ const TripDetail = () => {
               </div>
             )}
 
-            {/* Reviews Section */}
-            <div className="mt-8">
-              <h3 className="font-semibold text-foreground mb-4">Customer Reviews</h3>
-              <ReviewsList tourId={id} />
-              <div className="mt-6">
-                <ReviewForm tourId={id} />
-              </div>
-            </div>
           </div>
 
           {/* Booking Sidebar - Order 1 on mobile, 2 on desktop */}
@@ -280,6 +311,44 @@ const TripDetail = () => {
                 </div>
               )}
 
+              {/* Pricing Tiers */}
+              {tour.pricing_tiers && Array.isArray(tour.pricing_tiers) && tour.pricing_tiers.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-primary" />
+                    Pricing Tiers
+                  </h4>
+                  <div className="space-y-2">
+                    {tour.pricing_tiers.map((tier: { min_days: number; max_days: number; price: number }, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg text-sm">
+                        <span className="text-foreground">
+                          {tier.min_days} - {tier.max_days} days
+                        </span>
+                        <span className="font-semibold text-primary">{formatPrice(tier.price)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Fees */}
+              {tour.additional_fees && typeof tour.additional_fees === 'object' && Object.keys(tour.additional_fees).length > 0 && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-primary" />
+                    Additional Fees
+                  </h4>
+                  <div className="space-y-2">
+                    {Object.entries(tour.additional_fees).map(([key, value]: [string, number], index: number) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-secondary/30 rounded-md text-sm">
+                        <span className="text-muted-foreground">{key}</span>
+                        <span className="font-medium text-foreground">{formatPrice(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Group Size */}
               {tour.max_participants && (
                 <div className="flex items-center gap-3 mb-6 p-3 bg-secondary/50 rounded-lg">
@@ -291,15 +360,19 @@ const TripDetail = () => {
                 </div>
               )}
 
-              <Link to={`/checkout?tour=${tour.id}&tourName=${encodeURIComponent(tour.name)}&total=${tour.base_price}`}>
-                <Button className="w-full h-14 text-lg font-semibold">
-                  Book This Trip
-                </Button>
-              </Link>
+              <Button
+                onClick={handleBookTour}
+                className="w-full h-14 text-lg font-semibold"
+              >
+                Book This Trip
+              </Button>
 
-              <p className="text-center text-xs text-muted-foreground mt-4">
-                Free cancellation up to 48 hours before
-              </p>
+              <div className="space-y-2 mt-4 text-center text-xs text-muted-foreground">
+                <p>Free cancellation up to 48 hours before</p>
+                {tour.advance_booking_days && tour.advance_booking_days > 0 && (
+                  <p>Book at least {tour.advance_booking_days} days in advance</p>
+                )}
+              </div>
             </div>
           </div>
         </div>

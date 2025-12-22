@@ -4,7 +4,9 @@ import { Calendar, MapPin, Lock, ChevronDown, Clock, Info, ShoppingCart, Check, 
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useCart, ADDON_PRICING } from '@/hooks/useCart';
+import { useCart } from '@/hooks/useCart';
+import { useLocations } from '@/hooks/useLocations';
+import { useAddonPricing } from '@/hooks/useAddonPricing';
 import { toast } from '@/hooks/use-toast';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
@@ -12,7 +14,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { pickupLocations, getDeliveryFee } from '@/lib/locations';
 
 interface BookingWidgetProps {
   pricePerDay: number;
@@ -25,6 +26,8 @@ interface BookingWidgetProps {
 const BookingWidget = ({ pricePerDay, carName, carId, category, image }: BookingWidgetProps) => {
   const navigate = useNavigate();
   const { addItem, isInCart } = useCart();
+  const { locations } = useLocations();
+  const { addonPricing } = useAddonPricing();
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
   const [pickupTime, setPickupTime] = useState('10:00');
@@ -34,7 +37,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
   const [dropoffOpen, setDropoffOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('tbs'); // Default to Tbilisi Airport
-  
+
   // Add-ons state
   const [childSeats, setChildSeats] = useState(0);
   const [campingEquipment, setCampingEquipment] = useState(false);
@@ -48,11 +51,14 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
     const calculatedDays = Math.max(1, differenceInDays(dropoffDate, pickupDate));
     const calculatedSubtotal = pricePerDay * calculatedDays;
     const calculatedDriverFee = driveType === 'driver' ? 50 * calculatedDays : 0;
-    const calculatedDeliveryFee = getDeliveryFee(selectedLocation);
 
-    // Calculate add-ons
-    const calculatedChildSeatsTotal = childSeats * ADDON_PRICING.childSeat.pricePerDay * calculatedDays;
-    const calculatedCampingEquipmentTotal = campingEquipment ? ADDON_PRICING.campingEquipment.pricePerDay * calculatedDays : 0;
+    // Get delivery fee from locations
+    const location = locations.find(loc => loc.id === selectedLocation);
+    const calculatedDeliveryFee = location?.deliveryFee ?? 30;
+
+    // Calculate add-ons using database pricing
+    const calculatedChildSeatsTotal = childSeats * addonPricing.childSeat.pricePerDay * calculatedDays;
+    const calculatedCampingEquipmentTotal = campingEquipment ? addonPricing.campingEquipment.pricePerDay * calculatedDays : 0;
     const calculatedAddonsTotal = calculatedChildSeatsTotal + calculatedCampingEquipmentTotal;
 
     const calculatedTotal = calculatedSubtotal + calculatedDriverFee + calculatedDeliveryFee + calculatedAddonsTotal;
@@ -67,7 +73,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
       addonsTotal: calculatedAddonsTotal,
       total: calculatedTotal,
     };
-  }, [pickupDate, dropoffDate, pricePerDay, driveType, selectedLocation, childSeats, campingEquipment]);
+  }, [pickupDate, dropoffDate, pricePerDay, driveType, selectedLocation, childSeats, campingEquipment, locations, addonPricing]);
 
   // Handle pickup date change
   const handlePickupSelect = (date: Date | undefined) => {
@@ -137,6 +143,52 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
       title: 'Added to cart!',
       description: `${carName} has been added to your cart`,
     });
+  };
+
+  // Handle book now - add to cart and navigate to cart page
+  const handleBookNow = () => {
+    if (!pickupDate || !dropoffDate || !carId) {
+      toast({
+        title: 'Missing information',
+        description: 'Please select pickup and dropoff dates',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const startDateStr = format(pickupDate, 'yyyy-MM-dd');
+    const endDateStr = format(dropoffDate, 'yyyy-MM-dd');
+
+    // Check if already in cart
+    if (!isInCart(carId, undefined, startDateStr, endDateStr)) {
+      // Add to cart if not already there
+      addItem({
+        id: '', // Will be set by addItem
+        type: 'car',
+        carId,
+        carName,
+        startDate: startDateStr,
+        endDate: endDateStr,
+        pickupTime,
+        dropoffTime,
+        withDriver: driveType === 'driver',
+        location: selectedLocation,
+        pricePerDay,
+        totalPrice: total,
+        days,
+        category,
+        image,
+        // Add-ons
+        childSeats,
+        childSeatsTotal,
+        campingEquipment,
+        campingEquipmentTotal,
+        addonsTotal,
+      });
+    }
+
+    // Navigate to cart page
+    navigate('/cart');
   };
 
   const alreadyInCart = pickupDate && dropoffDate && carId ?
@@ -256,7 +308,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
               <div className="flex-1 min-w-0">
                 <span className="text-xs text-muted-foreground block">Pick-up Location</span>
                 <span className="font-medium text-foreground truncate block">
-                  {pickupLocations.find(loc => loc.id === selectedLocation)?.name || 'Select location'}
+                  {locations.find(loc => loc.id === selectedLocation)?.name || 'Select location'}
                 </span>
               </div>
               <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -264,7 +316,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
           </PopoverTrigger>
           <PopoverContent className="w-72 p-0 bg-card border border-border shadow-lg z-50" align="start">
             <div className="py-2 max-h-[300px] overflow-y-auto">
-              {pickupLocations.map((location) => (
+              {locations.map((location) => (
                 <button
                   key={location.id}
                   onClick={() => {
@@ -346,7 +398,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
             </div>
             <div>
               <span className="text-sm font-medium text-foreground">Child Seat</span>
-              <p className="text-xs text-muted-foreground">${ADDON_PRICING.childSeat.pricePerDay}/day each</p>
+              <p className="text-xs text-muted-foreground">${addonPricing.childSeat.pricePerDay}/day each</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -364,12 +416,12 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
             </button>
             <span className="w-6 text-center font-medium text-foreground">{childSeats}</span>
             <button
-              onClick={() => setChildSeats(Math.min(ADDON_PRICING.childSeat.maxQuantity, childSeats + 1))}
-              disabled={childSeats === ADDON_PRICING.childSeat.maxQuantity}
+              onClick={() => setChildSeats(Math.min(addonPricing.childSeat.maxQuantity, childSeats + 1))}
+              disabled={childSeats === addonPricing.childSeat.maxQuantity}
               className={cn(
                 "w-7 h-7 rounded-full flex items-center justify-center transition-colors",
-                childSeats === ADDON_PRICING.childSeat.maxQuantity 
-                  ? "bg-secondary text-muted-foreground cursor-not-allowed" 
+                childSeats === addonPricing.childSeat.maxQuantity
+                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
                   : "bg-primary text-primary-foreground hover:bg-coral-hover"
               )}
             >
@@ -397,7 +449,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
             </div>
             <div className="text-left">
               <span className="text-sm font-medium text-foreground">Camping Equipment</span>
-              <p className="text-xs text-muted-foreground">For 2 people • ${ADDON_PRICING.campingEquipment.pricePerDay}/day</p>
+              <p className="text-xs text-muted-foreground">For 2 people • ${addonPricing.campingEquipment.pricePerDay}/day</p>
             </div>
           </div>
           <div className={cn(
@@ -481,12 +533,12 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
         )}
 
         {/* Book Now Button */}
-        <Link
-          to={`/checkout?carId=${carId || ''}&startDate=${pickupDate ? format(pickupDate, 'yyyy-MM-dd') : ''}&endDate=${dropoffDate ? format(dropoffDate, 'yyyy-MM-dd') : ''}&pickupTime=${pickupTime}&dropoffTime=${dropoffTime}&withDriver=${driveType === 'driver'}&location=${selectedLocation}&childSeats=${childSeats}&campingEquipment=${campingEquipment}`}
+        <button
+          onClick={handleBookNow}
           className="w-full py-4 bg-primary text-primary-foreground font-semibold rounded-lg btn-scale hover:bg-coral-hover transition-colors shadow-button flex items-center justify-center"
         >
           Book Now • {formatPrice(total)}
-        </Link>
+        </button>
       </div>
 
       {/* Availability Info */}

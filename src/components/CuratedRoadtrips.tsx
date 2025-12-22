@@ -22,6 +22,7 @@ type Tour = {
   is_featured: boolean | null;
   destinations: string[] | null;
   rating: number | null;
+  max_participants: number | null;
 };
 
 const CuratedRoadtrips = () => {
@@ -30,7 +31,7 @@ const CuratedRoadtrips = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('tours')
-        .select('id, name, description, duration_days, duration_label, main_image, base_price, is_featured, destinations, rating')
+        .select('id, name, description, duration_days, duration_label, main_image, base_price, is_featured, destinations, rating, max_participants')
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .limit(8);
@@ -92,6 +93,7 @@ const CuratedRoadtrips = () => {
                   price={tour.base_price}
                   badge={tour.is_featured ? 'Featured' : undefined}
                   delay={index * 100}
+                  maxParticipants={tour.max_participants}
                 />
               </CarouselItem>
             ))}

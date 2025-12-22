@@ -25,9 +25,11 @@ import CarsManagement from "./pages/admin/CarsManagement";
 import BookingsManagement from "./pages/admin/BookingsManagement";
 import ToursManagement from "./pages/admin/ToursManagement";
 import UsersManagement from "./pages/admin/UsersManagement";
-
+import FAQsManagement from "./pages/admin/FAQsManagement";
 import MessagesManagement from "./pages/admin/MessagesManagement";
 import BlogsManagement from "./pages/admin/BlogsManagement";
+import LocationsManagement from "./pages/admin/LocationsManagement";
+import SettingsManagement from "./pages/admin/SettingsManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,9 +69,11 @@ const App = () => (
                 <Route path="bookings" element={<BookingsManagement />} />
                 <Route path="users" element={<UsersManagement />} />
                 <Route path="tours" element={<ToursManagement />} />
-                
+                <Route path="faqs" element={<FAQsManagement />} />
                 <Route path="blogs" element={<BlogsManagement />} />
                 <Route path="messages" element={<MessagesManagement />} />
+                <Route path="locations" element={<LocationsManagement />} />
+                <Route path="settings" element={<SettingsManagement />} />
               </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

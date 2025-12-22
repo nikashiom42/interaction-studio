@@ -36,8 +36,8 @@ const Index = () => {
         <CuratedRoadtrips />
         <HowItWorks />
         <Testimonials />
-        <FAQ />
         <BlogSection />
+        <FAQ />
         <MapSection />
       </main>
       <Footer />

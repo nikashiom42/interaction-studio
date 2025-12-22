@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
-import { ChevronRight, ChevronDown, Clock, MapPin, ArrowRight, Loader2, Compass, Star } from 'lucide-react';
+import { ChevronRight, ChevronDown, Clock, MapPin, ArrowRight, Loader2, Compass, Star, Users } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -194,21 +194,6 @@ const TourList = () => {
                   <h3 className="font-semibold text-foreground text-lg mb-2 group-hover:text-primary transition-colors">
                     {tour.name}
                   </h3>
-                  
-                  {/* Rating */}
-                  {tour.rating && tour.rating > 0 && (
-                    <div className="flex items-center gap-1 mb-3">
-                      <div className="flex">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3.5 h-3.5 ${i < Math.floor(tour.rating || 0) ? 'fill-star text-star' : 'text-gray-200'}`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm text-muted-foreground">({tour.reviews_count || 0})</span>
-                    </div>
-                  )}
 
                   <div className="flex items-center gap-4 text-muted-foreground text-sm mb-3">
                     <div className="flex items-center gap-1">
@@ -219,6 +204,12 @@ const TourList = () => {
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
                         <span>{tour.destinations.length} stops</span>
+                      </div>
+                    )}
+                    {tour.max_participants && (
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>Up to {tour.max_participants}</span>
                       </div>
                     )}
                   </div>

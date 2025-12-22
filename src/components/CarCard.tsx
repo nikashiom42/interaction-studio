@@ -1,17 +1,15 @@
-import { Star } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 
 interface CarCardProps {
   image: string;
   name: string;
   type: string;
-  rating: number;
   originalPrice: number;
   price: number;
   delay?: number;
 }
 
-const CarCard = ({ image, name, type, rating, originalPrice, price, delay = 0 }: CarCardProps) => {
+const CarCard = ({ image, name, type, originalPrice, price, delay = 0 }: CarCardProps) => {
   return (
     <div 
       className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
@@ -24,11 +22,6 @@ const CarCard = ({ image, name, type, rating, originalPrice, price, delay = 0 }:
           alt={name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        {/* Rating Badge */}
-        <div className="absolute top-3 left-3 flex items-center gap-1 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-md">
-          <Star className="w-3.5 h-3.5 fill-star text-star" />
-          <span className="text-sm font-medium text-foreground">{rating}</span>
-        </div>
       </div>
 
       {/* Content */}

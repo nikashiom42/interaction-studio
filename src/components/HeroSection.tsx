@@ -9,14 +9,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import LocationMap from '@/components/LocationMap';
-import { pickupLocations } from '@/lib/locations';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useLocations } from '@/hooks/useLocations';
 import heroCar from '@/assets/hero-car.jpg';
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { locations } = useLocations();
   const [selectedLocation, setSelectedLocation] = useState('');
-  const [locationOpen, setLocationOpen] = useState(false);
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
   const [pickupOpen, setPickupOpen] = useState(false);
@@ -42,8 +48,6 @@ const HeroSection = () => {
     setDropoffDate(date);
     setDropoffOpen(false);
   };
-
-  const selectedLocationName = pickupLocations.find(l => l.id === selectedLocation)?.name;
 
   return (
     <section className="relative min-h-[600px] md:min-h-[700px] overflow-hidden">
@@ -79,64 +83,32 @@ const HeroSection = () => {
             <div className="p-4 md:p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 {/* Pick-up Location */}
-                <Popover open={locationOpen} onOpenChange={setLocationOpen}>
-                  <PopoverTrigger asChild>
-                    <button className="flex items-center gap-2 p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all text-left group border border-transparent hover:border-primary/20">
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Location</span>
-                        <span className={cn(
-                          "text-sm font-semibold truncate block",
-                          selectedLocation ? "text-foreground" : "text-muted-foreground"
-                        )}>
-                          {selectedLocationName || "Pick location"}
-                        </span>
-                      </div>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[500px] p-0 bg-card border border-border shadow-xl z-50" align="start" sideOffset={8}>
-                    <div className="grid grid-cols-2 gap-0">
-                      {/* Map */}
-                      <div className="h-[320px] border-r border-border">
-                        <LocationMap
-                          locations={pickupLocations}
-                          selectedLocationId={selectedLocation}
-                          onLocationSelect={(id) => {
-                            setSelectedLocation(id);
-                          }}
-                        />
-                      </div>
-                      {/* List */}
-                      <div className="py-2 overflow-y-auto max-h-[320px]">
-                        <div className="px-4 py-2 border-b border-border">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Available Locations</span>
-                        </div>
-                        {pickupLocations.map((location) => (
-                          <button
-                            key={location.id}
-                            onClick={() => {
-                              setSelectedLocation(location.id);
-                              setLocationOpen(false);
-                            }}
-                            className={cn(
-                              "w-full px-4 py-3 text-left hover:bg-secondary transition-colors flex items-center gap-3",
-                              selectedLocation === location.id && "bg-primary/10 border-l-2 border-l-primary"
-                            )}
-                          >
-                            <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <div>
-                              <p className="text-sm font-medium text-foreground">{location.name}</p>
-                              <p className="text-xs text-muted-foreground">{location.city}</p>
+                <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-xl border border-transparent hover:border-primary/20 transition-all">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Location</label>
+                    <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                      <SelectTrigger className="border-none h-auto p-0 focus:ring-0 bg-transparent">
+                        <SelectValue placeholder="Pick location" className="text-sm font-semibold" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <div>
+                                <span className="font-medium">{location.name}</span>
+                                <span className="text-xs text-muted-foreground ml-1">• {location.city}</span>
+                              </div>
                             </div>
-                          </button>
+                          </SelectItem>
                         ))}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
                 {/* Pick-up Date */}
                 <Popover open={pickupOpen} onOpenChange={setPickupOpen}>

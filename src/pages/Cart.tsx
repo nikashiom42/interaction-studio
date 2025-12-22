@@ -4,12 +4,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { useCart } from '@/hooks/useCart';
+import { useLocations } from '@/hooks/useLocations';
 import { formatPrice } from '@/lib/currency';
 import { format, parseISO } from 'date-fns';
-import { getLocationById } from '@/lib/locations';
 
 const Cart = () => {
   const { items, itemCount, totalPrice, removeItem, clearCart } = useCart();
+  const { locations } = useLocations();
 
   if (itemCount === 0) {
     return (
@@ -60,7 +61,7 @@ const Cart = () => {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => {
-              const location = getLocationById(item.location || 'tbs');
+              const location = locations.find(loc => loc.id === (item.location || 'tbs'));
 
               return (
                 <div

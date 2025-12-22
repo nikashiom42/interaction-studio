@@ -11,11 +11,11 @@ import SEO from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
+import { useLocations } from '@/hooks/useLocations';
 import { toast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 import { countryCodes } from '@/data/countryCodes';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
-import { getLocationById } from '@/lib/locations';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 
 type PaymentOption = 'deposit' | 'pickup';
@@ -24,6 +24,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { items: cartItems, itemCount, totalPrice: cartTotal, removeItem, clearCart } = useCart();
+  const { locations } = useLocations();
 
   const [paymentSchedule, setPaymentSchedule] = useState<PaymentOption>('pickup');
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -68,7 +69,7 @@ const Checkout = () => {
   };
 
   const paymentAmounts = getPaymentAmounts();
-  const canComplete = !!firstName.trim() && !!lastName.trim() && !!email.trim() && !!phone.trim() && acceptTerms && !isProcessing;
+  const canComplete = !!firstName.trim() && !!lastName.trim() && !!phone.trim() && acceptTerms && !isProcessing;
 
   // Create booking mutation - creates multiple bookings for all cart items
   const createBookingMutation = useMutation({
@@ -150,9 +151,8 @@ const Checkout = () => {
   };
 
   // Validation for personal details
-  const isPersonalDetailsValid = firstName.trim() !== '' && 
-    lastName.trim() !== '' && 
-    email.trim() !== '' && 
+  const isPersonalDetailsValid = firstName.trim() !== '' &&
+    lastName.trim() !== '' &&
     phone.trim() !== '';
 
   const canProceedToPayment = canComplete;
@@ -255,7 +255,7 @@ const Checkout = () => {
 
               <div className="space-y-4">
                 {cartItems.map((item) => {
-                  const location = getLocationById(item.location || 'tbs');
+                  const location = locations.find(loc => loc.id === (item.location || 'tbs'));
 
                   return (
                     <div key={item.id} className="flex gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
@@ -376,7 +376,7 @@ const Checkout = () => {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-foreground mb-1">Email Address *</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Email Address (Optional)</label>
                 <input
                   type="email"
                   value={email}
@@ -384,7 +384,7 @@ const Checkout = () => {
                   placeholder="john.doe@example.com"
                   className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 />
-                <p className="text-xs text-muted-foreground mt-1">We'll send your booking confirmation here.</p>
+                <p className="text-xs text-muted-foreground mt-1">Optional - We'll send your booking confirmation here if provided.</p>
               </div>
 
               <div className="mb-4">
