@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import logo from '@/assets/logo.jpeg';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -38,10 +39,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">R</span>
-            </div>
-            <span className="font-semibold text-foreground text-lg">Rentals</span>
+            <img src={logo} alt="Rentals Logo" className="h-10 w-auto object-contain" />
           </Link>
 
           {/* Search Bar */}

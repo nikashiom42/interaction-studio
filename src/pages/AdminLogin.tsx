@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Car, Lock, Mail, Loader2 } from 'lucide-react';
 import { z } from 'zod';
+import logo from '@/assets/logo.jpeg';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -109,14 +110,9 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-background to-secondary p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-              <Car className="w-7 h-7 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">TameAI</h1>
-              <p className="text-sm text-muted-foreground">Car Rental Admin</p>
-            </div>
+          <div className="flex flex-col items-center gap-2">
+            <img src={logo} alt="Admin Logo" className="h-16 w-auto object-contain" />
+            <p className="text-sm text-muted-foreground">Car Rental Admin</p>
           </div>
         </div>
 

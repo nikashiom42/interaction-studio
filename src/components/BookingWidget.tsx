@@ -590,24 +590,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
         </button>
       </div>
 
-      {/* Availability Info */}
-      {category === 'sports' ? (
-        <div className="flex items-start gap-2 mt-4 p-3 bg-warning/10 border border-warning/20 rounded-lg text-sm">
-          <Info className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
-          <span className="text-warning">
-            <strong>Exclusive Booking:</strong> Sport cars can only be booked by one customer at a time. Please ensure your dates don't conflict with existing reservations.
-          </span>
-        </div>
-      ) : (
-        <div className="flex items-start gap-2 mt-4 p-3 bg-success/10 border border-success/20 rounded-lg text-sm">
-          <Info className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
-          <span className="text-success">
-            <strong>Flexible Availability:</strong> This vehicle supports multiple bookings. You can reserve it even if others have booked for the same period.
-          </span>
-        </div>
-      )}
-
-      <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
+      <div className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground">
         <Lock className="w-4 h-4" />
         <span>Secure booking. No hidden fees.</span>
       </div>

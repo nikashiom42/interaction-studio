@@ -4,6 +4,7 @@ import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowLeft, Car } from 'lucide-r
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import logo from '@/assets/logo.jpeg';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -113,11 +114,8 @@ const Auth = () => {
           </Link>
 
           {/* Logo */}
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Car className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-foreground text-xl">Rentals</span>
+          <div className="mb-8">
+            <img src={logo} alt="Rentals Logo" className="h-12 w-auto object-contain" />
           </div>
 
           {/* Header */}

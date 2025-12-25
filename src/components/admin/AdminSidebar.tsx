@@ -16,6 +16,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.jpeg";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
@@ -46,14 +47,9 @@ export function AdminSidebar() {
   return (
     <Sidebar className="border-r border-border">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <Car className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="font-bold text-foreground text-lg">TameAI</h1>
-            <p className="text-xs text-muted-foreground">Admin Panel</p>
-          </div>
+        <div className="flex flex-col gap-2">
+          <img src={logo} alt="Admin Logo" className="h-12 w-auto object-contain" />
+          <p className="text-xs text-muted-foreground">Admin Panel</p>
         </div>
       </SidebarHeader>
 

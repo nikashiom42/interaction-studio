@@ -38,13 +38,12 @@ import { ImageUpload } from './ImageUpload';
 type Car = Tables<'cars'>;
 
 const categories = [
-  { value: 'economy', label: 'Economy' },
+  { value: 'luxury_suv', label: 'Luxury SUV' },
+  { value: 'off_road', label: 'Off-Road' },
   { value: 'suv', label: 'SUV' },
-  { value: 'luxury', label: 'Luxury' },
-  { value: 'minivan', label: 'Minivan' },
-  { value: 'sports', label: 'Sports' },
+  { value: 'jeep', label: 'Jeep' },
+  { value: 'economy_suv', label: 'Economy SUV' },
   { value: 'convertible', label: 'Convertible' },
-  { value: 'electric', label: 'Electric' },
 ] as const;
 
 const transmissions = [
@@ -72,7 +71,7 @@ const featureOptions = [
 const carFormSchema = z.object({
   brand: z.string().min(1, 'Brand is required').max(100),
   model: z.string().min(1, 'Model is required').max(100),
-  category: z.enum(['economy', 'suv', 'luxury', 'minivan', 'sports', 'convertible', 'electric']),
+  category: z.enum(['luxury_suv', 'off_road', 'suv', 'jeep', 'economy_suv', 'convertible']),
   seats: z.coerce.number().min(1).max(20),
   transmission: z.enum(['manual', 'automatic']),
   fuel_type: z.enum(['petrol', 'diesel', 'electric', 'hybrid']),
@@ -105,7 +104,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
     defaultValues: {
       brand: '',
       model: '',
-      category: 'economy',
+      category: 'suv',
       seats: 5,
       transmission: 'automatic',
       fuel_type: 'petrol',
@@ -141,7 +140,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       form.reset({
         brand: '',
         model: '',
-        category: 'economy',
+        category: 'suv',
         seats: 5,
         transmission: 'automatic',
         fuel_type: 'petrol',

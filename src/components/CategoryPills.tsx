@@ -1,16 +1,15 @@
-import { Car, Zap, Mountain, Compass, Wallet, Gauge } from 'lucide-react';
-import { Database } from '@/integrations/supabase/types';
+import { Car, Mountain, Compass, Wallet, TruckIcon } from 'lucide-react';
 
-type CarCategory = Database['public']['Enums']['car_category'];
+type CarCategory = 'luxury_suv' | 'off_road' | 'suv' | 'jeep' | 'economy_suv' | 'convertible';
 
 const categories: { id: 'all' | CarCategory; label: string; icon: typeof Car }[] = [
   { id: 'all', label: 'All Cars', icon: Car },
-  { id: 'luxury', label: 'Luxury', icon: Compass },
-  { id: 'electric', label: 'Electric', icon: Zap },
-  { id: 'suv', label: 'SUVs', icon: Mountain },
+  { id: 'luxury_suv', label: 'Luxury SUV', icon: Compass },
+  { id: 'off_road', label: 'Off-Road', icon: Mountain },
+  { id: 'suv', label: 'SUV', icon: TruckIcon },
+  { id: 'jeep', label: 'Jeep', icon: TruckIcon },
+  { id: 'economy_suv', label: 'Economy SUV', icon: Wallet },
   { id: 'convertible', label: 'Convertible', icon: Car },
-  { id: 'economy', label: 'Economy', icon: Wallet },
-  { id: 'sports', label: 'Sports', icon: Gauge },
 ];
 
 interface CategoryPillsProps {

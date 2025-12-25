@@ -21,11 +21,13 @@ const filters = [
   { id: 'dates', label: 'Dates', icon: Calendar, hasDropdown: false, isActive: true },
   { id: 'self-drive', label: 'Self-Drive', hasDropdown: true },
   { id: 'with-driver', label: 'With Driver', hasDropdown: true },
+  { id: 'luxury_suv', label: 'Luxury SUV' },
+  { id: 'off_road', label: 'Off-Road' },
   { id: 'suv', label: 'SUV' },
-  { id: 'luxury', label: 'Luxury' },
-  { id: 'economy', label: 'Economy' },
+  { id: 'jeep', label: 'Jeep' },
+  { id: 'economy_suv', label: 'Economy SUV' },
+  { id: 'convertible', label: 'Convertible' },
   { id: 'automatic', label: 'Automatic' },
-  { id: 'electric', label: 'Electric' },
 ];
 
 const tabs = ['Explore Cars', 'Places to See', 'Things to Do', 'Trip Inspiration'];
@@ -49,7 +51,7 @@ const CarList = () => {
         .eq('is_active', true);
       
       // Apply category filters
-      const validCategories: CarCategory[] = ['economy', 'suv', 'luxury', 'minivan', 'sports', 'convertible', 'electric'];
+      const validCategories: CarCategory[] = ['luxury_suv', 'off_road', 'suv', 'jeep', 'economy_suv', 'convertible'];
       const categoryFilters = activeFilters.filter(f => validCategories.includes(f as CarCategory)) as CarCategory[];
       if (categoryFilters.length > 0) {
         query = query.in('category', categoryFilters);
@@ -58,11 +60,6 @@ const CarList = () => {
       // Apply transmission filter
       if (activeFilters.includes('automatic')) {
         query = query.eq('transmission', 'automatic');
-      }
-
-      // Apply electric filter (fuel_type)
-      if (activeFilters.includes('electric') && !categoryFilters.includes('electric')) {
-        query = query.eq('fuel_type', 'electric');
       }
 
       query = query.order('created_at', { ascending: false });
@@ -191,7 +188,7 @@ const CarList = () => {
             <PopoverContent className="w-72 p-4 bg-card border border-border shadow-lg z-50" align="start">
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">Price Range (₾/day)</label>
+                  <label className="text-sm font-medium text-foreground mb-2 block">Price Range (€/day)</label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
                       <label className="text-xs text-muted-foreground mb-1 block">Min Price</label>
