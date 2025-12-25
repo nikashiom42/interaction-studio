@@ -23,6 +23,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const { locations } = useLocations();
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [dropoffLocation, setDropoffLocation] = useState('');
   const [pickupDate, setPickupDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [dropoffDate, setDropoffDate] = useState<Date | undefined>(addDays(new Date(), 4));
   const [pickupOpen, setPickupOpen] = useState(false);
@@ -81,7 +82,7 @@ const HeroSection = () => {
           <div className="bg-background/95 backdrop-blur-md rounded-2xl shadow-2xl border border-border/50 overflow-hidden">
             {/* Form Fields */}
             <div className="p-4 md:p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                 {/* Pick-up Location */}
                 <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-xl border border-transparent hover:border-primary/20 transition-all">
                   <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -92,6 +93,34 @@ const HeroSection = () => {
                     <Select value={selectedLocation} onValueChange={setSelectedLocation}>
                       <SelectTrigger className="border-none h-auto p-0 focus:ring-0 bg-transparent">
                         <SelectValue placeholder="Pick location" className="text-sm font-semibold" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <div>
+                                <span className="font-medium">{location.name}</span>
+                                <span className="text-xs text-muted-foreground ml-1">• {location.city}</span>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Drop-off Location */}
+                <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-xl border border-transparent hover:border-primary/20 transition-all">
+                  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Drop-off</label>
+                    <Select value={dropoffLocation} onValueChange={setDropoffLocation}>
+                      <SelectTrigger className="border-none h-auto p-0 focus:ring-0 bg-transparent">
+                        <SelectValue placeholder="Drop-off location" className="text-sm font-semibold" />
                       </SelectTrigger>
                       <SelectContent>
                         {locations.map((location) => (

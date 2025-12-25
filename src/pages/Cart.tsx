@@ -187,12 +187,6 @@ const Cart = () => {
                 <ArrowRight className="w-5 h-5" />
               </Link>
 
-              <Link
-                to="/cars"
-                className="w-full py-3 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center"
-              >
-                Continue Shopping
-              </Link>
             </div>
           </div>
         </div>

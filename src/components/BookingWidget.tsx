@@ -37,6 +37,8 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
   const [dropoffOpen, setDropoffOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('tbs'); // Default to Tbilisi Airport
+  const [dropoffLocationOpen, setDropoffLocationOpen] = useState(false);
+  const [dropoffLocation, setDropoffLocation] = useState('tbs');
 
   // Add-ons state
   const [childSeats, setChildSeats] = useState(0);
@@ -326,6 +328,53 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
                   className={cn(
                     "w-full px-4 py-2 text-left hover:bg-secondary transition-colors flex items-center justify-between gap-3",
                     selectedLocation === location.id && "bg-primary/10"
+                  )}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{location.name}</p>
+                      <p className="text-xs text-muted-foreground">{location.city}</p>
+                    </div>
+                  </div>
+                  {location.deliveryFee > 0 && (
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">+${location.deliveryFee}</span>
+                  )}
+                  {location.deliveryFee === 0 && (
+                    <span className="text-xs text-success whitespace-nowrap">Free</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Drop-off Location */}
+        <Popover open={dropoffLocationOpen} onOpenChange={setDropoffLocationOpen}>
+          <PopoverTrigger asChild>
+            <button className="w-full flex items-center gap-3 p-3 border border-border rounded-lg hover:border-primary transition-colors text-left group">
+              <MapPin className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <span className="text-xs text-muted-foreground block">Drop-off Location</span>
+                <span className="font-medium text-foreground truncate block">
+                  {locations.find(loc => loc.id === dropoffLocation)?.name || 'Select location'}
+                </span>
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-0 bg-card border border-border shadow-lg z-50" align="start">
+            <div className="py-2 max-h-[300px] overflow-y-auto">
+              {locations.map((location) => (
+                <button
+                  key={location.id}
+                  onClick={() => {
+                    setDropoffLocation(location.id);
+                    setDropoffLocationOpen(false);
+                  }}
+                  className={cn(
+                    "w-full px-4 py-2 text-left hover:bg-secondary transition-colors flex items-center justify-between gap-3",
+                    dropoffLocation === location.id && "bg-primary/10"
                   )}
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
