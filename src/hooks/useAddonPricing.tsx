@@ -24,7 +24,7 @@ export const useAddonPricing = () => {
         .single();
 
       if (error) throw error;
-      return data.value as AddonPricing;
+      return data.value as unknown as AddonPricing;
     },
     // Cache for 5 minutes to reduce database calls
     staleTime: 5 * 60 * 1000,
