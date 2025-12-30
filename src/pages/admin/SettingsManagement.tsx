@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Loader2, DollarSign, Save } from 'lucide-react';
+import { Loader2, Euro, Save } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface AddonPricing {
@@ -106,7 +106,7 @@ const SettingsManagement = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-          <DollarSign className="w-8 h-8 text-primary" />
+          <Euro className="w-8 h-8 text-primary" />
           Addon Pricing Settings
         </h1>
         <p className="text-muted-foreground mt-1">

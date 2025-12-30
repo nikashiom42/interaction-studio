@@ -55,7 +55,7 @@ import {
   ChevronRight,
   Car,
   User,
-  DollarSign,
+  Euro,
   Clock,
   MapPin,
   Phone,
@@ -731,7 +731,7 @@ export default function BookingsManagement() {
               {/* Payment */}
               <div className="space-y-3">
                 <h4 className="font-semibold flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
+                  <Euro className="h-4 w-4" />
                   Payment Details
                 </h4>
                 <div className="grid grid-cols-2 gap-4 pl-6">
