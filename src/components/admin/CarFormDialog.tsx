@@ -81,6 +81,9 @@ const carFormSchema = z.object({
   is_active: z.boolean(),
   delivery_available: z.boolean(),
   advance_booking_days: z.coerce.number().min(1).max(365),
+  description: z.string().optional().nullable(),
+  meta_title: z.string().max(60, 'Meta title should be under 60 characters').optional().nullable(),
+  meta_description: z.string().max(160, 'Meta description should be under 160 characters').optional().nullable(),
 });
 
 type CarFormValues = z.infer<typeof carFormSchema>;
@@ -114,6 +117,9 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       is_active: true,
       delivery_available: false,
       advance_booking_days: 30,
+      description: '',
+      meta_title: '',
+      meta_description: '',
     },
   });
 
@@ -133,6 +139,9 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         is_active: car.is_active ?? true,
         delivery_available: car.delivery_available ?? false,
         advance_booking_days: car.advance_booking_days ?? 30,
+        description: (car as any).description || '',
+        meta_title: (car as any).meta_title || '',
+        meta_description: (car as any).meta_description || '',
       });
       setMainImage(car.main_image || null);
       setGalleryImages(car.gallery_images || []);
@@ -150,8 +159,12 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         is_active: true,
         delivery_available: false,
         advance_booking_days: 30,
+        description: '',
+        meta_title: '',
+        meta_description: '',
       });
       setMainImage(null);
+      setGalleryImages([]);
       setGalleryImages([]);
     }
   }, [car, form]);
@@ -173,6 +186,9 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         advance_booking_days: values.advance_booking_days,
         main_image: mainImage,
         gallery_images: galleryImages,
+        description: values.description || null,
+        meta_title: values.meta_title || null,
+        meta_description: values.meta_description || null,
       };
 
       if (isEditing && car) {
@@ -418,6 +434,76 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                           />
                         ))}
                       </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Description */}
+              <div className="space-y-4">
+                <h3 className="font-medium text-foreground border-b border-border pb-2">About This Car</h3>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <textarea
+                          placeholder="Describe the car, its features, what makes it special..."
+                          className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          {...field}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">This will be shown in the "About this car" section</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* SEO */}
+              <div className="space-y-4">
+                <h3 className="font-medium text-foreground border-b border-border pb-2">SEO Settings</h3>
+                <FormField
+                  control={form.control}
+                  name="meta_title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meta Title</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="e.g., Rent Range Rover Sport in Tbilisi | Premium SUV Rental"
+                          {...field}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        {(field.value?.length || 0)}/60 characters - Used for search engine results
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="meta_description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meta Description</FormLabel>
+                      <FormControl>
+                        <textarea
+                          placeholder="A brief description for search engines..."
+                          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          {...field}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        {(field.value?.length || 0)}/160 characters - Shown in search engine results
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -9,6 +9,7 @@ import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BookingWidget from '@/components/BookingWidget';
+import SEO from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 import carCorvette from '@/assets/car-corvette.jpg';
@@ -99,9 +100,18 @@ const CarDetail = () => {
   }
 
   const carName = `${car.brand} ${car.model}`;
+  const carData = car as any; // For new fields not yet in types
   const images = car.gallery_images?.length ? [car.main_image, ...car.gallery_images].filter(Boolean) as string[] : [car.main_image || defaultImages[0]];
   
   const features = Array.isArray(car.features) ? car.features as string[] : [];
+  
+  // SEO meta tags
+  const metaTitle = carData.meta_title || `Rent ${carName} | Premium Car Rental`;
+  const metaDescription = carData.meta_description || `Rent the ${carName} - ${car.seats} seats, ${car.transmission} transmission, ${car.fuel_type}. Book now for the best rates.`;
+  
+  // Description for About section
+  const defaultDescription = `Experience the ultimate driving experience with the ${carName}. This ${car.category} vehicle combines style with performance, featuring a powerful ${car.fuel_type} engine and ${car.transmission} transmission. Perfect for ${car.seats <= 4 ? 'couples or small groups' : 'families or groups'}, this car offers comfort and reliability for your journey. ${features.includes('4x4') ? 'With 4x4 capability, tackle any terrain with confidence.' : ''}`;
+  const carDescription = carData.description || defaultDescription;
   
   const specs = [
     { icon: Fuel, label: 'Fuel Type', value: car.fuel_type.charAt(0).toUpperCase() + car.fuel_type.slice(1) },
@@ -129,6 +139,7 @@ const CarDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title={metaTitle} description={metaDescription} />
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -212,17 +223,16 @@ const CarDetail = () => {
             <section className="mb-8">
               <h2 className="text-xl font-bold text-foreground mb-3">About this car</h2>
               <p className={`text-muted-foreground leading-relaxed ${!showFullDesc ? 'line-clamp-3' : ''}`}>
-                Experience the ultimate driving experience with the {carName}. This {car.category} vehicle
-                combines style with performance, featuring a powerful {car.fuel_type} engine
-                and {car.transmission} transmission. Perfect for {car.seats <= 4 ? 'couples or small groups' : 'families or groups'},
-                this car offers comfort and reliability for your journey. {features.includes('4x4') ? 'With 4x4 capability, tackle any terrain with confidence.' : ''}
+                {carDescription}
               </p>
-              <button
-                onClick={() => setShowFullDesc(!showFullDesc)}
-                className="text-primary font-medium mt-2 hover:underline"
-              >
-                {showFullDesc ? 'Show less' : 'Read more'}
-              </button>
+              {carDescription.length > 200 && (
+                <button
+                  onClick={() => setShowFullDesc(!showFullDesc)}
+                  className="text-primary font-medium mt-2 hover:underline"
+                >
+                  {showFullDesc ? 'Show less' : 'Read more'}
+                </button>
+              )}
             </section>
 
             {/* Highlights */}

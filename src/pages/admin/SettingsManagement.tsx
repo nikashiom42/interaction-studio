@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -40,7 +41,7 @@ const SettingsManagement = () => {
 
       if (error) throw error;
 
-      const addonPricing = data.value as AddonPricing;
+      const addonPricing = data.value as unknown as AddonPricing;
       setFormData({
         childSeatPrice: addonPricing.childSeat.pricePerDay,
         childSeatMaxQty: addonPricing.childSeat.maxQuantity,
@@ -68,7 +69,7 @@ const SettingsManagement = () => {
 
       const { error } = await supabase
         .from('settings')
-        .update({ value: addonPricing })
+        .update({ value: JSON.parse(JSON.stringify(addonPricing)) })
         .eq('key', 'addon_pricing');
 
       if (error) throw error;

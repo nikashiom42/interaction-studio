@@ -236,6 +236,7 @@ export type Database = {
           category: Database["public"]["Enums"]["car_category"]
           created_at: string
           delivery_available: boolean | null
+          description: string | null
           engine_volume: string | null
           features: Json | null
           fuel_type: Database["public"]["Enums"]["fuel_type"]
@@ -243,6 +244,8 @@ export type Database = {
           id: string
           is_active: boolean | null
           main_image: string | null
+          meta_description: string | null
+          meta_title: string | null
           model: string
           price_per_day: number
           price_with_driver: number | null
@@ -259,6 +262,7 @@ export type Database = {
           category: Database["public"]["Enums"]["car_category"]
           created_at?: string
           delivery_available?: boolean | null
+          description?: string | null
           engine_volume?: string | null
           features?: Json | null
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
@@ -266,6 +270,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           main_image?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           model: string
           price_per_day: number
           price_with_driver?: number | null
@@ -282,6 +288,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["car_category"]
           created_at?: string
           delivery_available?: boolean | null
+          description?: string | null
           engine_volume?: string | null
           features?: Json | null
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
@@ -289,6 +296,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           main_image?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           model?: string
           price_per_day?: number
           price_with_driver?: number | null

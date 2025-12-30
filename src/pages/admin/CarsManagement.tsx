@@ -35,7 +35,7 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
   {
     brand: 'Range Rover',
     model: 'Sport',
-    category: 'luxury',
+    category: 'luxury_suv',
     seats: 5,
     transmission: 'automatic',
     fuel_type: 'petrol',
@@ -50,7 +50,7 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
   {
     brand: 'Chevrolet',
     model: 'Corvette',
-    category: 'sports',
+    category: 'convertible',
     seats: 2,
     transmission: 'automatic',
     fuel_type: 'petrol',
@@ -65,7 +65,7 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
   {
     brand: 'Mercedes',
     model: 'S-Class',
-    category: 'luxury',
+    category: 'luxury_suv',
     seats: 5,
     transmission: 'automatic',
     fuel_type: 'petrol',
@@ -80,7 +80,7 @@ const seedCars: Omit<TablesInsert<'cars'>, 'id' | 'created_at' | 'updated_at'>[]
   {
     brand: 'Tesla',
     model: 'Model 3',
-    category: 'electric',
+    category: 'economy_suv',
     seats: 5,
     transmission: 'automatic',
     fuel_type: 'electric',
