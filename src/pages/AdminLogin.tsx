@@ -111,7 +111,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-8">
           <div className="flex flex-col items-center gap-2">
-            <img src={logo} alt="Admin Logo" className="h-16 w-auto object-contain" />
+            <img src={logo} alt="Admin Logo" className="h-20 w-auto object-contain" />
             <p className="text-sm text-muted-foreground">Car Rental Admin</p>
           </div>
         </div>

@@ -115,7 +115,7 @@ const Auth = () => {
 
           {/* Logo */}
           <div className="mb-8">
-            <img src={logo} alt="Rentals Logo" className="h-12 w-auto object-contain" />
+            <img src={logo} alt="Rentals Logo" className="h-16 w-auto object-contain" />
           </div>
 
           {/* Header */}

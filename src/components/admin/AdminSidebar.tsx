@@ -48,7 +48,7 @@ export function AdminSidebar() {
     <Sidebar className="border-r border-border">
       <SidebarHeader className="p-4">
         <div className="flex flex-col gap-2">
-          <img src={logo} alt="Admin Logo" className="h-12 w-auto object-contain" />
+          <img src={logo} alt="Admin Logo" className="h-16 w-auto object-contain" />
           <p className="text-xs text-muted-foreground">Admin Panel</p>
         </div>
       </SidebarHeader>
