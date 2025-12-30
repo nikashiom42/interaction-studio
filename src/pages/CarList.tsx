@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
-import { ChevronRight, Calendar, ChevronDown, Check, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X, DollarSign } from 'lucide-react';
+import { ChevronRight, Calendar, ChevronDown, Check, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X, Euro } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -180,7 +180,7 @@ const CarList = () => {
                     : 'bg-background text-foreground border-border hover:border-foreground'
                 }`}
               >
-                <DollarSign className="w-4 h-4" />
+                <Euro className="w-4 h-4" />
                 <span>Price Range</span>
                 <ChevronDown className="w-4 h-4" />
               </button>

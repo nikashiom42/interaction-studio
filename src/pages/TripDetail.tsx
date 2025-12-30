@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2, DollarSign, Info } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2, Euro, Info } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import { format, addDays } from 'date-fns';
 import Header from '@/components/Header';
@@ -315,7 +315,7 @@ const TripDetail = () => {
               {tour.pricing_tiers && Array.isArray(tour.pricing_tiers) && tour.pricing_tiers.length > 0 && (
                 <div className="mb-6">
                   <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-primary" />
+                    <Euro className="w-4 h-4 text-primary" />
                     Pricing Tiers
                   </h4>
                   <div className="space-y-2">

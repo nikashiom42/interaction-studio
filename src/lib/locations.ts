@@ -23,11 +23,11 @@ export const pickupLocations: PickupLocation[] = [
 /**
  * Get delivery fee for a location
  * @param locationId - The location ID
- * @returns Delivery fee in dollars (0 for Tbilisi, 30 for others)
+ * @returns Delivery fee in euros (0 for Tbilisi, 30 for others)
  */
 export const getDeliveryFee = (locationId: string): number => {
   const location = pickupLocations.find(loc => loc.id === locationId);
-  return location?.deliveryFee ?? 30; // Default to $30 if location not found
+  return location?.deliveryFee ?? 30; // Default to €30 if location not found
 };
 
 /**

@@ -3,11 +3,11 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 // Add-ons pricing configuration
 export const ADDON_PRICING = {
   childSeat: {
-    pricePerDay: 3, // $3 per day per seat
+    pricePerDay: 3, // €3 per day per seat
     maxQuantity: 4,
   },
   campingEquipment: {
-    pricePerDay: 10, // $10 per day for 2-person camping equipment
+    pricePerDay: 10, // €10 per day for 2-person camping equipment
   },
 };
 
