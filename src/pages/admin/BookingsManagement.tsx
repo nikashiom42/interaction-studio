@@ -309,7 +309,7 @@ export default function BookingsManagement() {
         <Card className="border-border/50">
           <CardContent className="pt-4 pb-3">
             <p className="text-xs text-muted-foreground mb-1">Revenue</p>
-            <p className="text-2xl font-bold text-primary">${stats?.revenue?.toLocaleString() || 0}</p>
+            <p className="text-2xl font-bold text-primary">€{stats?.revenue?.toLocaleString() || 0}</p>
           </CardContent>
         </Card>
       </div>
@@ -488,7 +488,7 @@ export default function BookingsManagement() {
                         </TableCell>
                         <TableCell className="text-right">
                           <p className="font-semibold text-foreground">
-                            ${Number(booking.total_price).toLocaleString()}
+                            €{Number(booking.total_price).toLocaleString()}
                           </p>
                         </TableCell>
                         <TableCell>
@@ -738,7 +738,7 @@ export default function BookingsManagement() {
                   <div>
                     <p className="text-xs text-muted-foreground">Total Amount</p>
                     <p className="font-bold text-lg text-primary">
-                      ${Number(selectedBooking.total_price).toLocaleString()}
+                      €{Number(selectedBooking.total_price).toLocaleString()}
                     </p>
                   </div>
                 </div>

@@ -129,7 +129,7 @@ const SettingsManagement = () => {
               <h3 className="font-semibold text-lg">Child Seat</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="childSeatPrice">Price Per Day ($) *</Label>
+                  <Label htmlFor="childSeatPrice">Price Per Day (€) *</Label>
                   <Input
                     id="childSeatPrice"
                     type="number"
@@ -161,7 +161,7 @@ const SettingsManagement = () => {
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Camping Equipment</h3>
               <div className="space-y-2">
-                <Label htmlFor="campingEquipmentPrice">Price Per Day ($) *</Label>
+                <Label htmlFor="campingEquipmentPrice">Price Per Day (€) *</Label>
                 <Input
                   id="campingEquipmentPrice"
                   type="number"

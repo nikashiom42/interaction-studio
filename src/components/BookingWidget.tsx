@@ -338,7 +338,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
                     </div>
                   </div>
                   {location.deliveryFee > 0 && (
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">+${location.deliveryFee}</span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">+€{location.deliveryFee}</span>
                   )}
                   {location.deliveryFee === 0 && (
                     <span className="text-xs text-success whitespace-nowrap">Free</span>
@@ -385,7 +385,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
                     </div>
                   </div>
                   {location.deliveryFee > 0 && (
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">+${location.deliveryFee}</span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">+€{location.deliveryFee}</span>
                   )}
                   {location.deliveryFee === 0 && (
                     <span className="text-xs text-success whitespace-nowrap">Free</span>
@@ -447,7 +447,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
             </div>
             <div>
               <span className="text-sm font-medium text-foreground">Child Seat</span>
-              <p className="text-xs text-muted-foreground">${addonPricing.childSeat.pricePerDay}/day each</p>
+              <p className="text-xs text-muted-foreground">€{addonPricing.childSeat.pricePerDay}/day each</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -498,7 +498,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
             </div>
             <div className="text-left">
               <span className="text-sm font-medium text-foreground">Camping Equipment</span>
-              <p className="text-xs text-muted-foreground">For 2 people • ${addonPricing.campingEquipment.pricePerDay}/day</p>
+              <p className="text-xs text-muted-foreground">For 2 people • €{addonPricing.campingEquipment.pricePerDay}/day</p>
             </div>
           </div>
           <div className={cn(
@@ -527,7 +527,7 @@ const BookingWidget = ({ pricePerDay, carName, carId, category, image }: Booking
         {deliveryFee > 0 ? (
           <div className="flex items-center justify-between text-muted-foreground text-sm animate-fade-in">
             <span>Delivery fee</span>
-            <span className="font-medium text-foreground">${deliveryFee}</span>
+            <span className="font-medium text-foreground">€{deliveryFee}</span>
           </div>
         ) : (
           <div className="flex items-center justify-between text-success text-sm animate-fade-in">

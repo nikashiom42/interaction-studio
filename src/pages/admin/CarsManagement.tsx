@@ -339,7 +339,7 @@ export default function CarsManagement() {
                       </TableCell>
                       <TableCell className="text-center">{car.seats}</TableCell>
                       <TableCell className="capitalize">{car.transmission}</TableCell>
-                      <TableCell className="text-right font-medium">${car.price_per_day}</TableCell>
+                      <TableCell className="text-right font-medium">€{car.price_per_day}</TableCell>
                       <TableCell className="text-center">
                         <Switch
                           checked={car.is_active ?? false}

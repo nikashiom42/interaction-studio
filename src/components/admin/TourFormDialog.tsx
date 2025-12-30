@@ -602,7 +602,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
               <TabsContent value="pricing" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="base_price">Base Price ($) *</Label>
+                    <Label htmlFor="base_price">Base Price (€) *</Label>
                     <Input
                       id="base_price"
                       type="number"
@@ -647,7 +647,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
                         className="w-20"
                         placeholder="Max"
                       />
-                      <span className="text-muted-foreground">days = $</span>
+                      <span className="text-muted-foreground">days = €</span>
                       <Input
                         type="number"
                         min="0"
@@ -668,7 +668,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
                     <div key={key} className="flex items-center justify-between p-2 bg-secondary/50 rounded-md">
                       <span>{key}</span>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">${value}</span>
+                        <span className="font-medium">€{value}</span>
                         <Button type="button" variant="ghost" size="icon" onClick={() => removeFee(key)}>
                           <X className="h-4 w-4" />
                         </Button>

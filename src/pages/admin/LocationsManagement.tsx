@@ -284,7 +284,7 @@ const LocationsManagement = () => {
                     <TableCell>{location.city}</TableCell>
                     <TableCell>
                       <span className={location.delivery_fee === 0 ? 'text-success font-semibold' : 'text-foreground'}>
-                        {location.delivery_fee === 0 ? 'Free' : `$${location.delivery_fee}`}
+                        {location.delivery_fee === 0 ? 'Free' : `€${location.delivery_fee}`}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -408,7 +408,7 @@ const LocationsManagement = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="delivery_fee">Delivery Fee ($) *</Label>
+                <Label htmlFor="delivery_fee">Delivery Fee (€) *</Label>
                 <Input
                   id="delivery_fee"
                   type="number"

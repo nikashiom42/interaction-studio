@@ -110,7 +110,7 @@ const seedTours: {
       { min_days: 4, max_days: 7, price: 499 },
       { min_days: 8, max_days: 14, price: 450 }
     ],
-    included_services: ['Premium convertible rental', 'Curated route with GPS', 'Hotel recommendations', '24/7 roadside assistance', 'Fuel card ($200 value)'],
+    included_services: ['Premium convertible rental', 'Curated route with GPS', 'Hotel recommendations', '24/7 roadside assistance', 'Fuel card (€200 value)'],
     max_participants: 4,
     advance_booking_days: 30,
     display_order: 1,
@@ -462,7 +462,7 @@ export default function ToursManagement() {
                       <TableCell className="text-center">
                         {tour.duration_label || `${tour.duration_days} days`}
                       </TableCell>
-                      <TableCell className="text-right font-medium">${tour.base_price}</TableCell>
+                      <TableCell className="text-right font-medium">€{tour.base_price}</TableCell>
                       <TableCell className="text-center">
                         <Switch
                           checked={tour.is_featured ?? false}

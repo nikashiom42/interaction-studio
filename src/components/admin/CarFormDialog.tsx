@@ -363,7 +363,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                         <FormLabel>Price per Day (Self-drive)</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
                             <Input type="number" min={0} className="pl-7" {...field} />
                           </div>
                         </FormControl>
@@ -379,10 +379,10 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                         <FormLabel>Price per Day (With Driver)</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                            <Input 
-                              type="number" 
-                              min={0} 
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
+                            <Input
+                              type="number"
+                              min={0}
                               className="pl-7" 
                               {...field} 
                               value={field.value ?? ''} 
