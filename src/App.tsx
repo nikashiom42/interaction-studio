@@ -19,6 +19,7 @@ import UserDashboard from "./pages/UserDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
+import BlogDetail from "./pages/BlogDetail";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import DashboardContent from "./pages/admin/DashboardContent";
 import CarsManagement from "./pages/admin/CarsManagement";
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/dashboard" element={<UserDashboard />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/contact" element={<ContactUs />} />
+              <Route path="/blog/:slug" element={<BlogDetail />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               
               {/* Admin Routes with Sidebar Layout */}
