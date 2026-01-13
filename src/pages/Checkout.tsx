@@ -122,12 +122,16 @@ const Checkout = () => {
       return data;
     },
     onSuccess: async (data) => {
-      clearCart(); // Clear cart after successful booking
       toast({ title: `${data.length} booking${data.length > 1 ? 's' : ''} confirmed successfully!` });
 
-      // Send booking confirmation email for each booking
+      // Send booking confirmation email for each booking (before clearing cart to access cart item names)
       for (const booking of data) {
         try {
+          const cartItem = cartItems.find(item =>
+            (booking.booking_type === 'car' && item.carId === booking.car_id) ||
+            (booking.booking_type === 'tour' && item.tourId === booking.tour_id)
+          );
+
           await fetch('/api/send-booking-confirmation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -136,8 +140,8 @@ const Checkout = () => {
               customerName: booking.customer_name,
               customerEmail: booking.customer_email || email,
               customerPhone: booking.customer_phone,
-              carName: booking.booking_type === 'car' ? cartItems.find(item => item.carId === booking.car_id)?.carName : undefined,
-              tourName: booking.booking_type === 'tour' ? cartItems.find(item => item.tourId === booking.tour_id)?.tourName : undefined,
+              carName: cartItem?.carName,
+              tourName: cartItem?.tourName,
               bookingType: booking.booking_type,
               startDate: booking.start_date,
               endDate: booking.end_date,
@@ -157,6 +161,9 @@ const Checkout = () => {
           console.error('Failed to send booking confirmation email:', emailError);
         }
       }
+
+      // Clear cart after emails are sent
+      clearCart();
 
       // Navigate to success page with first booking ID
       navigate(`/booking-success?bookingId=${data[0].id}`);
