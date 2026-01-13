@@ -121,9 +121,43 @@ const Checkout = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       clearCart(); // Clear cart after successful booking
       toast({ title: `${data.length} booking${data.length > 1 ? 's' : ''} confirmed successfully!` });
+
+      // Send booking confirmation email for each booking
+      for (const booking of data) {
+        try {
+          await fetch('/api/send-booking-confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              bookingId: booking.id,
+              customerName: booking.customer_name,
+              customerEmail: booking.customer_email || email,
+              customerPhone: booking.customer_phone,
+              carName: booking.booking_type === 'car' ? cartItems.find(item => item.carId === booking.car_id)?.carName : undefined,
+              tourName: booking.booking_type === 'tour' ? cartItems.find(item => item.tourId === booking.tour_id)?.tourName : undefined,
+              bookingType: booking.booking_type,
+              startDate: booking.start_date,
+              endDate: booking.end_date,
+              pickupTime: booking.pickup_time,
+              dropoffTime: booking.dropoff_time,
+              totalPrice: booking.total_price,
+              withDriver: booking.with_driver,
+              paymentOption: booking.payment_option,
+              depositAmount: booking.deposit_amount,
+              remainingBalance: booking.remaining_balance,
+              childSeats: booking.child_seats,
+              campingEquipment: booking.camping_equipment,
+            }),
+          });
+        } catch (emailError) {
+          // Don't block the user flow if email fails
+          console.error('Failed to send booking confirmation email:', emailError);
+        }
+      }
+
       // Navigate to success page with first booking ID
       navigate(`/booking-success?bookingId=${data[0].id}`);
     },

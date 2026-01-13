@@ -66,9 +66,35 @@ const ContactUs = () => {
 
       if (error) throw error;
 
+      let emailError: string | null = null;
+
+      try {
+        const response = await fetch('/api/send-contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            phone: formData.phone.trim(),
+            subject: formData.subject.trim(),
+            message: formData.message.trim(),
+          }),
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => null);
+          emailError = payload?.error || 'Email notification failed.';
+        }
+      } catch (fetchError) {
+        emailError = 'Email notification failed.';
+      }
+
       toast({
-        title: 'Message Sent!',
-        description: 'Thank you for contacting us. We will get back to you within 24 hours.',
+        title: emailError ? 'Message saved, email failed' : 'Message Sent!',
+        description: emailError
+          ? 'We saved your message but could not send the notification email. We will still follow up.'
+          : 'Thank you for contacting us. We will get back to you within 24 hours.',
+        variant: emailError ? 'destructive' : undefined,
       });
 
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
