@@ -26,6 +26,7 @@ interface BookingData {
   remainingBalance: number;
   childSeats?: number;
   campingEquipment?: boolean;
+  passengers?: number;
 }
 
 const isValidEmail = (value: unknown): value is string =>
@@ -41,19 +42,284 @@ const formatCurrency = (amount: number): string => {
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('en-US', {
-    month: 'long',
+    weekday: 'short',
+    month: 'short',
     day: 'numeric',
     year: 'numeric',
   }).format(date);
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Debug: Log environment variables (masked)
-  console.log('📧 Email API called');
-  console.log('🔑 RESEND_API_KEY exists:', !!resendApiKey, resendApiKey ? `(starts with ${resendApiKey.substring(0, 6)}...)` : '(missing)');
-  console.log('📤 RESEND_FROM:', fromAddress || '(missing)');
-  console.log('📥 BOOKING_NOTIFICATION_EMAIL:', toAddress || '(missing)');
+// Professional email template
+const generateCustomerEmail = (booking: BookingData, vehicleName: string, addons: string[]) => {
+  const isTour = booking.bookingType === 'tour';
+  const primaryColor = isTour ? '#10B981' : '#F97316'; // Green for tours, Orange for cars
+  const accentColor = isTour ? '#059669' : '#EA580C';
+  const iconEmoji = isTour ? '🏔️' : '🚗';
+  const typeLabel = isTour ? 'Tour' : 'Rental';
 
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; line-height: 1.6;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f3f4f6;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, ${primaryColor} 0%, ${accentColor} 100%); padding: 40px 40px 30px; text-align: center;">
+              <div style="font-size: 48px; margin-bottom: 16px;">${iconEmoji}</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Booking Confirmed!</h1>
+              <p style="margin: 8px 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">Thank you for choosing Pega Rent</p>
+            </td>
+          </tr>
+
+          <!-- Booking Reference -->
+          <tr>
+            <td style="padding: 30px 40px 20px; text-align: center; border-bottom: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 8px; color: #6b7280; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Booking Reference</p>
+              <p style="margin: 0; font-size: 32px; font-weight: 700; color: #111827; font-family: 'Courier New', monospace; letter-spacing: 2px;">#${booking.bookingId.slice(0, 8).toUpperCase()}</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 30px 40px;">
+              <p style="margin: 0 0 24px; color: #374151; font-size: 16px;">Dear <strong>${booking.customerName}</strong>,</p>
+              <p style="margin: 0 0 30px; color: #374151; font-size: 16px;">Your ${isTour ? 'tour' : 'vehicle rental'} has been successfully booked. Here are your booking details:</p>
+
+              <!-- Vehicle/Tour Card -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                      <tr>
+                        <td>
+                          <span style="display: inline-block; background-color: ${primaryColor}; color: #ffffff; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">${isTour ? (booking.passengers ? `${booking.passengers} Guest${booking.passengers > 1 ? 's' : ''}` : 'Tour') : (booking.withDriver ? 'With Driver' : 'Self-Drive')}</span>
+                          <h2 style="margin: 12px 0 4px; color: #111827; font-size: 22px; font-weight: 700;">${vehicleName}</h2>
+                          <p style="margin: 0; color: #6b7280; font-size: 14px;">${typeLabel} • ${formatDate(booking.startDate)} - ${formatDate(booking.endDate)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Details Grid -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
+                <tr>
+                  <td width="50%" style="padding: 16px; background-color: #f9fafb; border-radius: 12px 0 0 0;">
+                    <p style="margin: 0 0 4px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">📅 ${isTour ? 'Start Date' : 'Pick-up'}</p>
+                    <p style="margin: 0; color: #111827; font-size: 15px; font-weight: 600;">${formatDate(booking.startDate)}</p>
+                    <p style="margin: 4px 0 0; color: #6b7280; font-size: 14px;">${booking.pickupTime}</p>
+                  </td>
+                  <td width="50%" style="padding: 16px; background-color: #f9fafb; border-radius: 0 12px 0 0;">
+                    <p style="margin: 0 0 4px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">📅 ${isTour ? 'End Date' : 'Drop-off'}</p>
+                    <p style="margin: 0; color: #111827; font-size: 15px; font-weight: 600;">${formatDate(booking.endDate)}</p>
+                    <p style="margin: 4px 0 0; color: #6b7280; font-size: 14px;">${booking.dropoffTime}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding: 16px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 4px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">📍 ${isTour ? 'Meeting Point' : 'Location'}</p>
+                    <p style="margin: 0; color: #111827; font-size: 15px; font-weight: 600;">${isTour ? 'Tbilisi (exact location will be confirmed)' : 'Tbilisi International Airport (TBS)'}</p>
+                  </td>
+                </tr>
+              </table>
+
+              ${addons.length > 0 ? `
+              <!-- Add-ons -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 16px; background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                    <p style="margin: 0 0 8px; color: #92400e; font-size: 12px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Add-ons Included</p>
+                    <p style="margin: 0; color: #78350f; font-size: 15px;">${addons.join(' • ')}</p>
+                  </td>
+                </tr>
+              </table>
+              ` : ''}
+
+              <!-- Payment Summary -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #111827; border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                      <tr>
+                        <td>
+                          <p style="margin: 0 0 16px; color: #9ca3af; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Payment Summary</p>
+                        </td>
+                      </tr>
+                      ${booking.depositAmount > 0 ? `
+                      <tr>
+                        <td style="padding: 8px 0; border-bottom: 1px solid #374151;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                              <td style="color: #d1d5db; font-size: 14px;">Deposit (15%)</td>
+                              <td style="color: #ffffff; font-size: 14px; text-align: right; font-weight: 600;">${formatCurrency(booking.depositAmount)}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; border-bottom: 1px solid #374151;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                              <td style="color: #d1d5db; font-size: 14px;">Due at ${isTour ? 'meeting' : 'pickup'}</td>
+                              <td style="color: #ffffff; font-size: 14px; text-align: right; font-weight: 600;">${formatCurrency(booking.remainingBalance)}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      ` : `
+                      <tr>
+                        <td style="padding: 8px 0; border-bottom: 1px solid #374151;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                              <td style="color: #d1d5db; font-size: 14px;">Payment Method</td>
+                              <td style="color: #ffffff; font-size: 14px; text-align: right;">Pay at ${isTour ? 'meeting' : 'pickup'}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      `}
+                      <tr>
+                        <td style="padding: 16px 0 0;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                              <td style="color: #ffffff; font-size: 16px; font-weight: 600;">Total</td>
+                              <td style="color: ${primaryColor}; font-size: 28px; text-align: right; font-weight: 700;">${formatCurrency(booking.totalPrice)}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Important Notice -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 20px; background-color: #fef2f2; border-radius: 12px; border-left: 4px solid #ef4444;">
+                    <p style="margin: 0 0 8px; color: #991b1b; font-size: 14px; font-weight: 600;">⚠️ Important</p>
+                    <p style="margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.6;">
+                      ${isTour
+                        ? 'Please arrive at the meeting point 10 minutes before the scheduled time. Bring comfortable clothing and any personal essentials for the trip.'
+                        : 'Please bring a valid driver\'s license, passport/ID, and a credit card for the security deposit when picking up your vehicle.'
+                      }
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Contact Info -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td style="text-align: center; padding: 20px 0;">
+                    <p style="margin: 0 0 16px; color: #374151; font-size: 15px;">Questions? We're here to help!</p>
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
+                      <tr>
+                        <td style="padding: 0 16px;">
+                          <a href="tel:+995558211584" style="color: ${primaryColor}; text-decoration: none; font-size: 15px; font-weight: 600;">📞 +995 558 211 584</a>
+                        </td>
+                        <td style="padding: 0 16px;">
+                          <a href="mailto:info@pegarent.com" style="color: ${primaryColor}; text-decoration: none; font-size: 15px; font-weight: 600;">✉️ info@pegarent.com</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 30px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 8px; color: #111827; font-size: 18px; font-weight: 700;">Pega Rent</p>
+              <p style="margin: 0 0 16px; color: #6b7280; font-size: 14px;">Premium Car Rentals & Tours in Georgia</p>
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">Tbilisi, Georgia • www.pegarent.com</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+};
+
+// Admin notification email
+const generateAdminEmail = (booking: BookingData, vehicleName: string, addons: string[]) => {
+  const isTour = booking.bookingType === 'tour';
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f3f4f6;">
+  <table cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <tr>
+      <td style="background: ${isTour ? '#10B981' : '#F97316'}; padding: 20px; text-align: center;">
+        <h1 style="margin: 0; color: #ffffff; font-size: 20px;">🎉 New ${isTour ? 'Tour' : 'Car'} Booking!</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 24px;">
+        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td style="padding: 12px; background: #f9fafb; border-radius: 8px; margin-bottom: 16px;">
+              <h2 style="margin: 0 0 8px; font-size: 18px; color: #111827;">${vehicleName}</h2>
+              <p style="margin: 0; color: #6b7280; font-size: 14px;">Ref: #${booking.bookingId.slice(0, 8).toUpperCase()}</p>
+            </td>
+          </tr>
+        </table>
+
+        <h3 style="margin: 24px 0 12px; font-size: 14px; color: #6b7280; text-transform: uppercase;">Customer Details</h3>
+        <table cellspacing="0" cellpadding="8" border="0" width="100%" style="font-size: 14px;">
+          <tr><td style="color: #6b7280;">Name:</td><td style="color: #111827; font-weight: 600;">${booking.customerName}</td></tr>
+          <tr><td style="color: #6b7280;">Phone:</td><td style="color: #111827; font-weight: 600;">${booking.customerPhone}</td></tr>
+          <tr><td style="color: #6b7280;">Email:</td><td style="color: #111827; font-weight: 600;">${booking.customerEmail || 'Not provided'}</td></tr>
+        </table>
+
+        <h3 style="margin: 24px 0 12px; font-size: 14px; color: #6b7280; text-transform: uppercase;">Booking Details</h3>
+        <table cellspacing="0" cellpadding="8" border="0" width="100%" style="font-size: 14px;">
+          <tr><td style="color: #6b7280;">Dates:</td><td style="color: #111827; font-weight: 600;">${formatDate(booking.startDate)} → ${formatDate(booking.endDate)}</td></tr>
+          <tr><td style="color: #6b7280;">Time:</td><td style="color: #111827;">${booking.pickupTime} - ${booking.dropoffTime}</td></tr>
+          ${!isTour ? `<tr><td style="color: #6b7280;">Type:</td><td style="color: #111827;">${booking.withDriver ? 'With Driver' : 'Self-Drive'}</td></tr>` : ''}
+          ${isTour && booking.passengers ? `<tr><td style="color: #6b7280;">Guests:</td><td style="color: #111827;">${booking.passengers}</td></tr>` : ''}
+          ${addons.length > 0 ? `<tr><td style="color: #6b7280;">Add-ons:</td><td style="color: #111827;">${addons.join(', ')}</td></tr>` : ''}
+        </table>
+
+        <h3 style="margin: 24px 0 12px; font-size: 14px; color: #6b7280; text-transform: uppercase;">Payment</h3>
+        <table cellspacing="0" cellpadding="8" border="0" width="100%" style="font-size: 14px;">
+          ${booking.depositAmount > 0 ? `
+          <tr><td style="color: #6b7280;">Deposit:</td><td style="color: #111827;">${formatCurrency(booking.depositAmount)}</td></tr>
+          <tr><td style="color: #6b7280;">Remaining:</td><td style="color: #111827;">${formatCurrency(booking.remainingBalance)}</td></tr>
+          ` : `
+          <tr><td style="color: #6b7280;">Method:</td><td style="color: #111827;">Pay at pickup</td></tr>
+          `}
+          <tr><td style="color: #6b7280; font-weight: 600;">TOTAL:</td><td style="color: ${isTour ? '#10B981' : '#F97316'}; font-weight: 700; font-size: 18px;">${formatCurrency(booking.totalPrice)}</td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+};
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -66,8 +332,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (!resendApiKey || !fromAddress) {
-    console.log('❌ Missing email configuration - resendApiKey:', !!resendApiKey, 'fromAddress:', !!fromAddress);
-    return res.status(500).json({ error: 'Missing email configuration', details: { hasApiKey: !!resendApiKey, hasFromAddress: !!fromAddress } });
+    console.error('Missing email configuration');
+    return res.status(500).json({ error: 'Missing email configuration' });
   }
 
   const booking = req.body as BookingData;
@@ -77,7 +343,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const vehicleName = booking.carName || booking.tourName || 'Vehicle';
-  const addons = [];
+  const addons: string[] = [];
   if (booking.childSeats && booking.childSeats > 0) {
     addons.push(`Child Seat ×${booking.childSeats}`);
   }
@@ -85,262 +351,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     addons.push('Camping Equipment');
   }
 
-  // Email to customer
-  const customerEmailHtml = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-        .booking-card { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .detail-row:last-child { border-bottom: none; }
-        .label { color: #666; font-weight: 500; }
-        .value { color: #333; font-weight: 600; }
-        .total { background: #FF6B6B; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
-        .badge { display: inline-block; background: #4ECDC4; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin: 2px; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1 style="margin: 0; font-size: 28px;">🎉 Booking Confirmed!</h1>
-          <p style="margin: 10px 0 0; font-size: 16px; opacity: 0.9;">Thank you for choosing Rentals Georgia</p>
-        </div>
-
-        <div class="content">
-          <p style="font-size: 16px; margin-bottom: 20px;">Dear ${booking.customerName},</p>
-
-          <p>Your booking has been confirmed! We're excited to help you explore Georgia.</p>
-
-          <div class="booking-card">
-            <h2 style="margin-top: 0; color: #FF6B6B;">Booking Details</h2>
-
-            <div class="detail-row">
-              <span class="label">Booking ID:</span>
-              <span class="value">#${booking.bookingId.slice(0, 8).toUpperCase()}</span>
-            </div>
-
-            <div class="detail-row">
-              <span class="label">${booking.bookingType === 'car' ? 'Vehicle:' : 'Tour:'}</span>
-              <span class="value">${vehicleName}</span>
-            </div>
-
-            ${booking.bookingType === 'car' ? `
-            <div class="detail-row">
-              <span class="label">Rental Type:</span>
-              <span class="value">${booking.withDriver ? 'With Driver' : 'Self-Drive'}</span>
-            </div>
-            ` : ''}
-
-            <div class="detail-row">
-              <span class="label">Pick-up:</span>
-              <span class="value">${formatDate(booking.startDate)} at ${booking.pickupTime}</span>
-            </div>
-
-            <div class="detail-row">
-              <span class="label">Drop-off:</span>
-              <span class="value">${formatDate(booking.endDate)} at ${booking.dropoffTime}</span>
-            </div>
-
-            ${addons.length > 0 ? `
-            <div class="detail-row">
-              <span class="label">Add-ons:</span>
-              <span class="value">
-                ${addons.map(addon => `<span class="badge">${addon}</span>`).join(' ')}
-              </span>
-            </div>
-            ` : ''}
-          </div>
-
-          <div class="total">
-            <div style="font-size: 14px; margin-bottom: 5px;">Total Amount</div>
-            <div style="font-size: 32px; font-weight: bold;">${formatCurrency(booking.totalPrice)}</div>
-          </div>
-
-          <div class="booking-card">
-            <h3 style="margin-top: 0; color: #4ECDC4;">Payment Information</h3>
-
-            ${booking.depositAmount > 0 ? `
-            <div class="detail-row">
-              <span class="label">Deposit (15%):</span>
-              <span class="value">${formatCurrency(booking.depositAmount)}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Due at Pickup:</span>
-              <span class="value">${formatCurrency(booking.remainingBalance)}</span>
-            </div>
-            ` : `
-            <div class="detail-row">
-              <span class="label">Payment Method:</span>
-              <span class="value">Pay Full Amount at Pickup</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Amount Due:</span>
-              <span class="value">${formatCurrency(booking.totalPrice)}</span>
-            </div>
-            `}
-          </div>
-
-          <div style="background: #FFF3CD; border-left: 4px solid #FFC107; padding: 15px; margin: 20px 0; border-radius: 4px;">
-            <strong style="color: #856404;">⚠️ Important:</strong>
-            <p style="margin: 5px 0 0; color: #856404;">Please bring a valid driver's license and a credit card for the security deposit at pickup.</p>
-          </div>
-
-          <p><strong>Contact Information:</strong><br>
-          Name: ${booking.customerName}<br>
-          Phone: ${booking.customerPhone}
-          ${booking.customerEmail ? `<br>Email: ${booking.customerEmail}` : ''}</p>
-
-          <p style="margin-top: 30px;">If you have any questions or need to modify your booking, please contact us:</p>
-          <p style="text-align: center;">
-            📞 +995 XXX XXX XXX<br>
-            📧 info@rentalsgeorgia.com
-          </p>
-
-          <div class="footer">
-            <p>We look forward to serving you!</p>
-            <p style="font-size: 12px; color: #999; margin-top: 20px;">
-              This is an automated confirmation email from Rentals Georgia.<br>
-              Please do not reply to this email.
-            </p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const customerEmailText = `
-Booking Confirmation - Rentals Georgia
-
-Dear ${booking.customerName},
-
-Your booking has been confirmed!
-
-Booking Details:
-- Booking ID: #${booking.bookingId.slice(0, 8).toUpperCase()}
-- ${booking.bookingType === 'car' ? 'Vehicle' : 'Tour'}: ${vehicleName}
-${booking.bookingType === 'car' ? `- Rental Type: ${booking.withDriver ? 'With Driver' : 'Self-Drive'}` : ''}
-- Pick-up: ${formatDate(booking.startDate)} at ${booking.pickupTime}
-- Drop-off: ${formatDate(booking.endDate)} at ${booking.dropoffTime}
-${addons.length > 0 ? `- Add-ons: ${addons.join(', ')}` : ''}
-
-Total Amount: ${formatCurrency(booking.totalPrice)}
-
-Payment Information:
-${booking.depositAmount > 0 ? `
-- Deposit (15%): ${formatCurrency(booking.depositAmount)}
-- Due at Pickup: ${formatCurrency(booking.remainingBalance)}
-` : `
-- Payment Method: Pay Full Amount at Pickup
-- Amount Due: ${formatCurrency(booking.totalPrice)}
-`}
-
-Contact Information:
-- Name: ${booking.customerName}
-- Phone: ${booking.customerPhone}
-${booking.customerEmail ? `- Email: ${booking.customerEmail}` : ''}
-
-IMPORTANT: Please bring a valid driver's license and a credit card for the security deposit at pickup.
-
-If you have any questions, please contact us:
-Phone: +995 XXX XXX XXX
-Email: info@rentalsgeorgia.com
-
-We look forward to serving you!
-
----
-This is an automated confirmation email from Rentals Georgia.
-Please do not reply to this email.
-  `;
-
   try {
     const emails = [];
 
-    console.log('📋 Booking data received:', {
-      bookingId: booking.bookingId,
-      customerEmail: booking.customerEmail,
-      customerName: booking.customerName,
-    });
-
-    // Send email to customer if email is provided
-    console.log('🔍 Checking customer email:', booking.customerEmail, 'isValid:', isValidEmail(booking.customerEmail));
+    // Send email to customer
     if (booking.customerEmail && isValidEmail(booking.customerEmail)) {
-      console.log('✅ Adding customer email to queue');
       emails.push(
         resend.emails.send({
           from: fromAddress,
           to: booking.customerEmail,
-          subject: `Booking Confirmed - ${vehicleName} (#${booking.bookingId.slice(0, 8).toUpperCase()})`,
-          text: customerEmailText,
-          html: customerEmailHtml,
+          subject: `✅ Booking Confirmed - ${vehicleName} (#${booking.bookingId.slice(0, 8).toUpperCase()})`,
+          html: generateCustomerEmail(booking, vehicleName, addons),
         })
       );
-    } else {
-      console.log('⚠️ Customer email skipped - invalid or missing');
     }
 
-    // Send notification to admin if configured
-    console.log('🔍 Checking admin email:', toAddress, 'isValid:', isValidEmail(toAddress));
+    // Send notification to admin
     if (toAddress && isValidEmail(toAddress)) {
-      console.log('✅ Adding admin notification email to queue');
-      const adminHtml = `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-          <h2 style="color: #FF6B6B;">🎉 New Booking Received</h2>
-          <p><strong>Booking ID:</strong> #${booking.bookingId.slice(0, 8).toUpperCase()}</p>
-          <p><strong>${booking.bookingType === 'car' ? 'Vehicle' : 'Tour'}:</strong> ${vehicleName}</p>
-          <p><strong>Customer:</strong> ${booking.customerName}</p>
-          <p><strong>Phone:</strong> ${booking.customerPhone}</p>
-          ${booking.customerEmail ? `<p><strong>Email:</strong> ${booking.customerEmail}</p>` : ''}
-          <p><strong>Pick-up:</strong> ${formatDate(booking.startDate)} at ${booking.pickupTime}</p>
-          <p><strong>Drop-off:</strong> ${formatDate(booking.endDate)} at ${booking.dropoffTime}</p>
-          ${booking.bookingType === 'car' ? `<p><strong>Rental Type:</strong> ${booking.withDriver ? 'With Driver' : 'Self-Drive'}</p>` : ''}
-          ${addons.length > 0 ? `<p><strong>Add-ons:</strong> ${addons.join(', ')}</p>` : ''}
-          <h3 style="color: #4ECDC4;">Payment Details</h3>
-          ${booking.depositAmount > 0 ? `
-            <p><strong>Deposit:</strong> ${formatCurrency(booking.depositAmount)}</p>
-            <p><strong>Due at Pickup:</strong> ${formatCurrency(booking.remainingBalance)}</p>
-          ` : `
-            <p><strong>Payment Method:</strong> Full payment at pickup</p>
-          `}
-          <p style="font-size: 24px; font-weight: bold; color: #FF6B6B;"><strong>Total:</strong> ${formatCurrency(booking.totalPrice)}</p>
-        </div>
-      `;
-
       emails.push(
         resend.emails.send({
           from: fromAddress,
           to: toAddress,
           replyTo: booking.customerEmail && isValidEmail(booking.customerEmail) ? booking.customerEmail : undefined,
-          subject: `[New Booking] ${vehicleName} - ${booking.customerName}`,
-          html: adminHtml,
+          subject: `[New Booking] ${vehicleName} - ${booking.customerName} - ${formatCurrency(booking.totalPrice)}`,
+          html: generateAdminEmail(booking, vehicleName, addons),
         })
       );
-    } else {
-      console.log('⚠️ Admin email skipped - toAddress missing or invalid');
     }
-
-    console.log('📨 Total emails to send:', emails.length);
 
     if (emails.length === 0) {
-      console.log('⚠️ No emails to send! Check environment variables and email addresses.');
-      return res.status(200).json({ ok: true, warning: 'No emails were sent - check configuration' });
+      return res.status(200).json({ ok: true, warning: 'No emails sent - check configuration' });
     }
 
-    console.log('🚀 Sending emails via Resend...');
     const results = await Promise.all(emails);
-    console.log('✅ Email results:', JSON.stringify(results));
-
-    return res.status(200).json({ ok: true, emailsSent: emails.length, results });
+    return res.status(200).json({ ok: true, emailsSent: emails.length });
   } catch (error) {
-    console.error('❌ Failed to send booking confirmation email:', error);
-    return res.status(500).json({ error: 'Failed to send confirmation email', details: String(error) });
+    console.error('Failed to send booking confirmation email:', error);
+    return res.status(500).json({ error: 'Failed to send confirmation email' });
   }
 }
