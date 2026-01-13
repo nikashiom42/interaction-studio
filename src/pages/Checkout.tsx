@@ -122,49 +122,66 @@ const Checkout = () => {
       return data;
     },
     onSuccess: async (data) => {
+      console.log('✅ Booking onSuccess triggered, data:', data);
+      console.log('📧 About to send emails for', data.length, 'booking(s)');
+      console.log('🛒 Cart items available:', cartItems);
+
       toast({ title: `${data.length} booking${data.length > 1 ? 's' : ''} confirmed successfully!` });
 
       // Send booking confirmation email for each booking (before clearing cart to access cart item names)
       for (const booking of data) {
+        console.log('📨 Processing booking:', booking.id);
         try {
           const cartItem = cartItems.find(item =>
             (booking.booking_type === 'car' && item.carId === booking.car_id) ||
             (booking.booking_type === 'tour' && item.tourId === booking.tour_id)
           );
 
-          await fetch('/api/send-booking-confirmation', {
+          console.log('🔍 Found cart item:', cartItem);
+
+          const emailPayload = {
+            bookingId: booking.id,
+            customerName: booking.customer_name,
+            customerEmail: booking.customer_email || email,
+            customerPhone: booking.customer_phone,
+            carName: cartItem?.carName,
+            tourName: cartItem?.tourName,
+            bookingType: booking.booking_type,
+            startDate: booking.start_date,
+            endDate: booking.end_date,
+            pickupTime: booking.pickup_time,
+            dropoffTime: booking.dropoff_time,
+            totalPrice: booking.total_price,
+            withDriver: booking.with_driver,
+            paymentOption: booking.payment_option,
+            depositAmount: booking.deposit_amount,
+            remainingBalance: booking.remaining_balance,
+            childSeats: booking.child_seats,
+            campingEquipment: booking.camping_equipment,
+          };
+
+          console.log('📤 Sending email with payload:', emailPayload);
+
+          const response = await fetch('/api/send-booking-confirmation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              bookingId: booking.id,
-              customerName: booking.customer_name,
-              customerEmail: booking.customer_email || email,
-              customerPhone: booking.customer_phone,
-              carName: cartItem?.carName,
-              tourName: cartItem?.tourName,
-              bookingType: booking.booking_type,
-              startDate: booking.start_date,
-              endDate: booking.end_date,
-              pickupTime: booking.pickup_time,
-              dropoffTime: booking.dropoff_time,
-              totalPrice: booking.total_price,
-              withDriver: booking.with_driver,
-              paymentOption: booking.payment_option,
-              depositAmount: booking.deposit_amount,
-              remainingBalance: booking.remaining_balance,
-              childSeats: booking.child_seats,
-              campingEquipment: booking.camping_equipment,
-            }),
+            body: JSON.stringify(emailPayload),
           });
+
+          console.log('📬 Email API response status:', response.status);
+          const responseData = await response.json();
+          console.log('📬 Email API response data:', responseData);
         } catch (emailError) {
           // Don't block the user flow if email fails
-          console.error('Failed to send booking confirmation email:', emailError);
+          console.error('❌ Failed to send booking confirmation email:', emailError);
         }
       }
 
+      console.log('🧹 Clearing cart');
       // Clear cart after emails are sent
       clearCart();
 
+      console.log('🚀 Navigating to success page');
       // Navigate to success page with first booking ID
       navigate(`/booking-success?bookingId=${data[0].id}`);
     },
