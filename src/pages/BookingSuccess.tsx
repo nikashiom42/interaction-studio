@@ -1,16 +1,36 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Check, Copy, Calendar, MapPin, Mail, Smartphone, Key, ArrowRight, Loader2, Car, Baby, Tent } from 'lucide-react';
+import { Check, Copy, Calendar, MapPin, Mail, Smartphone, Key, ArrowRight, Loader2, Car, Baby, Tent, Mountain, Users } from 'lucide-react';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/currency';
 import { format, parseISO } from 'date-fns';
-import carTesla from '@/assets/car-tesla.jpg';
 
-type BookingWithCar = {
+interface BookingCar {
+  id: string;
+  brand: string;
+  model: string;
+  main_image: string | null;
+  category: string;
+}
+
+interface BookingTour {
+  id: string;
+  name: string;
+  main_image: string | null;
+  category: string;
+  duration_days: number;
+  duration_label: string | null;
+  start_location: string | null;
+  end_location: string | null;
+}
+
+interface BookingWithDetails {
   id: string;
   car_id: string | null;
+  tour_id: string | null;
+  booking_type: string | null;
   start_date: string;
   end_date: string;
   pickup_time: string | null;
@@ -22,20 +42,16 @@ type BookingWithCar = {
   customer_email: string | null;
   customer_phone: string | null;
   created_at: string;
+  passengers: number | null;
   // Add-ons
   child_seats: number | null;
   child_seats_total: number | null;
   camping_equipment: boolean | null;
   camping_equipment_total: number | null;
   addons_total: number | null;
-  cars?: {
-    id: string;
-    brand: string;
-    model: string;
-    main_image: string | null;
-    category: string;
-  } | null;
-};
+  cars?: BookingCar | null;
+  tours?: BookingTour | null;
+}
 
 const BookingSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -51,16 +67,20 @@ const BookingSuccess = () => {
         .from('bookings')
         .select(`
           *,
-          cars (id, brand, model, main_image, category)
+          cars (id, brand, model, main_image, category),
+          tours (id, name, main_image, category, duration_days, duration_label, start_location, end_location)
         `)
         .eq('id', bookingId)
         .maybeSingle();
 
       if (error) throw error;
-      return data as unknown as BookingWithCar;
+      return data as unknown as BookingWithDetails;
     },
     enabled: !!bookingId,
   });
+
+  // Determine if this is a tour or car booking
+  const isTourBooking = booking?.tour_id != null || booking?.booking_type === 'tour';
 
   const referenceNumber = booking?.id?.slice(0, 8).toUpperCase() || 'DEMO-001';
 
@@ -70,7 +90,7 @@ const BookingSuccess = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const nextSteps = [
+  const carNextSteps = [
     {
       icon: Mail,
       title: 'Save your reference',
@@ -90,6 +110,29 @@ const BookingSuccess = () => {
       color: 'bg-gray-100 text-gray-600',
     },
   ];
+
+  const tourNextSteps = [
+    {
+      icon: Mail,
+      title: 'Save your reference',
+      description: "Keep your reference number handy for your trip and support.",
+      color: 'bg-primary/10 text-primary',
+    },
+    {
+      icon: Smartphone,
+      title: 'Prepare for your trip',
+      description: 'Pack comfortable clothes, camera, and any personal essentials.',
+      color: 'bg-blue-100 text-blue-600',
+    },
+    {
+      icon: MapPin,
+      title: 'Meet your guide',
+      description: "Arrive at the pickup location on time. Your guide will be waiting.",
+      color: 'bg-gray-100 text-gray-600',
+    },
+  ];
+
+  const nextSteps = isTourBooking ? tourNextSteps : carNextSteps;
 
   if (isLoading) {
     return (
@@ -134,40 +177,67 @@ const BookingSuccess = () => {
 
         {/* Booking Details Card */}
         <div className="bg-card rounded-xl shadow-card overflow-hidden mb-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          {/* Premium Badge */}
+          {/* Badge */}
           <div className="bg-primary/10 px-6 py-3 flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
-              <span className="text-primary text-xs">★</span>
+              {isTourBooking ? (
+                <Mountain className="w-3 h-3 text-primary" />
+              ) : (
+                <span className="text-primary text-xs">★</span>
+              )}
             </div>
             <span className="text-primary font-semibold text-sm uppercase tracking-wide">
-              {booking?.with_driver ? 'Premium Rental with Driver' : 'Self-Drive Rental'}
+              {isTourBooking
+                ? (booking?.tours?.category?.replace('_', ' ') || 'Road Trip')
+                : (booking?.with_driver ? 'Premium Rental with Driver' : 'Self-Drive Rental')
+              }
             </span>
           </div>
 
-          {/* Car Details */}
+          {/* Booking Details */}
           <div className="p-6">
             <div className="flex gap-6">
               <div className="w-40 h-28 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
-                {booking?.cars?.main_image ? (
-                  <img 
-                    src={booking.cars.main_image} 
-                    alt={`${booking.cars.brand} ${booking.cars.model}`} 
-                    className="w-full h-full object-cover" 
-                  />
+                {isTourBooking ? (
+                  booking?.tours?.main_image ? (
+                    <img
+                      src={booking.tours.main_image}
+                      alt={booking.tours.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Mountain className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Car className="w-12 h-12 text-muted-foreground" />
-                  </div>
+                  booking?.cars?.main_image ? (
+                    <img
+                      src={booking.cars.main_image}
+                      alt={`${booking.cars.brand} ${booking.cars.model}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Car className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )
                 )}
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-bold text-foreground mb-1">
-                  {booking?.cars ? `${booking.cars.brand} ${booking.cars.model}` : 'Demo Car'}
+                  {isTourBooking
+                    ? (booking?.tours?.name || 'Tour')
+                    : (booking?.cars ? `${booking.cars.brand} ${booking.cars.model}` : 'Car Rental')
+                  }
                 </h2>
                 <p className="text-sm text-muted-foreground mb-4 capitalize">
-                  {booking?.cars?.category || 'Premium'} • {booking?.with_driver ? 'With Driver' : 'Self-drive'}
+                  {isTourBooking
+                    ? `${booking?.tours?.duration_label || `${booking?.tours?.duration_days} days`}${booking?.passengers ? ` • ${booking.passengers} ${booking.passengers === 1 ? 'guest' : 'guests'}` : ''}`
+                    : `${booking?.cars?.category || 'Premium'} • ${booking?.with_driver ? 'With Driver' : 'Self-drive'}`
+                  }
                 </p>
-                
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
@@ -179,7 +249,7 @@ const BookingSuccess = () => {
                         }
                       </p>
                       <p className="text-muted-foreground">
-                        Pickup {booking?.pickup_time ? `• ${booking.pickup_time.slice(0, 5)}` : ''}
+                        {isTourBooking ? 'Start Date' : `Pickup${booking?.pickup_time ? ` • ${booking.pickup_time.slice(0, 5)}` : ''}`}
                       </p>
                     </div>
                   </div>
@@ -193,7 +263,7 @@ const BookingSuccess = () => {
                         }
                       </p>
                       <p className="text-muted-foreground">
-                        Dropoff {booking?.dropoff_time ? `• ${booking.dropoff_time.slice(0, 5)}` : ''}
+                        {isTourBooking ? 'End Date' : `Dropoff${booking?.dropoff_time ? ` • ${booking.dropoff_time.slice(0, 5)}` : ''}`}
                       </p>
                     </div>
                   </div>
@@ -202,32 +272,59 @@ const BookingSuccess = () => {
                 <div className="flex items-start gap-2 mt-4 text-sm">
                   <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="font-medium text-foreground">Tbilisi Intl Airport (TBS)</p>
-                    <p className="text-muted-foreground">Terminal, Rental Counter</p>
+                    {isTourBooking ? (
+                      <>
+                        <p className="font-medium text-foreground">
+                          {booking?.tours?.start_location || 'Tbilisi'}
+                          {booking?.tours?.end_location && booking.tours.end_location !== booking.tours.start_location
+                            ? ` → ${booking.tours.end_location}`
+                            : ''
+                          }
+                        </p>
+                        <p className="text-muted-foreground">Pickup location will be confirmed via email</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-medium text-foreground">Tbilisi Intl Airport (TBS)</p>
+                        <p className="text-muted-foreground">Terminal, Rental Counter</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Add-ons Section */}
-            {((booking?.child_seats && booking.child_seats > 0) || booking?.camping_equipment) && (
+            {/* Add-ons Section - Only for car rentals */}
+            {!isTourBooking && ((booking?.child_seats && booking.child_seats > 0) || booking?.camping_equipment) && (
               <div className="pt-4 mt-4 border-t border-border">
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">Add-ons Included</h4>
                 <div className="flex flex-wrap gap-2">
-                  {booking.child_seats && booking.child_seats > 0 && (
+                  {booking?.child_seats && booking.child_seats > 0 && (
                     <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
                       <Baby className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-foreground">Child Seat ×{booking.child_seats}</span>
                       <span className="text-sm text-muted-foreground">({formatPrice(Number(booking.child_seats_total || 0))})</span>
                     </div>
                   )}
-                  {booking.camping_equipment && (
+                  {booking?.camping_equipment && (
                     <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
                       <Tent className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-foreground">Camping Equipment</span>
                       <span className="text-sm text-muted-foreground">({formatPrice(Number(booking.camping_equipment_total || 0))})</span>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Guests info for tours */}
+            {isTourBooking && booking?.passengers && booking.passengers > 0 && (
+              <div className="pt-4 mt-4 border-t border-border">
+                <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg w-fit">
+                  <Users className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">
+                    {booking.passengers} {booking.passengers === 1 ? 'Guest' : 'Guests'}
+                  </span>
                 </div>
               </div>
             )}
@@ -286,10 +383,10 @@ const BookingSuccess = () => {
             <ArrowRight className="w-5 h-5" />
           </Link>
           <Link
-            to="/cars"
+            to={isTourBooking ? "/tours" : "/cars"}
             className="flex-1 flex items-center justify-center px-6 py-4 border border-border rounded-lg font-semibold text-foreground hover:border-foreground hover:bg-secondary transition-colors btn-scale"
           >
-            Book Another Car
+            {isTourBooking ? 'Browse More Tours' : 'Book Another Car'}
           </Link>
         </div>
 
