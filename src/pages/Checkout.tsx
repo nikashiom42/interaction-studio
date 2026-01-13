@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   ChevronRight, Calendar, MapPin, Clock, Trash2, Check,
-  Lock, ThumbsUp, Shield, ChevronDown, Loader2, Baby, Tent
+  Lock, ThumbsUp, Shield, Loader2, Baby, Tent
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -515,10 +515,6 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                <button className="flex items-center justify-between w-full text-primary text-sm font-medium hover:underline">
-                  <span>Enter promo code</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
               </div>
 
               {/* Payment Schedule */}

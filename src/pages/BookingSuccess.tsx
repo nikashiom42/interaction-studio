@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Check, Copy, Calendar, MapPin, Download, Mail, Smartphone, Key, ArrowRight, Loader2, Car, Baby, Tent } from 'lucide-react';
+import { Check, Copy, Calendar, MapPin, Mail, Smartphone, Key, ArrowRight, Loader2, Car, Baby, Tent } from 'lucide-react';
 import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/currency';
@@ -179,7 +179,7 @@ const BookingSuccess = () => {
                         }
                       </p>
                       <p className="text-muted-foreground">
-                        Pickup {booking?.pickup_time ? `• ${booking.pickup_time}` : ''}
+                        Pickup {booking?.pickup_time ? `• ${booking.pickup_time.slice(0, 5)}` : ''}
                       </p>
                     </div>
                   </div>
@@ -193,7 +193,7 @@ const BookingSuccess = () => {
                         }
                       </p>
                       <p className="text-muted-foreground">
-                        Dropoff {booking?.dropoff_time ? `• ${booking.dropoff_time}` : ''}
+                        Dropoff {booking?.dropoff_time ? `• ${booking.dropoff_time.slice(0, 5)}` : ''}
                       </p>
                     </div>
                   </div>
@@ -248,14 +248,6 @@ const BookingSuccess = () => {
             {booking?.customer_email || 'demo@example.com'}
           </span>
         </p>
-
-        {/* Download Button */}
-        <div className="text-center mb-10 animate-fade-in" style={{ animationDelay: '250ms' }}>
-          <button className="inline-flex items-center gap-2 px-6 py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-colors btn-scale">
-            <Download className="w-5 h-5" />
-            Download Confirmation PDF
-          </button>
-        </div>
 
         {/* What's Next */}
         <div className="bg-card rounded-xl p-6 shadow-card mb-10 animate-fade-in-up" style={{ animationDelay: '300ms' }}>

@@ -36,10 +36,10 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Rentals Logo" className="h-14 w-auto object-contain" />
+            <img src={logo} alt="Rentals Logo" className="h-20 w-auto object-contain" />
           </Link>
 
           {/* Search Bar */}

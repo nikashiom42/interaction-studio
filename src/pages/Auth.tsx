@@ -12,7 +12,7 @@ const passwordSchema = z.string().min(6, 'Password must be at least 6 characters
 const Auth = () => {
   const navigate = useNavigate();
   const { user, signIn, signUp, isLoading: authLoading } = useAuth();
-  
+
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -254,20 +254,6 @@ const Auth = () => {
           <p className="text-primary-foreground/80 text-lg">
             Explore our premium car collection and book your perfect ride for any adventure.
           </p>
-          <div className="flex justify-center gap-8 mt-12">
-            <div className="text-center">
-              <div className="text-4xl font-bold">500+</div>
-              <div className="text-sm text-primary-foreground/70">Cars Available</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold">10k+</div>
-              <div className="text-sm text-primary-foreground/70">Happy Customers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold">50+</div>
-              <div className="text-sm text-primary-foreground/70">Locations</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
