@@ -48,6 +48,12 @@ const formatDate = (dateString: string): string => {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Debug: Log environment variables (masked)
+  console.log('📧 Email API called');
+  console.log('🔑 RESEND_API_KEY exists:', !!resendApiKey, resendApiKey ? `(starts with ${resendApiKey.substring(0, 6)}...)` : '(missing)');
+  console.log('📤 RESEND_FROM:', fromAddress || '(missing)');
+  console.log('📥 BOOKING_NOTIFICATION_EMAIL:', toAddress || '(missing)');
+
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -60,7 +66,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (!resendApiKey || !fromAddress) {
-    return res.status(500).json({ error: 'Missing email configuration' });
+    console.log('❌ Missing email configuration - resendApiKey:', !!resendApiKey, 'fromAddress:', !!fromAddress);
+    return res.status(500).json({ error: 'Missing email configuration', details: { hasApiKey: !!resendApiKey, hasFromAddress: !!fromAddress } });
   }
 
   const booking = req.body as BookingData;
@@ -257,8 +264,16 @@ Please do not reply to this email.
   try {
     const emails = [];
 
+    console.log('📋 Booking data received:', {
+      bookingId: booking.bookingId,
+      customerEmail: booking.customerEmail,
+      customerName: booking.customerName,
+    });
+
     // Send email to customer if email is provided
+    console.log('🔍 Checking customer email:', booking.customerEmail, 'isValid:', isValidEmail(booking.customerEmail));
     if (booking.customerEmail && isValidEmail(booking.customerEmail)) {
+      console.log('✅ Adding customer email to queue');
       emails.push(
         resend.emails.send({
           from: fromAddress,
@@ -268,10 +283,14 @@ Please do not reply to this email.
           html: customerEmailHtml,
         })
       );
+    } else {
+      console.log('⚠️ Customer email skipped - invalid or missing');
     }
 
     // Send notification to admin if configured
+    console.log('🔍 Checking admin email:', toAddress, 'isValid:', isValidEmail(toAddress));
     if (toAddress && isValidEmail(toAddress)) {
+      console.log('✅ Adding admin notification email to queue');
       const adminHtml = `
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
           <h2 style="color: #FF6B6B;">🎉 New Booking Received</h2>
@@ -304,13 +323,24 @@ Please do not reply to this email.
           html: adminHtml,
         })
       );
+    } else {
+      console.log('⚠️ Admin email skipped - toAddress missing or invalid');
     }
 
-    await Promise.all(emails);
+    console.log('📨 Total emails to send:', emails.length);
 
-    return res.status(200).json({ ok: true });
+    if (emails.length === 0) {
+      console.log('⚠️ No emails to send! Check environment variables and email addresses.');
+      return res.status(200).json({ ok: true, warning: 'No emails were sent - check configuration' });
+    }
+
+    console.log('🚀 Sending emails via Resend...');
+    const results = await Promise.all(emails);
+    console.log('✅ Email results:', JSON.stringify(results));
+
+    return res.status(200).json({ ok: true, emailsSent: emails.length, results });
   } catch (error) {
-    console.error('Failed to send booking confirmation email:', error);
-    return res.status(500).json({ error: 'Failed to send confirmation email' });
+    console.error('❌ Failed to send booking confirmation email:', error);
+    return res.status(500).json({ error: 'Failed to send confirmation email', details: String(error) });
   }
 }
