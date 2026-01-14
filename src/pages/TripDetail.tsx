@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -63,8 +63,8 @@ const TripDetail = () => {
   const navigate = useNavigate();
   const { addItem, isInCart } = useCart();
 
-  // Date selection state
-  const [startDate, setStartDate] = useState<Date | undefined>(addDays(new Date(), 1));
+  // Date selection state - initialize as undefined, will be set when tour loads
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // Pickup location state
@@ -85,6 +85,14 @@ const TripDetail = () => {
     },
     enabled: !!id,
   });
+
+  // Set initial start date when tour loads (respecting advance_booking_days)
+  useEffect(() => {
+    if (tour && !startDate) {
+      const minBookingDate = addDays(new Date(), tour.advance_booking_days || 1);
+      setStartDate(minBookingDate);
+    }
+  }, [tour, startDate]);
 
   // Fetch itinerary
   const { data: itinerary } = useQuery({
@@ -367,12 +375,13 @@ const TripDetail = () => {
                         <CalendarComponent
                           mode="single"
                           selected={startDate}
+                          defaultMonth={startDate || addDays(new Date(), tour?.advance_booking_days || 1)}
                           onSelect={(date) => {
                             setStartDate(date);
                             setIsCalendarOpen(false);
                           }}
                           disabled={(date) => {
-                            const minDate = addDays(new Date(), tour.advance_booking_days || 1);
+                            const minDate = addDays(new Date(), tour?.advance_booking_days || 1);
                             return date < minDate;
                           }}
                           initialFocus
