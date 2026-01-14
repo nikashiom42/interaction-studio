@@ -111,7 +111,7 @@ export const getPhoneLink = (): string => {
  */
 export const getWhatsAppLink = (message?: string): string => {
   // Use custom WhatsApp short link
-  return 'https://wa.link/1a2bes';
+  return 'https://wa.link/o8oqhl';
 };
 
 /**
