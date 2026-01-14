@@ -9,7 +9,7 @@
 const PHONE_COUNTRY_CODE = import.meta.env.VITE_PHONE_COUNTRY_CODE || '+995';
 const PHONE_NUMBER = import.meta.env.VITE_PHONE_NUMBER || '558211584';
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '995558211584';
-const EMAIL = import.meta.env.VITE_CONTACT_EMAIL || 'info@rentals.ge';
+const EMAIL = import.meta.env.VITE_CONTACT_EMAIL || 'Pegageorgia@gmail.com';
 const ADDRESS = import.meta.env.VITE_CONTACT_ADDRESS || 'Tbilisi, Gia Abesadze 10';
 const MAP_EMBED_URL = import.meta.env.VITE_MAP_EMBED_URL || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2977.171394710362!2d44.7832!3d41.7151!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDQyJzU0LjQiTiA0NMKwNDYnNTkuNSJF!5e0!3m2!1sen!2sge!4v1234567890';
 
