@@ -1,14 +1,33 @@
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2, Euro, Info } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Calendar, Users, Car, Star, Check, ChevronRight, Loader2, Euro, Info, CalendarDays, Hotel } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import { format, addDays } from 'date-fns';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { useCart } from '@/hooks/useCart';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+
+// Georgian cities for pickup
+const PICKUP_CITIES = [
+  { value: 'tbilisi', label: 'Tbilisi' },
+  { value: 'batumi', label: 'Batumi' },
+  { value: 'kutaisi', label: 'Kutaisi' },
+  { value: 'gudauri', label: 'Gudauri' },
+  { value: 'kazbegi', label: 'Kazbegi (Stepantsminda)' },
+  { value: 'telavi', label: 'Telavi' },
+  { value: 'borjomi', label: 'Borjomi' },
+  { value: 'mestia', label: 'Mestia' },
+  { value: 'airport', label: 'Tbilisi Airport (TBS)' },
+];
 
 type Tour = {
   id: string;
@@ -43,6 +62,14 @@ const TripDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem, isInCart } = useCart();
+
+  // Date selection state
+  const [startDate, setStartDate] = useState<Date | undefined>(addDays(new Date(), 1));
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  // Pickup location state
+  const [pickupCity, setPickupCity] = useState<string>('tbilisi');
+  const [pickupAddress, setPickupAddress] = useState<string>('');
 
   const { data: tour, isLoading, error } = useQuery({
     queryKey: ['tour', id],
@@ -91,6 +118,9 @@ const TripDetail = () => {
     enabled: !!id,
   });
 
+  // Calculate end date based on start date and tour duration
+  const endDate = startDate && tour ? addDays(startDate, tour.duration_days - 1) : undefined;
+
   // Handle book tour - add to cart and navigate to cart page
   const handleBookTour = () => {
     if (!tour || !id) {
@@ -102,24 +132,38 @@ const TripDetail = () => {
       return;
     }
 
-    // Use default dates (tomorrow to 4 days from now) for tours
-    const startDate = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-    const endDate = format(addDays(new Date(), 1 + tour.duration_days), 'yyyy-MM-dd');
+    if (!startDate) {
+      toast({
+        title: 'Please select a date',
+        description: 'Choose your preferred start date for the tour',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const formattedStartDate = format(startDate, 'yyyy-MM-dd');
+    const formattedEndDate = format(addDays(startDate, tour.duration_days - 1), 'yyyy-MM-dd');
+
+    // Get city label for display
+    const cityLabel = PICKUP_CITIES.find(c => c.value === pickupCity)?.label || pickupCity;
 
     // Check if already in cart
-    if (!isInCart(undefined, id, startDate, endDate)) {
+    if (!isInCart(undefined, id, formattedStartDate, formattedEndDate)) {
       // Add to cart if not already there
       addItem({
         id: '', // Will be set by addItem
         type: 'tour',
         tourId: id,
         tourName: tour.name,
-        startDate,
-        endDate,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
         pricePerDay: tour.base_price / tour.duration_days,
         totalPrice: tour.base_price,
         days: tour.duration_days,
         image: tour.main_image || undefined,
+        pickupCity: cityLabel,
+        pickupAddress: pickupAddress.trim() || undefined,
+        location: pickupAddress.trim() ? `${cityLabel} - ${pickupAddress.trim()}` : cityLabel,
       });
     }
 
@@ -293,6 +337,114 @@ const TripDetail = () => {
                   <span className="text-muted-foreground">
                     {tour.price_per_person ? '/person' : '/trip'}
                   </span>
+                </div>
+              </div>
+
+              {/* Date Selection */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-primary" />
+                  Select Your Dates
+                </h4>
+                <div className="space-y-3">
+                  {/* Start Date Picker */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Start Date</p>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal h-12",
+                            !startDate && "text-muted-foreground"
+                          )}
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          {startDate ? format(startDate, "EEE, MMM d, yyyy") : "Select start date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={startDate}
+                          onSelect={(date) => {
+                            setStartDate(date);
+                            setIsCalendarOpen(false);
+                          }}
+                          disabled={(date) => {
+                            const minDate = addDays(new Date(), tour.advance_booking_days || 1);
+                            return date < minDate;
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* End Date (calculated) */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">End Date</p>
+                    <div className="w-full h-12 px-4 flex items-center bg-secondary/50 rounded-md border border-border">
+                      <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span className={cn(
+                        "text-sm",
+                        endDate ? "text-foreground" : "text-muted-foreground"
+                      )}>
+                        {endDate ? format(endDate, "EEE, MMM d, yyyy") : "Select start date first"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Duration indicator */}
+                  <div className="flex items-center justify-center gap-2 py-2 px-3 bg-primary/10 rounded-lg">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">
+                      {tour.duration_label || `${tour.duration_days} Day${tour.duration_days > 1 ? 's' : ''}`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pickup Location */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  Pickup Location
+                </h4>
+                <div className="space-y-3">
+                  {/* City Selection */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">City</p>
+                    <Select value={pickupCity} onValueChange={setPickupCity}>
+                      <SelectTrigger className="w-full h-12">
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PICKUP_CITIES.map((city) => (
+                          <SelectItem key={city.value} value={city.value}>
+                            {city.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Hotel/Address Input */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Hotel / Address (optional)</p>
+                    <div className="relative">
+                      <Hotel className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="e.g. Marriott Hotel, Room 204"
+                        value={pickupAddress}
+                        onChange={(e) => setPickupAddress(e.target.value)}
+                        className="pl-10 h-12"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      We'll pick you up from your location
+                    </p>
+                  </div>
                 </div>
               </div>
 

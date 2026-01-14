@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useLocations } from '@/hooks/useLocations';
-import heroCar from '@/assets/hero-car.jpg';
+import heroBanner from '@/assets/banner.jpeg';
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -55,8 +55,8 @@ const HeroSection = () => {
       {/* Background Image with Gradient Overlay */}
       <div className="absolute inset-0">
         <img
-          src={heroCar}
-          alt="Luxury sports car"
+          src={heroBanner}
+          alt="Georgia road trip"
           className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/70 to-foreground/30" />
@@ -82,7 +82,7 @@ const HeroSection = () => {
           <div className="bg-background/95 backdrop-blur-md rounded-2xl shadow-2xl border border-border/50 overflow-hidden">
             {/* Form Fields */}
             <div className="p-4 md:p-6">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {/* Pick-up Location */}
                 <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-xl border border-transparent hover:border-primary/20 transition-all">
                   <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -92,7 +92,7 @@ const HeroSection = () => {
                     <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Location</label>
                     <Select value={selectedLocation} onValueChange={setSelectedLocation}>
                       <SelectTrigger className="border-none h-auto p-0 focus:ring-0 bg-transparent">
-                        <SelectValue placeholder="Pick location" className="text-sm font-semibold" />
+                        <SelectValue placeholder="Select" className="text-sm font-semibold" />
                       </SelectTrigger>
                       <SelectContent>
                         {locations.map((location) => (
@@ -120,7 +120,7 @@ const HeroSection = () => {
                     <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Drop-off</label>
                     <Select value={dropoffLocation} onValueChange={setDropoffLocation}>
                       <SelectTrigger className="border-none h-auto p-0 focus:ring-0 bg-transparent">
-                        <SelectValue placeholder="Drop-off location" className="text-sm font-semibold" />
+                        <SelectValue placeholder="Same as pickup" className="text-sm font-semibold" />
                       </SelectTrigger>
                       <SelectContent>
                         {locations.map((location) => (
@@ -149,10 +149,10 @@ const HeroSection = () => {
                       <div className="flex-1 min-w-0">
                         <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Pick-up</span>
                         <span className={cn(
-                          "text-sm font-semibold truncate block",
+                          "text-sm font-semibold block",
                           pickupDate ? "text-foreground" : "text-muted-foreground"
                         )}>
-                          {pickupDate ? format(pickupDate, "MMM d, yyyy") : "Select date"}
+                          {pickupDate ? format(pickupDate, "MMM d") : "Select"}
                         </span>
                       </div>
                       <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
@@ -180,10 +180,10 @@ const HeroSection = () => {
                       <div className="flex-1 min-w-0">
                         <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide block">Drop-off</span>
                         <span className={cn(
-                          "text-sm font-semibold truncate block",
+                          "text-sm font-semibold block",
                           dropoffDate ? "text-foreground" : "text-muted-foreground"
                         )}>
-                          {dropoffDate ? format(dropoffDate, "MMM d, yyyy") : "Select date"}
+                          {dropoffDate ? format(dropoffDate, "MMM d") : "Select"}
                         </span>
                       </div>
                       <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />

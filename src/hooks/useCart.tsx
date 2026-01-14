@@ -24,6 +24,8 @@ export interface CartItem {
   dropoffTime?: string;
   withDriver?: boolean;
   location?: string;
+  pickupCity?: string;
+  pickupAddress?: string;
   pricePerDay: number;
   totalPrice: number;
   days: number;

@@ -27,6 +27,7 @@ interface BookingData {
   childSeats?: number;
   campingEquipment?: boolean;
   passengers?: number;
+  pickupLocation?: string;
 }
 
 const isValidEmail = (value: unknown): value is string =>
@@ -127,8 +128,8 @@ const generateCustomerEmail = (booking: BookingData, vehicleName: string, addons
                 </tr>
                 <tr>
                   <td colspan="2" style="padding: 16px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-                    <p style="margin: 0 0 4px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">📍 ${isTour ? 'Meeting Point' : 'Location'}</p>
-                    <p style="margin: 0; color: #111827; font-size: 15px; font-weight: 600;">${isTour ? 'Tbilisi (exact location will be confirmed)' : 'Tbilisi International Airport (TBS)'}</p>
+                    <p style="margin: 0 0 4px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">📍 ${isTour ? 'Pickup Location' : 'Location'}</p>
+                    <p style="margin: 0; color: #111827; font-size: 15px; font-weight: 600;">${isTour ? (booking.pickupLocation || 'Tbilisi (will be confirmed)') : 'Tbilisi International Airport (TBS)'}</p>
                   </td>
                 </tr>
               </table>
@@ -297,6 +298,7 @@ const generateAdminEmail = (booking: BookingData, vehicleName: string, addons: s
           <tr><td style="color: #6b7280;">Dates:</td><td style="color: #111827; font-weight: 600;">${formatDate(booking.startDate)} → ${formatDate(booking.endDate)}</td></tr>
           <tr><td style="color: #6b7280;">Time:</td><td style="color: #111827;">${booking.pickupTime} - ${booking.dropoffTime}</td></tr>
           ${!isTour ? `<tr><td style="color: #6b7280;">Type:</td><td style="color: #111827;">${booking.withDriver ? 'With Driver' : 'Self-Drive'}</td></tr>` : ''}
+          ${isTour && booking.pickupLocation ? `<tr><td style="color: #6b7280;">Pickup:</td><td style="color: #111827; font-weight: 600;">${booking.pickupLocation}</td></tr>` : ''}
           ${isTour && booking.passengers ? `<tr><td style="color: #6b7280;">Guests:</td><td style="color: #111827;">${booking.passengers}</td></tr>` : ''}
           ${addons.length > 0 ? `<tr><td style="color: #6b7280;">Add-ons:</td><td style="color: #111827;">${addons.join(', ')}</td></tr>` : ''}
         </table>

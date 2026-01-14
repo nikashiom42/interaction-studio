@@ -104,6 +104,7 @@ const Checkout = () => {
         payment_transaction_id: null,
         payment_date: null,
         notes: item.type === 'tour' ? 'Tour booking' : (item.withDriver ? 'Booking - With driver' : 'Booking - Self-drive'),
+        pickup_details: item.type === 'tour' ? (item.location || null) : null,
         // Add-ons
         child_seats: item.childSeats || 0,
         child_seats_total: item.childSeatsTotal || 0,
@@ -158,6 +159,7 @@ const Checkout = () => {
             remainingBalance: booking.remaining_balance,
             childSeats: booking.child_seats,
             campingEquipment: booking.camping_equipment,
+            pickupLocation: cartItem?.location,
           };
 
           console.log('📤 Sending email with payload:', emailPayload);
@@ -363,7 +365,12 @@ const Checkout = () => {
                             <Clock className="w-3.5 h-3.5" />
                             <span>{item.days} Days</span>
                           </div>
-                          {location && (
+                          {item.type === 'tour' && item.location ? (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span>{item.location}</span>
+                            </div>
+                          ) : location && (
                             <div className="flex items-center gap-1">
                               <MapPin className="w-3.5 h-3.5" />
                               <span>{location.name}</span>
