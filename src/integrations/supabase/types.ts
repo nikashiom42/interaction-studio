@@ -82,6 +82,7 @@ export type Database = {
           payment_option: string | null
           payment_status: string | null
           payment_transaction_id: string | null
+          pickup_details: string | null
           pickup_location_id: string | null
           pickup_time: string | null
           remaining_balance: number | null
@@ -118,6 +119,7 @@ export type Database = {
           payment_option?: string | null
           payment_status?: string | null
           payment_transaction_id?: string | null
+          pickup_details?: string | null
           pickup_location_id?: string | null
           pickup_time?: string | null
           remaining_balance?: number | null
@@ -154,6 +156,7 @@ export type Database = {
           payment_option?: string | null
           payment_status?: string | null
           payment_transaction_id?: string | null
+          pickup_details?: string | null
           pickup_location_id?: string | null
           pickup_time?: string | null
           remaining_balance?: number | null
