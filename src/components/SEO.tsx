@@ -13,7 +13,7 @@ interface SEOProps {
 const defaultTitle = 'Car Rental Georgia | Premium Cars & Tours';
 const defaultDescription = 'Rent premium cars in Georgia. Explore Tbilisi, Batumi, Kutaisi and more with our reliable car rental service. Best prices, free cancellation, 24/7 support.';
 const defaultKeywords = 'car rental Georgia, rent a car Tbilisi, car hire Batumi, Georgia tours, road trips Georgia, self-drive Georgia';
-const siteUrl = 'https://carrental.ge';
+const siteUrl = 'https://www.pegarent.com';
 
 const SEO = ({
   title,

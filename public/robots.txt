@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://carrental.ge/sitemap.xml
+Sitemap: https://www.pegarent.com/sitemap.xml
