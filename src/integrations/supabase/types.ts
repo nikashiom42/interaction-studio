@@ -237,6 +237,7 @@ export type Database = {
           advance_booking_days: number | null
           brand: string
           category: Database["public"]["Enums"]["car_category"]
+          categories: string[] | null
           created_at: string
           delivery_available: boolean | null
           description: string | null
@@ -263,6 +264,7 @@ export type Database = {
           advance_booking_days?: number | null
           brand: string
           category: Database["public"]["Enums"]["car_category"]
+          categories?: string[] | null
           created_at?: string
           delivery_available?: boolean | null
           description?: string | null
@@ -289,6 +291,7 @@ export type Database = {
           advance_booking_days?: number | null
           brand?: string
           category?: Database["public"]["Enums"]["car_category"]
+          categories?: string[] | null
           created_at?: string
           delivery_available?: boolean | null
           description?: string | null

@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
 import { ChevronRight, Calendar, ChevronDown, Check, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X, Euro } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
+import { formatCategories } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -305,8 +306,8 @@ const CarList = () => {
                       </div>
                     )}
                     {/* Category Badge */}
-                    <div className="absolute top-3 left-3 px-3 py-1 bg-foreground/80 backdrop-blur-sm text-background text-xs font-medium rounded-md capitalize">
-                      {car.category}
+                    <div className="absolute top-3 left-3 px-3 py-1 bg-foreground/80 backdrop-blur-sm text-background text-xs font-medium rounded-md">
+                      {formatCategories(car.categories, car.category)}
                     </div>
                     {/* Free Cancellation */}
                     <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 bg-background/90 backdrop-blur-sm rounded-md">

@@ -27,6 +27,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { CarFormDialog } from '@/components/admin/CarFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
+import { formatCategory } from '@/lib/utils';
 
 type Car = Tables<'cars'>;
 
@@ -226,13 +227,12 @@ export default function CarsManagement() {
 
   const getCategoryBadgeColor = (category: string) => {
     const colors: Record<string, string> = {
-      economy: 'bg-success/10 text-success border-success/20',
+      luxury_suv: 'bg-warning/10 text-warning border-warning/20',
+      off_road: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
       suv: 'bg-primary/10 text-primary border-primary/20',
-      luxury: 'bg-warning/10 text-warning border-warning/20',
-      minivan: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-      sports: 'bg-destructive/10 text-destructive border-destructive/20',
+      jeep: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+      economy_suv: 'bg-success/10 text-success border-success/20',
       convertible: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-      electric: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
     };
     return colors[category] || 'bg-muted text-muted-foreground';
   };
@@ -333,9 +333,13 @@ export default function CarsManagement() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={getCategoryBadgeColor(car.category)}>
-                          {car.category}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1">
+                          {(car.categories && car.categories.length > 0 ? car.categories : [car.category]).map((cat) => (
+                            <Badge key={cat} variant="outline" className={getCategoryBadgeColor(cat)}>
+                              {formatCategory(cat)}
+                            </Badge>
+                          ))}
+                        </div>
                       </TableCell>
                       <TableCell className="text-center">{car.seats}</TableCell>
                       <TableCell className="capitalize">{car.transmission}</TableCell>

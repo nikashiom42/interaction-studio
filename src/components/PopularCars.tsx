@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import CarCard from './CarCard';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import { formatCategories } from '@/lib/utils';
 import {
   Carousel,
   CarouselContent,
@@ -95,7 +96,7 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
                   <CarCard
                     image={car.main_image || '/placeholder.svg'}
                     name={`${car.brand} ${car.model}`}
-                    type={`${car.category.charAt(0).toUpperCase() + car.category.slice(1)} • ${car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)}`}
+                    type={`${formatCategories(car.categories, car.category)} • ${car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)}`}
                     originalPrice={Math.round(car.price_per_day * 1.2)}
                     price={car.price_per_day}
                     delay={index * 100}

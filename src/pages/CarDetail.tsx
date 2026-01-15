@@ -6,6 +6,7 @@ import {
   Check, Fuel, Car, Briefcase, DoorOpen, Wifi, Loader2
 } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
+import { formatCategories } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BookingWidget from '@/components/BookingWidget';
@@ -21,7 +22,7 @@ const defaultImages = [carRangeRover, carCorvette, carMercedes, carTesla];
 const staticFaq = [
   { 
     question: 'Driver Requirements', 
-    answer: 'Minimum age is 25 years. Driver must hold a full, valid driving license for at least 2 years. International Driving Permit (IDP) required if your license is not in English.' 
+    answer: 'Minimum age is 23 years. Driver must hold a full, valid driving license for at least 2 years. International Driving Permit (IDP) required if your license is not in English.' 
   },
   { question: 'Mileage Policy', answer: 'Unlimited mileage is included with all rentals. No additional charges for distance traveled.' },
 ];
@@ -110,7 +111,8 @@ const CarDetail = () => {
   const metaDescription = carData.meta_description || `Rent the ${carName} - ${car.seats} seats, ${car.transmission} transmission, ${car.fuel_type}. Book now for the best rates.`;
   
   // Description for About section
-  const defaultDescription = `Experience the ultimate driving experience with the ${carName}. This ${car.category} vehicle combines style with performance, featuring a powerful ${car.fuel_type} engine and ${car.transmission} transmission. Perfect for ${car.seats <= 4 ? 'couples or small groups' : 'families or groups'}, this car offers comfort and reliability for your journey. ${features.includes('4x4') ? 'With 4x4 capability, tackle any terrain with confidence.' : ''}`;
+  const categoryDisplay = formatCategories(car.categories, car.category);
+  const defaultDescription = `Experience the ultimate driving experience with the ${carName}. This ${categoryDisplay} vehicle combines style with performance, featuring a powerful ${car.fuel_type} engine and ${car.transmission} transmission. Perfect for ${car.seats <= 4 ? 'couples or small groups' : 'families or groups'}, this car offers comfort and reliability for your journey. ${features.includes('4x4') ? 'With 4x4 capability, tackle any terrain with confidence.' : ''}`;
   const carDescription = carData.description || defaultDescription;
   
   const specs = [
@@ -131,7 +133,7 @@ const CarDetail = () => {
   ];
 
   const tags = [
-    car.category.charAt(0).toUpperCase() + car.category.slice(1),
+    categoryDisplay,
     `${car.seats} Seats`,
     car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1),
     'Free cancellation',
@@ -149,7 +151,7 @@ const CarDetail = () => {
           <ChevronRight className="w-4 h-4" />
           <Link to="/cars" className="hover:text-foreground transition-colors">Cars</Link>
           <ChevronRight className="w-4 h-4" />
-          <span className="hover:text-foreground transition-colors cursor-pointer capitalize">{car.category}</span>
+          <span className="hover:text-foreground transition-colors cursor-pointer">{formatCategories(car.categories, car.category)}</span>
           <ChevronRight className="w-4 h-4" />
           <span className="text-foreground font-medium">{carName}</span>
         </nav>
@@ -319,8 +321,8 @@ const CarDetail = () => {
                         <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
                           {similarCar.brand} {similarCar.model}
                         </h3>
-                        <p className="text-sm text-muted-foreground mb-3 capitalize">
-                          {similarCar.category} • {similarCar.transmission}
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {formatCategories(similarCar.categories, similarCar.category)} • {similarCar.transmission.charAt(0).toUpperCase() + similarCar.transmission.slice(1)}
                         </p>
                         <div className="flex items-center justify-between pt-3 border-t border-border">
                           <div>

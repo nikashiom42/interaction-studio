@@ -72,6 +72,7 @@ const carFormSchema = z.object({
   brand: z.string().min(1, 'Brand is required').max(100),
   model: z.string().min(1, 'Model is required').max(100),
   category: z.enum(['luxury_suv', 'off_road', 'suv', 'jeep', 'economy_suv', 'convertible']),
+  categories: z.array(z.string()).min(1, 'Select at least one category'),
   seats: z.coerce.number().min(1).max(20),
   transmission: z.enum(['manual', 'automatic']),
   fuel_type: z.enum(['petrol', 'diesel', 'electric', 'hybrid']),
@@ -108,6 +109,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       brand: '',
       model: '',
       category: 'suv',
+      categories: [],
       seats: 5,
       transmission: 'automatic',
       fuel_type: 'petrol',
@@ -126,10 +128,14 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
   useEffect(() => {
     if (car) {
       const features = Array.isArray(car.features) ? car.features as string[] : [];
+      const carCategories = Array.isArray(car.categories) && car.categories.length > 0
+        ? car.categories
+        : [car.category]; // Fallback to single category if categories array is empty
       form.reset({
         brand: car.brand,
         model: car.model,
         category: car.category,
+        categories: carCategories,
         seats: car.seats,
         transmission: car.transmission,
         fuel_type: car.fuel_type,
@@ -150,6 +156,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         brand: '',
         model: '',
         category: 'suv',
+        categories: [],
         seats: 5,
         transmission: 'automatic',
         fuel_type: 'petrol',
@@ -165,16 +172,18 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       });
       setMainImage(null);
       setGalleryImages([]);
-      setGalleryImages([]);
     }
   }, [car, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: CarFormValues) => {
+      // Use first selected category as primary category for backward compatibility
+      const primaryCategory = values.categories[0] as typeof values.category;
       const carData = {
         brand: values.brand,
         model: values.model,
-        category: values.category,
+        category: primaryCategory,
+        categories: values.categories,
         seats: values.seats,
         transmission: values.transmission,
         fuel_type: values.fuel_type,
@@ -262,24 +271,39 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="category"
-                    render={({ field }) => (
+                    name="categories"
+                    render={() => (
                       <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {categories.map((cat) => (
-                              <SelectItem key={cat.value} value={cat.value}>
-                                {cat.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Categories</FormLabel>
+                        <div className="grid grid-cols-2 gap-2 rounded-md border border-input p-3">
+                          {categories.map((cat) => (
+                            <FormField
+                              key={cat.value}
+                              control={form.control}
+                              name="categories"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(cat.value)}
+                                      onCheckedChange={(checked) => {
+                                        const current = field.value || [];
+                                        if (checked) {
+                                          field.onChange([...current, cat.value]);
+                                        } else {
+                                          field.onChange(current.filter((v) => v !== cat.value));
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="text-sm font-normal cursor-pointer">
+                                    {cat.label}
+                                  </FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
