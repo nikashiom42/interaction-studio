@@ -33,7 +33,7 @@ const AboutUs = () => {
     <div className="min-h-screen bg-background">
       <SEO 
         title="About Us"
-        description="Learn about Rentals Georgia - your trusted car rental partner since 2017. 150+ cars, 10,000+ happy customers, 24/7 support."
+        description="Learn about Pegarent - your trusted car rental partner since 2017. 150+ cars, 10,000+ happy customers, 24/7 support."
         url="/about"
       />
       <Header />
@@ -43,7 +43,7 @@ const AboutUs = () => {
         <section className="relative py-20 bg-gradient-to-br from-primary/10 to-secondary">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              About Rentals Georgia
+              About Pegarent
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Your trusted partner for exploring the beauty of Georgia. We've been helping travelers discover 
@@ -77,7 +77,7 @@ const AboutUs = () => {
                 <h2 className="text-3xl font-bold text-foreground mb-6">Our Story</h2>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    Founded in 2016 in the heart of Tbilisi, Rentals Georgia started with a simple mission: 
+                    Founded in 2016 in the heart of Tbilisi, Pegarent started with a simple mission: 
                     to make exploring Georgia accessible and enjoyable for everyone.
                   </p>
                   <p>

@@ -3,7 +3,8 @@ import { Resend } from 'resend';
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const fromAddress = process.env.RESEND_FROM;
-const toAddress = process.env.BOOKING_NOTIFICATION_EMAIL;
+// Support multiple emails separated by comma
+const notificationEmails = process.env.BOOKING_NOTIFICATION_EMAIL?.split(',').map(e => e.trim()).filter(Boolean) || [];
 
 const resend = new Resend(resendApiKey);
 
@@ -368,12 +369,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
     }
 
-    // Send notification to admin
-    if (toAddress && isValidEmail(toAddress)) {
+    // Send notification to admin(s)
+    const validAdminEmails = notificationEmails.filter(isValidEmail);
+    if (validAdminEmails.length > 0) {
       emails.push(
         resend.emails.send({
           from: fromAddress,
-          to: toAddress,
+          to: validAdminEmails,
           replyTo: booking.customerEmail && isValidEmail(booking.customerEmail) ? booking.customerEmail : undefined,
           subject: `[New Booking] ${vehicleName} - ${booking.customerName} - ${formatCurrency(booking.totalPrice)}`,
           html: generateAdminEmail(booking, vehicleName, addons),

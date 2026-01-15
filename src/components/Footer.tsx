@@ -91,9 +91,9 @@ const Footer = () => {
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-xs">R</span>
+                  <span className="text-primary-foreground font-bold text-xs">P</span>
                 </div>
-                <span className="text-muted-foreground text-sm">© {currentYear} Rentals Georgia. All rights reserved.</span>
+                <span className="text-muted-foreground text-sm">© {currentYear} Pegarent. All rights reserved.</span>
               </div>
               <span className="text-muted-foreground text-sm">
                 Website by{' '}

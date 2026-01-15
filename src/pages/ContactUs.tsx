@@ -117,7 +117,7 @@ const ContactUs = () => {
     <div className="min-h-screen bg-background">
       <SEO 
         title="Contact Us"
-        description="Get in touch with Rentals Georgia. 24/7 customer support, phone, email, and office location in Tbilisi."
+        description="Get in touch with Pegarent. 24/7 customer support, phone, email, and office location in Tbilisi."
         url="/contact"
       />
       <Header />

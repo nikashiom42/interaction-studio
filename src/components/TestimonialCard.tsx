@@ -40,7 +40,7 @@ const TestimonialCard = ({ quote, name, memberSince, avatar, rating, delay = 0 }
             <span className="font-medium text-primary text-sm">{name}</span>
             <BadgeCheck className="w-4 h-4 text-success fill-success/20" />
           </div>
-          <p className="text-muted-foreground text-xs">Rentals Member since {memberSince}</p>
+          <p className="text-muted-foreground text-xs">Pegarent Member since {memberSince}</p>
         </div>
       </div>
     </div>
