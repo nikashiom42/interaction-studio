@@ -66,14 +66,14 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-16">
         <div className="max-w-2xl animate-fade-in">
           <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium text-primary bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20">
-            Premium Car Rentals in Georgia
+            Friendly car rental in Georgia
           </span>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-background mb-4 leading-tight">
             Drive Your Adventure<br />
             <span className="text-primary">Across Georgia</span>
           </h1>
           <p className="text-background/80 text-base md:text-lg mb-8 max-w-lg">
-            Premium vehicles and curated tours through stunning landscapes.
+            Appropriate vehicles and tours throughout Georgia.
           </p>
         </div>
 

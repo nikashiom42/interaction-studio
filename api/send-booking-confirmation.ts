@@ -205,21 +205,6 @@ const generateCustomerEmail = (booking: BookingData, vehicleName: string, addons
                 </tr>
               </table>
 
-              <!-- Important Notice -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
-                <tr>
-                  <td style="padding: 20px; background-color: #fef2f2; border-radius: 12px; border-left: 4px solid #ef4444;">
-                    <p style="margin: 0 0 8px; color: #991b1b; font-size: 14px; font-weight: 600;">⚠️ Important</p>
-                    <p style="margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.6;">
-                      ${isTour
-                        ? 'Please arrive at the meeting point 10 minutes before the scheduled time. Bring comfortable clothing and any personal essentials for the trip.'
-                        : 'Please bring a valid driver\'s license, passport/ID, and a credit card for the security deposit when picking up your vehicle.'
-                      }
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
               <!-- Contact Info -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
