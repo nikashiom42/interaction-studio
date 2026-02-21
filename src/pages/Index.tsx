@@ -26,6 +26,10 @@ const Index = () => {
         title={seo?.meta_title || "Rent Cars in Georgia"}
         description={seo?.meta_description || "Premium car rental in Georgia. Explore Tbilisi, Batumi, Gudauri and more. Self-drive or with driver. Best prices, free cancellation, 24/7 support."}
         url="/"
+        keywords={seo?.keywords || undefined}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
         schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />

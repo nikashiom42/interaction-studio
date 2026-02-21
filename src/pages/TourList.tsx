@@ -74,7 +74,10 @@ const TourList = () => {
         title={seo?.meta_title || "Tours & Road Trips"}
         description={seo?.meta_description || "Discover amazing road trips and guided tours across Georgia. Beach getaways, mountain adventures, cultural tours and more."}
         url="/tours"
-        keywords="Georgia tours, road trips Georgia, guided tours Tbilisi, adventure travel Georgia"
+        keywords={seo?.keywords || "Georgia tours, road trips Georgia, guided tours Tbilisi, adventure travel Georgia"}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
         schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />

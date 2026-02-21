@@ -38,6 +38,10 @@ const AboutUs = () => {
         title={seo?.meta_title || "About Us"}
         description={seo?.meta_description || "Learn about Pegarent - your trusted car rental partner since 2017. 150+ cars, 10,000+ happy customers, 24/7 support."}
         url="/about"
+        keywords={seo?.keywords || undefined}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
         schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />

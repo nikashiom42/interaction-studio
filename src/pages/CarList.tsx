@@ -117,7 +117,10 @@ const CarList = () => {
         title={seo?.meta_title || "Rent a Car"}
         description={seo?.meta_description || "Browse our fleet of premium cars available for rent in Georgia. SUVs, luxury cars, economy vehicles and more. Best prices guaranteed."}
         url="/cars"
-        keywords="rent car Georgia, car hire Tbilisi, SUV rental, luxury car Georgia"
+        keywords={seo?.keywords || "rent car Georgia, car hire Tbilisi, SUV rental, luxury car Georgia"}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
         schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
@@ -25,6 +26,10 @@ interface PageSEO {
   meta_title: string | null;
   meta_description: string | null;
   schema_markup: string | null;
+  og_image: string | null;
+  canonical_url: string | null;
+  keywords: string | null;
+  no_index: boolean | null;
 }
 
 const PAGE_LABELS: Record<string, string> = {
@@ -43,15 +48,29 @@ interface Redirect {
   created_at: string;
 }
 
+interface PageFormData {
+  meta_title: string;
+  meta_description: string;
+  schema_markup: string;
+  og_image: string;
+  canonical_url: string;
+  keywords: string;
+  no_index: boolean;
+}
+
 // --- Pages Tab ---
 
 function PagesTab() {
   const queryClient = useQueryClient();
   const [editingPage, setEditingPage] = useState<PageSEO | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<PageFormData>({
     meta_title: '',
     meta_description: '',
     schema_markup: '',
+    og_image: '',
+    canonical_url: '',
+    keywords: '',
+    no_index: false,
   });
 
   const { data: pages, isLoading } = useQuery({
@@ -67,13 +86,17 @@ function PagesTab() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
+    mutationFn: async ({ id, data }: { id: string; data: PageFormData }) => {
       const { error } = await supabase
         .from('page_seo')
         .update({
           meta_title: data.meta_title || null,
           meta_description: data.meta_description || null,
           schema_markup: data.schema_markup || null,
+          og_image: data.og_image || null,
+          canonical_url: data.canonical_url || null,
+          keywords: data.keywords || null,
+          no_index: data.no_index,
         })
         .eq('id', id);
       if (error) throw error;
@@ -93,6 +116,10 @@ function PagesTab() {
       meta_title: page.meta_title || '',
       meta_description: page.meta_description || '',
       schema_markup: page.schema_markup || '',
+      og_image: page.og_image || '',
+      canonical_url: page.canonical_url || '',
+      keywords: page.keywords || '',
+      no_index: page.no_index || false,
     });
   };
 
@@ -105,29 +132,37 @@ function PagesTab() {
               <TableHead>Page</TableHead>
               <TableHead>Meta Title</TableHead>
               <TableHead>Meta Description</TableHead>
+              <TableHead>Index</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">Loading...</TableCell>
+                <TableCell colSpan={5} className="text-center py-8">Loading...</TableCell>
               </TableRow>
             ) : pages?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   No pages configured. Run the seed migration first.
                 </TableCell>
               </TableRow>
             ) : (
               pages?.map((page) => (
                 <TableRow key={page.id}>
-                  <TableCell className="font-medium capitalize">{PAGE_LABELS[page.page_key] || page.page_key}</TableCell>
+                  <TableCell className="font-medium">{PAGE_LABELS[page.page_key] || page.page_key}</TableCell>
                   <TableCell className="max-w-[200px] truncate text-sm text-muted-foreground">
                     {page.meta_title || '—'}
                   </TableCell>
                   <TableCell className="max-w-[250px] truncate text-sm text-muted-foreground">
                     {page.meta_description || '—'}
+                  </TableCell>
+                  <TableCell>
+                    {page.no_index ? (
+                      <Badge variant="destructive" className="text-xs">noindex</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs">index</Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(page)}>
@@ -147,6 +182,7 @@ function PagesTab() {
             <DialogTitle>Edit SEO — {editingPage ? (PAGE_LABELS[editingPage.page_key] || editingPage.page_key) : ''}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Meta Title */}
             <div>
               <Label>Meta Title</Label>
               <Input
@@ -156,6 +192,8 @@ function PagesTab() {
               />
               <p className="text-xs text-muted-foreground mt-1">{formData.meta_title.length}/60 characters</p>
             </div>
+
+            {/* Meta Description */}
             <div>
               <Label>Meta Description</Label>
               <Textarea
@@ -166,6 +204,59 @@ function PagesTab() {
               />
               <p className="text-xs text-muted-foreground mt-1">{formData.meta_description.length}/160 characters</p>
             </div>
+
+            {/* Keywords */}
+            <div>
+              <Label>Keywords</Label>
+              <Input
+                value={formData.keywords}
+                onChange={(e) => setFormData((p) => ({ ...p, keywords: e.target.value }))}
+                placeholder="keyword1, keyword2, keyword3"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Comma-separated keywords for this page</p>
+            </div>
+
+            {/* OG Image */}
+            <div>
+              <Label>Social Share Image (OG Image)</Label>
+              <Input
+                value={formData.og_image}
+                onChange={(e) => setFormData((p) => ({ ...p, og_image: e.target.value }))}
+                placeholder="https://example.com/image.jpg"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Image shown when shared on Facebook, Twitter, LinkedIn (recommended: 1200x630px)</p>
+              {formData.og_image && (
+                <div className="mt-2 rounded-md overflow-hidden border max-w-xs">
+                  <img src={formData.og_image} alt="OG Preview" className="w-full h-auto" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                </div>
+              )}
+            </div>
+
+            {/* Canonical URL */}
+            <div>
+              <Label>Canonical URL (Optional)</Label>
+              <Input
+                value={formData.canonical_url}
+                onChange={(e) => setFormData((p) => ({ ...p, canonical_url: e.target.value }))}
+                placeholder="https://www.pegarent.com/preferred-url"
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Leave empty to use the default page URL. Set only if this page has duplicate content elsewhere.</p>
+            </div>
+
+            {/* noindex toggle */}
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <Label className="text-sm font-medium">Hide from Search Engines (noindex)</Label>
+                <p className="text-xs text-muted-foreground">When enabled, search engines will not index this page</p>
+              </div>
+              <Switch
+                checked={formData.no_index}
+                onCheckedChange={(checked) => setFormData((p) => ({ ...p, no_index: checked }))}
+              />
+            </div>
+
+            {/* Schema Markup */}
             <div>
               <Label>Schema Markup (JSON-LD)</Label>
               <Textarea
@@ -176,7 +267,8 @@ function PagesTab() {
                 className="font-mono text-sm"
               />
             </div>
-            <div className="flex justify-end gap-2">
+
+            <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setEditingPage(null)}>Cancel</Button>
               <Button
                 onClick={() => editingPage && updateMutation.mutate({ id: editingPage.id, data: formData })}
@@ -560,6 +652,87 @@ function RedirectsTab() {
   );
 }
 
+// --- Global Scripts Tab ---
+
+function GlobalScriptsTab() {
+  const queryClient = useQueryClient();
+  const [content, setContent] = useState('');
+
+  const { isLoading } = useQuery({
+    queryKey: ['admin-head-scripts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'head_scripts')
+        .maybeSingle();
+      if (error) throw error;
+      if (data?.value) {
+        const raw = typeof data.value === 'string' ? data.value : JSON.stringify(data.value);
+        setContent(raw.replace(/^"|"$/g, '').replace(/\\n/g, '\n').replace(/\\"/g, '"'));
+      }
+      return data;
+    },
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const jsonValue = JSON.stringify(content);
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ key: 'head_scripts', value: jsonValue }, { onConflict: 'key' });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-head-scripts'] });
+      queryClient.invalidateQueries({ queryKey: ['global-head-scripts'] });
+      toast.success('Head scripts saved');
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  if (isLoading) return <p className="py-8 text-center text-muted-foreground">Loading...</p>;
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-sm text-muted-foreground mb-1">
+          Add verification meta tags and tracking scripts that will be injected into the {'<head>'} of every page.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Common uses: Google Search Console verification, Ahrefs/SEMrush verification, Facebook Pixel, custom analytics.
+        </p>
+      </div>
+
+      <div className="border rounded-lg p-4 bg-secondary/30 space-y-2">
+        <p className="text-xs font-medium text-foreground">Examples:</p>
+        <code className="block text-xs text-muted-foreground font-mono">
+          {'<meta name="google-site-verification" content="your-code-here" />'}
+        </code>
+        <code className="block text-xs text-muted-foreground font-mono">
+          {'<meta name="ahrefs-site-verification" content="your-code-here" />'}
+        </code>
+        <code className="block text-xs text-muted-foreground font-mono">
+          {'<meta name="msvalidate.01" content="your-bing-code" />'}
+        </code>
+      </div>
+
+      <Textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        rows={12}
+        className="font-mono text-sm"
+        placeholder='<meta name="google-site-verification" content="..." />'
+      />
+      <div className="flex justify-end">
+        <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+          {saveMutation.isPending ? 'Saving...' : 'Save Head Scripts'}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // --- Main SEO Management Page ---
 
 export default function SEOManagement() {
@@ -567,15 +740,16 @@ export default function SEOManagement() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">SEO Management</h1>
-        <p className="text-muted-foreground">Manage meta tags, schema markup, sitemap, robots.txt, and redirects</p>
+        <p className="text-muted-foreground">Manage meta tags, schema markup, sitemap, robots.txt, redirects, and verification scripts</p>
       </div>
 
       <Tabs defaultValue="pages">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="pages">Pages</TabsTrigger>
           <TabsTrigger value="robots">Robots.txt</TabsTrigger>
           <TabsTrigger value="sitemap">Sitemap</TabsTrigger>
           <TabsTrigger value="redirects">Redirects</TabsTrigger>
+          <TabsTrigger value="global">Global Scripts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pages" className="mt-6">
@@ -589,6 +763,9 @@ export default function SEOManagement() {
         </TabsContent>
         <TabsContent value="redirects" className="mt-6">
           <RedirectsTab />
+        </TabsContent>
+        <TabsContent value="global" className="mt-6">
+          <GlobalScriptsTab />
         </TabsContent>
       </Tabs>
     </div>

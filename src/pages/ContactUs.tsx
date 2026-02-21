@@ -121,6 +121,10 @@ const ContactUs = () => {
         title={seo?.meta_title || "Contact Us"}
         description={seo?.meta_description || "Get in touch with Pegarent. 24/7 customer support, phone, email, and office location in Tbilisi."}
         url="/contact"
+        keywords={seo?.keywords || undefined}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
         schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />

@@ -6,6 +6,7 @@ interface SEOProps {
   keywords?: string;
   image?: string;
   url?: string;
+  canonicalUrl?: string;
   type?: 'website' | 'article' | 'product';
   noIndex?: boolean;
   schemaMarkup?: string;
@@ -22,6 +23,7 @@ const SEO = ({
   keywords = defaultKeywords,
   image = '/og-image.jpg',
   url,
+  canonicalUrl,
   type = 'website',
   noIndex = false,
   schemaMarkup,
@@ -29,6 +31,7 @@ const SEO = ({
   const fullTitle = title ? `${title} | Car Rental Georgia` : defaultTitle;
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
   const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
+  const canonical = canonicalUrl || fullUrl;
 
   return (
     <Helmet>
@@ -54,7 +57,7 @@ const SEO = ({
       <meta name="twitter:image" content={fullImage} />
 
       {/* Canonical URL */}
-      <link rel="canonical" href={fullUrl} />
+      <link rel="canonical" href={canonical} />
 
       {/* Additional SEO */}
       <meta name="geo.region" content="GE" />

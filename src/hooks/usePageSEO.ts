@@ -5,6 +5,10 @@ interface PageSEO {
   meta_title: string | null;
   meta_description: string | null;
   schema_markup: string | null;
+  og_image: string | null;
+  canonical_url: string | null;
+  keywords: string | null;
+  no_index: boolean | null;
 }
 
 export function usePageSEO(pageKey: string) {
@@ -13,7 +17,7 @@ export function usePageSEO(pageKey: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('page_seo')
-        .select('meta_title, meta_description, schema_markup')
+        .select('meta_title, meta_description, schema_markup, og_image, canonical_url, keywords, no_index')
         .eq('page_key', pageKey)
         .maybeSingle();
 
