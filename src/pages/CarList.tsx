@@ -9,6 +9,7 @@ import { formatCategories } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import { usePageSEO } from '@/hooks/usePageSEO';
 import {
   Popover,
   PopoverContent,
@@ -38,6 +39,7 @@ const CarList = () => {
   const searchQuery = searchParams.get('search') || '';
   const [activeTab, setActiveTab] = useState('Explore Cars');
   const [activeFilters, setActiveFilters] = useState<string[]>(['dates']);
+  const { data: seo } = usePageSEO('cars');
   const [minPrice, setMinPrice] = useState<number | ''>('');
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
   const [priceFilterOpen, setPriceFilterOpen] = useState(false);
@@ -111,11 +113,12 @@ const CarList = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
-        title="Rent a Car"
-        description="Browse our fleet of premium cars available for rent in Georgia. SUVs, luxury cars, economy vehicles and more. Best prices guaranteed."
+      <SEO
+        title={seo?.meta_title || "Rent a Car"}
+        description={seo?.meta_description || "Browse our fleet of premium cars available for rent in Georgia. SUVs, luxury cars, economy vehicles and more. Best prices guaranteed."}
         url="/cars"
         keywords="rent car Georgia, car hire Tbilisi, SUV rental, luxury car Georgia"
+        schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
       

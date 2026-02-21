@@ -11,19 +11,22 @@ import BlogSection from '@/components/BlogSection';
 import MapSection from '@/components/MapSection';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import { usePageSEO } from '@/hooks/usePageSEO';
 import { Database } from '@/integrations/supabase/types';
 
 type CarCategory = Database['public']['Enums']['car_category'];
 
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | CarCategory>('all');
+  const { data: seo } = usePageSEO('home');
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
-        title="Rent Cars in Georgia"
-        description="Premium car rental in Georgia. Explore Tbilisi, Batumi, Gudauri and more. Self-drive or with driver. Best prices, free cancellation, 24/7 support."
+      <SEO
+        title={seo?.meta_title || "Rent Cars in Georgia"}
+        description={seo?.meta_description || "Premium car rental in Georgia. Explore Tbilisi, Batumi, Gudauri and more. Self-drive or with driver. Best prices, free cancellation, 24/7 support."}
         url="/"
+        schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
       <main>

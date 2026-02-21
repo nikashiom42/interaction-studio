@@ -33,6 +33,7 @@ const blogSchema = z.object({
   is_published: z.boolean().default(false),
   meta_title: z.string().optional(),
   meta_description: z.string().optional(),
+  schema_markup: z.string().optional(),
 });
 
 type BlogFormData = z.infer<typeof blogSchema>;
@@ -51,6 +52,7 @@ interface Blog {
   updated_at: string;
   meta_title?: string | null;
   meta_description?: string | null;
+  schema_markup?: string | null;
 }
 
 interface BlogFormDialogProps {
@@ -82,6 +84,7 @@ export function BlogFormDialog({
       is_published: false,
       meta_title: "",
       meta_description: "",
+      schema_markup: "",
     },
   });
 
@@ -97,6 +100,7 @@ export function BlogFormDialog({
         is_published: blog.is_published || false,
         meta_title: blog.meta_title || "",
         meta_description: blog.meta_description || "",
+        schema_markup: blog.schema_markup || "",
       });
       setImageUrl(blog.main_image || "");
     } else {
@@ -282,6 +286,25 @@ export function BlogFormDialog({
                         {...field}
                         placeholder="SEO description (150–160 characters recommended)"
                         rows={2}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="schema_markup"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Schema Markup (JSON-LD)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder='{"@context": "https://schema.org", "@type": "Article", ...}'
+                        rows={6}
+                        className="font-mono text-sm"
                       />
                     </FormControl>
                     <FormMessage />

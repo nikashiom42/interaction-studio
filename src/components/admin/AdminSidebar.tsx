@@ -1,4 +1,4 @@
-import { Car, CalendarCheck, Users, LayoutDashboard, Map, LogOut, Mail, FileText, HelpCircle, MapPin, Settings } from "lucide-react";
+import { Car, CalendarCheck, Users, LayoutDashboard, Map, LogOut, Mail, FileText, HelpCircle, MapPin, Settings, Search } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +26,7 @@ const menuItems = [
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "FAQs", url: "/admin/faqs", icon: HelpCircle },
   { title: "Blogs", url: "/admin/blogs", icon: FileText },
+  { title: "SEO", url: "/admin/seo", icon: Search },
   { title: "Messages", url: "/admin/messages", icon: Mail },
   { title: "Locations", url: "/admin/locations", icon: MapPin },
   { title: "Settings", url: "/admin/settings", icon: Settings },

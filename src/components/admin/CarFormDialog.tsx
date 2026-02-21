@@ -85,6 +85,7 @@ const carFormSchema = z.object({
   description: z.string().optional().nullable(),
   meta_title: z.string().max(60, 'Meta title should be under 60 characters').optional().nullable(),
   meta_description: z.string().max(160, 'Meta description should be under 160 characters').optional().nullable(),
+  schema_markup: z.string().optional().nullable(),
 });
 
 type CarFormValues = z.infer<typeof carFormSchema>;
@@ -122,6 +123,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       description: '',
       meta_title: '',
       meta_description: '',
+      schema_markup: '',
     },
   });
 
@@ -148,6 +150,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         description: (car as any).description || '',
         meta_title: (car as any).meta_title || '',
         meta_description: (car as any).meta_description || '',
+        schema_markup: (car as any).schema_markup || '',
       });
       setMainImage(car.main_image || null);
       setGalleryImages(car.gallery_images || []);
@@ -169,6 +172,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         description: '',
         meta_title: '',
         meta_description: '',
+        schema_markup: '',
       });
       setMainImage(null);
       setGalleryImages([]);
@@ -198,6 +202,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         description: values.description || null,
         meta_title: values.meta_title || null,
         meta_description: values.meta_description || null,
+        schema_markup: values.schema_markup || null,
       };
 
       if (isEditing && car) {
@@ -528,6 +533,24 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                       <p className="text-xs text-muted-foreground">
                         {(field.value?.length || 0)}/160 characters - Shown in search engine results
                       </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="schema_markup"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Schema Markup (JSON-LD)</FormLabel>
+                      <FormControl>
+                        <textarea
+                          placeholder='{"@context": "https://schema.org", "@type": "Car", ...}'
+                          className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          {...field}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

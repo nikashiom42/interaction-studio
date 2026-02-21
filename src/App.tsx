@@ -31,7 +31,9 @@ import MessagesManagement from "./pages/admin/MessagesManagement";
 import BlogsManagement from "./pages/admin/BlogsManagement";
 import LocationsManagement from "./pages/admin/LocationsManagement";
 import SettingsManagement from "./pages/admin/SettingsManagement";
+import SEOManagement from "./pages/admin/SEOManagement";
 import NotFound from "./pages/NotFound";
+import { RedirectHandler } from "./components/RedirectHandler";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,7 @@ const App = () => (
               v7_relativeSplatPath: true,
             }}
           >
+            <RedirectHandler />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/cars" element={<CarList />} />
@@ -76,6 +79,7 @@ const App = () => (
                 <Route path="messages" element={<MessagesManagement />} />
                 <Route path="locations" element={<LocationsManagement />} />
                 <Route path="settings" element={<SettingsManagement />} />
+                <Route path="seo" element={<SEOManagement />} />
               </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

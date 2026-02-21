@@ -31,6 +31,7 @@ interface Blog {
   updated_at: string;
   meta_title?: string | null;
   meta_description?: string | null;
+  schema_markup?: string | null;
 }
 
 interface BlogFormData {
@@ -43,6 +44,7 @@ interface BlogFormData {
   is_published: boolean;
   meta_title?: string;
   meta_description?: string;
+  schema_markup?: string;
 }
 
 export default function BlogsManagement() {
@@ -77,6 +79,7 @@ export default function BlogsManagement() {
         published_at: data.is_published ? new Date().toISOString() : null,
         meta_title: data.meta_title || null,
         meta_description: data.meta_description || null,
+        schema_markup: data.schema_markup || null,
       });
       if (error) throw error;
     },
@@ -102,6 +105,7 @@ export default function BlogsManagement() {
         is_published: data.is_published,
         meta_title: data.meta_title || null,
         meta_description: data.meta_description || null,
+        schema_markup: data.schema_markup || null,
       };
 
       // Set published_at if newly published

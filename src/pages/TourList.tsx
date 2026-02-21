@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/currency';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import { usePageSEO } from '@/hooks/usePageSEO';
 
 type TourType = Tables<'tours'>;
 type TourCategory = Database['public']['Enums']['tour_category'];
@@ -28,6 +29,7 @@ const tabs = ['All Tours', 'Featured', 'Multi-Day', 'Day Trips'];
 const TourList = () => {
   const [activeTab, setActiveTab] = useState('All Tours');
   const [activeFilters, setActiveFilters] = useState<TourCategory[]>([]);
+  const { data: seo } = usePageSEO('tours');
 
   // Fetch tours from database
   const { data: tours, isLoading } = useQuery({
@@ -68,11 +70,12 @@ const TourList = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
-        title="Tours & Road Trips"
-        description="Discover amazing road trips and guided tours across Georgia. Beach getaways, mountain adventures, cultural tours and more."
+      <SEO
+        title={seo?.meta_title || "Tours & Road Trips"}
+        description={seo?.meta_description || "Discover amazing road trips and guided tours across Georgia. Beach getaways, mountain adventures, cultural tours and more."}
         url="/tours"
         keywords="Georgia tours, road trips Georgia, guided tours Tbilisi, adventure travel Georgia"
+        schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
       

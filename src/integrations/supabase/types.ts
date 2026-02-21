@@ -26,6 +26,7 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           published_at: string | null
+          schema_markup: string | null
           slug: string
           title: string
           updated_at: string
@@ -41,6 +42,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
+          schema_markup?: string | null
           slug: string
           title: string
           updated_at?: string
@@ -56,6 +58,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
+          schema_markup?: string | null
           slug?: string
           title?: string
           updated_at?: string
@@ -257,6 +260,7 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           model: string
+          schema_markup: string | null
           price_per_day: number
           price_with_driver: number | null
           rating: number | null
@@ -284,6 +288,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           model: string
+          schema_markup?: string | null
           price_per_day: number
           price_with_driver?: number | null
           rating?: number | null
@@ -311,6 +316,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           model?: string
+          schema_markup?: string | null
           price_per_day?: number
           price_with_driver?: number | null
           rating?: number | null
@@ -423,6 +429,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_seo: {
+        Row: {
+          id: string
+          page_key: string
+          page_label: string
+          meta_title: string | null
+          meta_description: string | null
+          schema_markup: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          page_key: string
+          page_label: string
+          meta_title?: string | null
+          meta_description?: string | null
+          schema_markup?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          page_key?: string
+          page_label?: string
+          meta_title?: string | null
+          meta_description?: string | null
+          schema_markup?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pickup_locations: {
         Row: {
           address: string
@@ -487,6 +526,33 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      redirects: {
+        Row: {
+          id: string
+          from_path: string
+          to_path: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          from_path: string
+          to_path: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          from_path?: string
+          to_path?: string
+          is_active?: boolean
+          created_at?: string
           updated_at?: string
         }
         Relationships: []
@@ -729,6 +795,7 @@ export type Database = {
           meta_title: string | null
           name: string
           price_per_person: boolean | null
+          schema_markup: string | null
           pricing_tiers: Json | null
           rating: number | null
           reviews_count: number | null
@@ -761,6 +828,7 @@ export type Database = {
           meta_title?: string | null
           name: string
           price_per_person?: boolean | null
+          schema_markup?: string | null
           pricing_tiers?: Json | null
           rating?: number | null
           reviews_count?: number | null
@@ -793,6 +861,7 @@ export type Database = {
           meta_title?: string | null
           name?: string
           price_per_person?: boolean | null
+          schema_markup?: string | null
           pricing_tiers?: Json | null
           rating?: number | null
           reviews_count?: number | null

@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, Calendar, User } from 'lucide-react';
 import { format } from 'date-fns';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 
 interface Blog {
   id: string;
@@ -18,6 +19,9 @@ interface Blog {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  schema_markup: string | null;
 }
 
 const BlogDetail = () => {
@@ -91,6 +95,14 @@ const BlogDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={blog.meta_title || blog.title}
+        description={blog.meta_description || blog.excerpt || undefined}
+        url={`/blog/${blog.slug}`}
+        type="article"
+        image={blog.main_image || undefined}
+        schemaMarkup={blog.schema_markup || undefined}
+      />
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 py-8 sm:py-16">

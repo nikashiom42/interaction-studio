@@ -141,7 +141,7 @@ const CarDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO title={metaTitle} description={metaDescription} />
+      <SEO title={metaTitle} description={metaDescription} url={`/car/${car.id}`} schemaMarkup={carData.schema_markup || undefined} />
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

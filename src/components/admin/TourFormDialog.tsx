@@ -53,6 +53,7 @@ type Tour = {
   display_order: number | null;
   meta_title: string | null;
   meta_description: string | null;
+  schema_markup: string | null;
   rating: number | null;
   reviews_count: number | null;
 };
@@ -115,6 +116,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
     display_order: 0,
     meta_title: '',
     meta_description: '',
+    schema_markup: '',
   });
 
   const [newDestination, setNewDestination] = useState('');
@@ -151,6 +153,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
         display_order: tour.display_order || 0,
         meta_title: tour.meta_title || '',
         meta_description: tour.meta_description || '',
+        schema_markup: tour.schema_markup || '',
       });
     } else {
       setFormData({
@@ -179,6 +182,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
         display_order: 0,
         meta_title: '',
         meta_description: '',
+        schema_markup: '',
       });
     }
   }, [tour, open]);
@@ -334,6 +338,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
         display_order: data.display_order,
         meta_title: data.meta_title || null,
         meta_description: data.meta_description || null,
+        schema_markup: data.schema_markup || null,
       };
 
       if (isEditing && tour) {
@@ -399,12 +404,10 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
 
                   <div className="col-span-2">
                     <Label htmlFor="description">Description *</Label>
-                    <Textarea
-                      id="description"
+                    <RichTextEditor
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      rows={4}
-                      required
+                      onChange={(html) => setFormData(prev => ({ ...prev, description: html }))}
+                      placeholder="Describe the tour..."
                     />
                   </div>
 
@@ -808,6 +811,17 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
                       onChange={(e) => setFormData(prev => ({ ...prev, meta_description: e.target.value }))}
                       placeholder="SEO description"
                       rows={2}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="schema_markup">Schema Markup (JSON-LD)</Label>
+                    <Textarea
+                      id="schema_markup"
+                      value={formData.schema_markup}
+                      onChange={(e) => setFormData(prev => ({ ...prev, schema_markup: e.target.value }))}
+                      placeholder='{"@context": "https://schema.org", "@type": "TouristTrip", ...}'
+                      rows={6}
+                      className="font-mono text-sm"
                     />
                   </div>
                 </div>

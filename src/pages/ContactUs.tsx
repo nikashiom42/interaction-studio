@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import { usePageSEO } from '@/hooks/usePageSEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +41,7 @@ const contactInfo = [
 
 const ContactUs = () => {
   const { toast } = useToast();
+  const { data: seo } = usePageSEO('contact');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -115,10 +117,11 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
-        title="Contact Us"
-        description="Get in touch with Pegarent. 24/7 customer support, phone, email, and office location in Tbilisi."
+      <SEO
+        title={seo?.meta_title || "Contact Us"}
+        description={seo?.meta_description || "Get in touch with Pegarent. 24/7 customer support, phone, email, and office location in Tbilisi."}
         url="/contact"
+        schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
 

@@ -8,6 +8,7 @@ interface SEOProps {
   url?: string;
   type?: 'website' | 'article' | 'product';
   noIndex?: boolean;
+  schemaMarkup?: string;
 }
 
 const defaultTitle = 'Car Rental Georgia | Premium Cars & Tours';
@@ -23,6 +24,7 @@ const SEO = ({
   url,
   type = 'website',
   noIndex = false,
+  schemaMarkup,
 }: SEOProps) => {
   const fullTitle = title ? `${title} | Car Rental Georgia` : defaultTitle;
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
@@ -58,6 +60,11 @@ const SEO = ({
       <meta name="geo.region" content="GE" />
       <meta name="geo.placename" content="Georgia" />
       <html lang="en" />
+
+      {/* JSON-LD Structured Data */}
+      {schemaMarkup && (
+        <script type="application/ld+json">{schemaMarkup}</script>
+      )}
     </Helmet>
   );
 };

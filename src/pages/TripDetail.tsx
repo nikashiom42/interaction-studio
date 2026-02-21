@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/currency';
 import { format, addDays } from 'date-fns';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -54,6 +55,9 @@ type Tour = {
   max_participants: number | null;
   advance_booking_days: number | null;
   display_order: number | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  schema_markup: string | null;
   rating: number | null;
   reviews_count: number | null;
 };
@@ -209,8 +213,15 @@ const TripDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={tour.meta_title || tour.name}
+        description={tour.meta_description || `${tour.name} - ${tour.duration_label || `${tour.duration_days} Days`}. Book now!`}
+        url={`/trip/${tour.id}`}
+        image={tour.main_image || undefined}
+        schemaMarkup={tour.schema_markup || undefined}
+      />
       <Header />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link 
