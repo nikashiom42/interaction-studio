@@ -87,6 +87,14 @@ function PagesTab() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: PageFormData }) => {
+      // Validate schema markup JSON if provided
+      if (data.schema_markup) {
+        try {
+          JSON.parse(data.schema_markup);
+        } catch {
+          throw new Error('Schema Markup contains invalid JSON. Please fix the syntax and try again.');
+        }
+      }
       const { error } = await supabase
         .from('page_seo')
         .update({
@@ -286,9 +294,22 @@ function PagesTab() {
 
 // --- Robots Tab ---
 
+function decodeSettingsValue(value: unknown): string {
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return typeof parsed === 'string' ? parsed : value;
+    } catch {
+      return value;
+    }
+  }
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
+}
+
 function RobotsTab() {
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
+  const [initialized, setInitialized] = useState(false);
 
   const defaultRobots = `User-agent: Googlebot
 Allow: /
@@ -307,7 +328,7 @@ Allow: /
 
 Sitemap: https://www.pegarent.com/sitemap.xml`;
 
-  const { isLoading } = useQuery({
+  const { data: robotsData, isLoading } = useQuery({
     queryKey: ['admin-robots-txt'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -316,15 +337,19 @@ Sitemap: https://www.pegarent.com/sitemap.xml`;
         .eq('key', 'robots_txt')
         .maybeSingle();
       if (error) throw error;
-      if (data?.value) {
-        const raw = typeof data.value === 'string' ? data.value : JSON.stringify(data.value);
-        setContent(raw.replace(/^"|"$/g, '').replace(/\\n/g, '\n'));
-      } else {
-        setContent(defaultRobots);
-      }
       return data;
     },
   });
+
+  // Initialize content from fetched data only once
+  if (!initialized && !isLoading) {
+    if (robotsData?.value) {
+      setContent(decodeSettingsValue(robotsData.value));
+    } else {
+      setContent(defaultRobots);
+    }
+    setInitialized(true);
+  }
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -657,8 +682,9 @@ function RedirectsTab() {
 function GlobalScriptsTab() {
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
+  const [initialized, setInitialized] = useState(false);
 
-  const { isLoading } = useQuery({
+  const { data: scriptsData, isLoading } = useQuery({
     queryKey: ['admin-head-scripts'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -667,13 +693,17 @@ function GlobalScriptsTab() {
         .eq('key', 'head_scripts')
         .maybeSingle();
       if (error) throw error;
-      if (data?.value) {
-        const raw = typeof data.value === 'string' ? data.value : JSON.stringify(data.value);
-        setContent(raw.replace(/^"|"$/g, '').replace(/\\n/g, '\n').replace(/\\"/g, '"'));
-      }
       return data;
     },
   });
+
+  // Initialize content from fetched data only once
+  if (!initialized && !isLoading) {
+    if (scriptsData?.value) {
+      setContent(decodeSettingsValue(scriptsData.value));
+    }
+    setInitialized(true);
+  }
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -697,10 +727,10 @@ function GlobalScriptsTab() {
     <div className="space-y-4">
       <div>
         <p className="text-sm text-muted-foreground mb-1">
-          Add verification meta tags and tracking scripts that will be injected into the {'<head>'} of every page.
+          Add verification meta tags that will be injected into the {'<head>'} of every page.
         </p>
         <p className="text-xs text-muted-foreground">
-          Common uses: Google Search Console verification, Ahrefs/SEMrush verification, Facebook Pixel, custom analytics.
+          Common uses: Google Search Console verification, Bing Webmaster Tools, Ahrefs/SEMrush verification, Pinterest verification.
         </p>
       </div>
 

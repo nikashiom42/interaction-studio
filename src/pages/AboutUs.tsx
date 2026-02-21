@@ -36,7 +36,7 @@ const AboutUs = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title={seo?.meta_title || "About Us"}
-        description={seo?.meta_description || "Learn about Pegarent - your trusted car rental partner since 2017. 150+ cars, 10,000+ happy customers, 24/7 support."}
+        description={seo?.meta_description || "Learn about Pegarent - your trusted car rental partner since 2016. 150+ cars, 10,000+ happy customers, 24/7 support."}
         url="/about"
         keywords={seo?.keywords || undefined}
         image={seo?.og_image || undefined}

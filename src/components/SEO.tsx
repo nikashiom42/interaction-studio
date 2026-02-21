@@ -65,9 +65,15 @@ const SEO = ({
       <html lang="en" />
 
       {/* JSON-LD Structured Data */}
-      {schemaMarkup && (
-        <script type="application/ld+json">{schemaMarkup}</script>
-      )}
+      {(() => {
+        if (!schemaMarkup) return null;
+        try {
+          const safeSchema = JSON.stringify(JSON.parse(schemaMarkup));
+          return <script type="application/ld+json">{safeSchema}</script>;
+        } catch {
+          return null;
+        }
+      })()}
     </Helmet>
   );
 };

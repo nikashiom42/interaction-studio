@@ -2,34 +2,47 @@ import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export function GlobalHeadScripts() {
-  const { data } = useQuery({
-    queryKey: ['global-head-scripts'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'head_scripts')
-        .maybeSingle();
-      if (error) throw error;
-      if (!data?.value) return null;
-      const raw = typeof data.value === 'string' ? data.value : JSON.stringify(data.value);
-      return raw.replace(/^"|"$/g, '');
-    },
-    staleTime: 10 * 60 * 1000,
-  });
-
-  if (!data) return null;
-
-  return (
-    <Helmet>
-      {/* Injected via Admin > SEO > Global Scripts */}
-      <script>{`/* head-scripts-start */`}</script>
-    </Helmet>
-  );
+interface ParsedMeta {
+  name?: string;
+  property?: string;
+  content: string;
 }
 
-// Use a raw DOM approach since Helmet can't inject arbitrary HTML
+function parseMetaTags(html: string): ParsedMeta[] {
+  try {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const metas = Array.from(doc.querySelectorAll('meta'));
+    return metas
+      .map((el) => {
+        const content = el.getAttribute('content');
+        if (!content) return null;
+        const name = el.getAttribute('name');
+        const property = el.getAttribute('property');
+        if (!name && !property) return null;
+        return {
+          ...(name ? { name } : {}),
+          ...(property ? { property } : {}),
+          content,
+        } as ParsedMeta;
+      })
+      .filter((m): m is ParsedMeta => m !== null);
+  } catch {
+    return [];
+  }
+}
+
+function decodeSettingsValue(value: unknown): string {
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return typeof parsed === 'string' ? parsed : value;
+    } catch {
+      return value;
+    }
+  }
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
+}
+
 export function GlobalHeadScriptsRaw() {
   const { data } = useQuery({
     queryKey: ['global-head-scripts'],
@@ -41,33 +54,25 @@ export function GlobalHeadScriptsRaw() {
         .maybeSingle();
       if (error) throw error;
       if (!data?.value) return null;
-      const raw = typeof data.value === 'string' ? data.value : JSON.stringify(data.value);
-      return raw.replace(/^"|"$/g, '').replace(/\\n/g, '\n').replace(/\\"/g, '"');
+      return decodeSettingsValue(data.value);
     },
     staleTime: 10 * 60 * 1000,
   });
 
   if (!data) return null;
 
-  // Inject into <head> using a hidden div with dangerouslySetInnerHTML
-  // This is the standard pattern for injecting verification meta tags
+  const metas = parseMetaTags(data);
+  if (metas.length === 0) return null;
+
   return (
     <Helmet>
-      {/* Parse and inject meta tags from the raw HTML string */}
-      {data.match(/<meta[^>]+>/gi)?.map((tag, i) => {
-        const nameMatch = tag.match(/name=["']([^"']+)["']/);
-        const contentMatch = tag.match(/content=["']([^"']+)["']/);
-        const propertyMatch = tag.match(/property=["']([^"']+)["']/);
-        if (contentMatch) {
-          if (nameMatch) {
-            return <meta key={`gs-${i}`} name={nameMatch[1]} content={contentMatch[1]} />;
-          }
-          if (propertyMatch) {
-            return <meta key={`gs-${i}`} property={propertyMatch[1]} content={contentMatch[1]} />;
-          }
-        }
-        return null;
-      })}
+      {metas.map((meta, i) =>
+        meta.name ? (
+          <meta key={`gs-${i}`} name={meta.name} content={meta.content} />
+        ) : (
+          <meta key={`gs-${i}`} property={meta.property} content={meta.content} />
+        )
+      )}
     </Helmet>
   );
 }
