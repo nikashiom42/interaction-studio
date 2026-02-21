@@ -24,6 +24,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2, Upload, X } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 
 type Tour = {
   id: string;

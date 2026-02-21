@@ -29,6 +29,8 @@ interface Blog {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
 }
 
 interface BlogFormData {
@@ -39,6 +41,8 @@ interface BlogFormData {
   main_image?: string;
   author_name?: string;
   is_published: boolean;
+  meta_title?: string;
+  meta_description?: string;
 }
 
 export default function BlogsManagement() {
@@ -71,6 +75,8 @@ export default function BlogsManagement() {
         author_name: data.author_name || "Admin",
         is_published: data.is_published,
         published_at: data.is_published ? new Date().toISOString() : null,
+        meta_title: data.meta_title || null,
+        meta_description: data.meta_description || null,
       });
       if (error) throw error;
     },
@@ -94,6 +100,8 @@ export default function BlogsManagement() {
         main_image: data.main_image || null,
         author_name: data.author_name || "Admin",
         is_published: data.is_published,
+        meta_title: data.meta_title || null,
+        meta_description: data.meta_description || null,
       };
 
       // Set published_at if newly published

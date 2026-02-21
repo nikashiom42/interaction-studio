@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { SingleImageUpload } from "./SingleImageUpload";
+import { RichTextEditor } from "./RichTextEditor";
 
 const blogSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -30,6 +31,8 @@ const blogSchema = z.object({
   main_image: z.string().optional(),
   author_name: z.string().optional(),
   is_published: z.boolean().default(false),
+  meta_title: z.string().optional(),
+  meta_description: z.string().optional(),
 });
 
 type BlogFormData = z.infer<typeof blogSchema>;
@@ -46,6 +49,8 @@ interface Blog {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
 }
 
 interface BlogFormDialogProps {
@@ -75,6 +80,8 @@ export function BlogFormDialog({
       main_image: "",
       author_name: "Admin",
       is_published: false,
+      meta_title: "",
+      meta_description: "",
     },
   });
 
@@ -88,6 +95,8 @@ export function BlogFormDialog({
         main_image: blog.main_image || "",
         author_name: blog.author_name || "Admin",
         is_published: blog.is_published || false,
+        meta_title: blog.meta_title || "",
+        meta_description: blog.meta_description || "",
       });
       setImageUrl(blog.main_image || "");
     } else {
@@ -99,6 +108,8 @@ export function BlogFormDialog({
         main_image: "",
         author_name: "Admin",
         is_published: false,
+        meta_title: "",
+        meta_description: "",
       });
       setImageUrl("");
     }
@@ -126,7 +137,7 @@ export function BlogFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{blog ? "Edit Blog Post" : "Add New Blog Post"}</DialogTitle>
         </DialogHeader>
@@ -182,23 +193,27 @@ export function BlogFormDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Content</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
+            <FormItem>
+              <FormLabel>Content</FormLabel>
+              <Controller
+                control={form.control}
+                name="content"
+                render={({ field, fieldState }) => (
+                  <>
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
                       placeholder="Full blog content..."
-                      rows={8}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <p className="text-sm font-medium text-destructive mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </>
+                )}
+              />
+            </FormItem>
 
             <div>
               <FormLabel>Main Image</FormLabel>
@@ -237,6 +252,43 @@ export function BlogFormDialog({
                 </FormItem>
               )}
             />
+
+            {/* SEO Section */}
+            <div className="border rounded-md p-4 space-y-4">
+              <p className="text-sm font-semibold text-foreground">SEO</p>
+
+              <FormField
+                control={form.control}
+                name="meta_title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meta Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="SEO page title (defaults to post title)" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="meta_description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meta Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="SEO description (150–160 characters recommended)"
+                        rows={2}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex justify-end gap-2 pt-4">
               <Button
