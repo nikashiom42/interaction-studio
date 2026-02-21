@@ -22,11 +22,18 @@ import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 interface PageSEO {
   id: string;
   page_key: string;
-  page_label: string;
   meta_title: string | null;
   meta_description: string | null;
   schema_markup: string | null;
 }
+
+const PAGE_LABELS: Record<string, string> = {
+  home: 'Home',
+  about: 'About Us',
+  contact: 'Contact Us',
+  cars: 'Cars Listing',
+  tours: 'Tours Listing',
+};
 
 interface Redirect {
   id: string;
@@ -115,7 +122,7 @@ function PagesTab() {
             ) : (
               pages?.map((page) => (
                 <TableRow key={page.id}>
-                  <TableCell className="font-medium">{page.page_label}</TableCell>
+                  <TableCell className="font-medium capitalize">{PAGE_LABELS[page.page_key] || page.page_key}</TableCell>
                   <TableCell className="max-w-[200px] truncate text-sm text-muted-foreground">
                     {page.meta_title || '—'}
                   </TableCell>
@@ -137,7 +144,7 @@ function PagesTab() {
       <Dialog open={!!editingPage} onOpenChange={(open) => !open && setEditingPage(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit SEO — {editingPage?.page_label}</DialogTitle>
+            <DialogTitle>Edit SEO — {editingPage ? (PAGE_LABELS[editingPage.page_key] || editingPage.page_key) : ''}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
