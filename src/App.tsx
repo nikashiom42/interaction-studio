@@ -71,6 +71,7 @@ const App = () => (
               
               {/* Admin Routes with Sidebar Layout */}
               <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<DashboardContent />} />
                 <Route path="dashboard" element={<DashboardContent />} />
                 <Route path="cars" element={<CarsManagement />} />
                 <Route path="bookings" element={<BookingsManagement />} />
