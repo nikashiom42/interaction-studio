@@ -361,7 +361,7 @@ Sitemap: https://www.pegarent.com/sitemap.xml`;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-robots-txt'] });
-      toast.success('robots.txt saved — live within 1 hour (cached)');
+      toast.success('robots.txt saved — live within 1 minute');
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -467,7 +467,7 @@ function SitemapTab() {
           <p className="text-sm text-muted-foreground">Total URLs</p>
         </div>
         <div className="border rounded-lg p-4 text-center flex items-center justify-center">
-          <p className="text-sm text-muted-foreground">Cached up to 1 hour</p>
+          <p className="text-sm text-muted-foreground">Cached up to 1 minute</p>
         </div>
       </div>
     </div>
