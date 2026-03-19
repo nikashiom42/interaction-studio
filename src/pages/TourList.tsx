@@ -275,10 +275,10 @@ const TourList = () => {
               Georgia offers a wide range of travel experiences, from mountain routes and scenic road trips to cultural destinations and coastal regions. Whether you choose a guided tour or prefer to explore independently, you can plan your journey based on your time, interests, and travel style.
             </p>
             <p>
-              Many travelers combine tours with car rental in Georgia to explore beyond planned routes and visit more remote destinations. This gives you the flexibility to travel at your own pace and discover places that are not easily accessible.
+              Many travelers combine tours with <Link to="/" className="text-primary hover:underline">car rental in Georgia</Link> to explore beyond planned routes and visit more remote destinations. This gives you the flexibility to travel at your own pace and discover places that are not easily accessible.
             </p>
             <p>
-              Browse rental cars to continue your trip across Georgia.
+              Browse <Link to="/cars" className="text-primary hover:underline">rental cars</Link> to continue your trip across Georgia.
             </p>
           </div>
         </div>
