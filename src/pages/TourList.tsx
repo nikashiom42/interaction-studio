@@ -191,7 +191,7 @@ const TourList = () => {
                   )}
                   {/* Category Badge */}
                   <div className="absolute top-3 right-3 px-3 py-1 bg-foreground/80 backdrop-blur-sm text-background text-xs font-medium rounded-md capitalize">
-                    {tour.category.replace('_', ' ')}
+                    {tour.category.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
                   </div>
                 </div>
 
