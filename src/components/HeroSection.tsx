@@ -70,7 +70,7 @@ const HeroSection = () => {
           </span>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-background mb-4 leading-tight">
             Car Rental in Georgia.<br />
-            <span className="text-primary">Rent a Car in Tbilisi and Airport</span>
+            <span className="text-primary">Rent a Car in Tbilisi with Airport Pickup</span>
           </h1>
           <p className="text-background/80 text-base md:text-lg mb-8 max-w-lg">
             Reliable cars and curated tours to explore Georgia your way.
