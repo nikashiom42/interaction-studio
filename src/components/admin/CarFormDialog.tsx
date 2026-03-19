@@ -34,6 +34,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ImageUpload } from './ImageUpload';
+import { generateSlug } from '@/lib/utils';
 
 type Car = Tables<'cars'>;
 
@@ -71,6 +72,7 @@ const featureOptions = [
 const carFormSchema = z.object({
   brand: z.string().min(1, 'Brand is required').max(100),
   model: z.string().min(1, 'Model is required').max(100),
+  slug: z.string().min(1, 'Slug is required').max(200),
   category: z.enum(['luxury_suv', 'off_road', 'suv', 'jeep', 'economy_suv', 'convertible']),
   categories: z.array(z.string()).min(1, 'Select at least one category'),
   seats: z.coerce.number().min(1).max(20),
@@ -109,6 +111,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
     defaultValues: {
       brand: '',
       model: '',
+      slug: '',
       category: 'suv',
       categories: [],
       seats: 5,
@@ -136,6 +139,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       form.reset({
         brand: car.brand,
         model: car.model,
+        slug: car.slug || generateSlug(`${car.brand} ${car.model}`),
         category: car.category,
         categories: carCategories,
         seats: car.seats,
@@ -158,6 +162,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       form.reset({
         brand: '',
         model: '',
+        slug: '',
         category: 'suv',
         categories: [],
         seats: 5,
@@ -186,6 +191,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       const carData = {
         brand: values.brand,
         model: values.model,
+        slug: values.slug || generateSlug(`${values.brand} ${values.model}`),
         category: primaryCategory,
         categories: values.categories,
         seats: values.seats,
@@ -272,6 +278,39 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL Slug</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <Input placeholder="e.g., jeep-wrangler" {...field} />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const brand = form.getValues('brand');
+                              const model = form.getValues('model');
+                              if (brand || model) {
+                                field.onChange(generateSlug(`${brand} ${model}`));
+                              }
+                            }}
+                          >
+                            Generate
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        URL-friendly identifier. Click Generate to create from brand + model.
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="grid grid-cols-2 gap-4">
                   <FormField

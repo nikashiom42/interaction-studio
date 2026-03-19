@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import CarCard from './CarCard';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
-import { formatCategories } from '@/lib/utils';
+import { formatCategories, getCarDetailUrl } from '@/lib/utils';
 import {
   Carousel,
   CarouselContent,
@@ -92,7 +92,7 @@ const PopularCars = ({ category = 'all' }: PopularCarsProps) => {
           <CarouselContent className="-ml-4">
             {cars.map((car, index) => (
               <CarouselItem key={car.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
-                <Link to={`/car/${car.id}`} className="block h-full">
+                <Link to={getCarDetailUrl(car)} className="block h-full">
                   <CarCard
                     image={car.main_image || '/placeholder.svg'}
                     name={`${car.brand} ${car.model}`}

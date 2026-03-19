@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tables, Database } from '@/integrations/supabase/types';
 import { ChevronRight, Calendar, ChevronDown, Check, Users, Settings, Fuel, Snowflake, Mountain, Loader2, Car, X, Euro } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
-import { formatCategories } from '@/lib/utils';
+import { formatCategories, getCarDetailUrl } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -37,8 +37,15 @@ const tabs = ['Explore Cars', 'Places to See', 'Things to Do', 'Trip Inspiration
 const CarList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
+  const categoryParam = searchParams.get('category') || '';
   const [activeTab, setActiveTab] = useState('Explore Cars');
-  const [activeFilters, setActiveFilters] = useState<string[]>(['dates']);
+  const [activeFilters, setActiveFilters] = useState<string[]>(() => {
+    const initial = ['dates'];
+    if (categoryParam) {
+      initial.push(categoryParam);
+    }
+    return initial;
+  });
   const { data: seo } = usePageSEO('cars');
   const [minPrice, setMinPrice] = useState<number | ''>('');
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
@@ -294,7 +301,7 @@ const CarList = () => {
               {cars.map((car, index) => (
                 <Link
                   key={car.id}
-                  to={`/car/${car.id}`}
+                  to={getCarDetailUrl(car)}
                   className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
                   style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
                 >

@@ -27,3 +27,39 @@ export function formatCategories(categories: string[] | null | undefined, fallba
   }
   return '';
 }
+
+/** Convert DB category enum (e.g. "luxury_suv") to URL slug (e.g. "luxury-suv") */
+export function categoryToSlug(category: string): string {
+  return category.replace(/_/g, '-');
+}
+
+/** Convert URL slug (e.g. "luxury-suv") back to DB category enum (e.g. "luxury_suv") */
+export function slugToCategory(slug: string): string {
+  return slug.replace(/-/g, '_');
+}
+
+/** Generate a URL-friendly slug from text */
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+interface CarForUrl {
+  slug?: string | null;
+  id: string;
+  brand: string;
+  model: string;
+  category: string;
+  categories?: string[] | null;
+}
+
+/** Build the detail URL for a car: /cars/:category/:slug */
+export function getCarDetailUrl(car: CarForUrl): string {
+  const category = car.categories?.[0] || car.category;
+  const slug = car.slug || generateSlug(`${car.brand} ${car.model}`);
+  return `/cars/${categoryToSlug(category)}/${slug}`;
+}

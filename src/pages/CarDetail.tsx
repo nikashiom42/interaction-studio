@@ -6,7 +6,7 @@ import {
   Check, Fuel, Car, Briefcase, DoorOpen, Wifi, Loader2
 } from 'lucide-react';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
-import { formatCategories } from '@/lib/utils';
+import { formatCategories, formatCategory, categoryToSlug, getCarDetailUrl } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BookingWidget from '@/components/BookingWidget';
@@ -28,26 +28,36 @@ const staticFaq = [
 ];
 
 const CarDetail = () => {
-  const { id } = useParams();
+  const { id, slug, category: categoryParam } = useParams();
   const [activeImage, setActiveImage] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showFullDesc, setShowFullDesc] = useState(false);
 
-  // Fetch car from database
+  // Fetch car from database - by slug (new URL) or by id (legacy URL)
   const { data: car, isLoading } = useQuery({
-    queryKey: ['car-detail', id],
+    queryKey: ['car-detail', slug || id],
     queryFn: async () => {
-      if (!id) return null;
-      const { data, error } = await supabase
-        .from('cars')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
+      if (slug) {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .eq('slug', slug)
+          .maybeSingle();
+        if (error) throw error;
+        return data;
+      }
+      if (id) {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        if (error) throw error;
+        return data;
+      }
+      return null;
     },
-    enabled: !!id,
+    enabled: !!slug || !!id,
   });
 
   // Fetch similar cars
@@ -141,7 +151,7 @@ const CarDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO title={metaTitle} description={metaDescription} url={`/car/${car.id}`} schemaMarkup={carData.schema_markup || undefined} />
+      <SEO title={metaTitle} description={metaDescription} url={getCarDetailUrl(car)} schemaMarkup={carData.schema_markup || undefined} />
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -151,7 +161,19 @@ const CarDetail = () => {
           <ChevronRight className="w-4 h-4" />
           <Link to="/cars" className="hover:text-foreground transition-colors">Cars</Link>
           <ChevronRight className="w-4 h-4" />
-          <span className="hover:text-foreground transition-colors cursor-pointer">{formatCategories(car.categories, car.category)}</span>
+          <span className="flex items-center gap-1">
+            {(car.categories?.length ? car.categories : [car.category]).map((cat, i, arr) => (
+              <span key={cat} className="inline-flex items-center">
+                <Link
+                  to={`/cars?category=${cat}`}
+                  className="hover:text-foreground transition-colors"
+                >
+                  {formatCategory(cat)}
+                </Link>
+                {i < arr.length - 1 && <span className="mx-1">,</span>}
+              </span>
+            ))}
+          </span>
           <ChevronRight className="w-4 h-4" />
           <span className="text-foreground font-medium">{carName}</span>
         </nav>
@@ -306,7 +328,7 @@ const CarDetail = () => {
                   {similarCars.map((similarCar, index) => (
                     <Link
                       key={similarCar.id}
-                      to={`/car/${similarCar.id}`}
+                      to={getCarDetailUrl(similarCar)}
                       className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
                       style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
                     >

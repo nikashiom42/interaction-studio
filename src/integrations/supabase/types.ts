@@ -266,6 +266,7 @@ export type Database = {
           rating: number | null
           reviews_count: number | null
           seats: number
+          slug: string
           transmission: Database["public"]["Enums"]["transmission_type"]
           updated_at: string
         }
@@ -294,6 +295,7 @@ export type Database = {
           rating?: number | null
           reviews_count?: number | null
           seats?: number
+          slug: string
           transmission?: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string
         }
@@ -322,6 +324,7 @@ export type Database = {
           rating?: number | null
           reviews_count?: number | null
           seats?: number
+          slug?: string
           transmission?: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string
         }

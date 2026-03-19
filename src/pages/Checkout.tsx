@@ -16,6 +16,7 @@ import { toast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 import { countryCodes } from '@/data/countryCodes';
 import { formatPrice, CURRENCY_SYMBOL } from '@/lib/currency';
+import { getCarDetailUrl } from '@/lib/utils';
 import carRangeRover from '@/assets/car-range-rover.jpg';
 
 type PaymentOption = 'deposit' | 'pickup';
@@ -251,7 +252,7 @@ const Checkout = () => {
                 {relatedCars.map((relatedCar, index) => (
                   <Link
                     key={relatedCar.id}
-                    to={`/car/${relatedCar.id}`}
+                    to={getCarDetailUrl(relatedCar)}
                     className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
                     style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
                   >
