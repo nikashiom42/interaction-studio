@@ -35,6 +35,7 @@ import SEOManagement from "./pages/admin/SEOManagement";
 import NotFound from "./pages/NotFound";
 import { RedirectHandler } from "./components/RedirectHandler";
 import { GlobalHeadScriptsRaw } from "./components/GlobalHeadScripts";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
               v7_relativeSplatPath: true,
             }}
           >
+            <ScrollToTop />
             <GlobalHeadScriptsRaw />
             <RedirectHandler />
             <Routes>
