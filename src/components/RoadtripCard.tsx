@@ -13,12 +13,13 @@ interface RoadtripCardProps {
   badge?: string;
   delay?: number;
   maxParticipants?: number | null;
+  href?: string;
 }
 
-const RoadtripCard = ({ id, image, title, days, miles, description, price, badge, delay = 0, maxParticipants }: RoadtripCardProps) => {
+const RoadtripCard = ({ id, image, title, days, miles, description, price, badge, delay = 0, maxParticipants, href }: RoadtripCardProps) => {
   return (
-    <Link 
-      to={`/trip/${id}`}
+    <Link
+      to={href || `/trip/${id}`}
       className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up block"
       style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
     >

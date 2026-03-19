@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import RoadtripCard from './RoadtripCard';
+import { getTourDetailUrl } from '@/lib/utils';
 import { Loader2, ArrowRight } from 'lucide-react';
 import {
   Carousel,
@@ -85,6 +86,7 @@ const CuratedRoadtrips = () => {
               <CarouselItem key={tour.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
                 <RoadtripCard
                   id={tour.id}
+                  href={getTourDetailUrl(tour)}
                   image={tour.main_image || '/placeholder.svg'}
                   title={tour.name}
                   days={tour.duration_days}
