@@ -149,8 +149,8 @@ const TourList = () => {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Available Tours</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-foreground">Tours in Georgia and Road Trip Ideas</h1>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Sort by:</span>
             <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:border-foreground transition-colors">
@@ -159,6 +159,10 @@ const TourList = () => {
             </button>
           </div>
         </div>
+
+        <p className="text-muted-foreground mb-8 max-w-3xl">
+          Explore tours in Georgia with scenic road trips, travel routes, and destinations across the country. Discover places like Kazbegi, Gudauri, and beyond, and plan your journey with practical ideas and local insight.
+        </p>
 
         {/* Loading State */}
         {isLoading && (
@@ -262,6 +266,22 @@ const TourList = () => {
             <p className="text-sm text-muted-foreground">Showing {tours.length} tours</p>
           </div>
         )}
+
+        {/* Bottom SEO Content */}
+        <div className="mt-16 border-t border-border pt-12 max-w-3xl">
+          <h2 className="text-xl font-bold text-foreground mb-4">Plan Your Trip in Georgia</h2>
+          <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
+            <p>
+              Georgia offers a wide range of travel experiences, from mountain routes and scenic road trips to cultural destinations and coastal regions. Whether you choose a guided tour or prefer to explore independently, you can plan your journey based on your time, interests, and travel style.
+            </p>
+            <p>
+              Many travelers combine tours with car rental in Georgia to explore beyond planned routes and visit more remote destinations. This gives you the flexibility to travel at your own pace and discover places that are not easily accessible.
+            </p>
+            <p>
+              Browse rental cars to continue your trip across Georgia.
+            </p>
+          </div>
+        </div>
       </main>
 
       <Footer />

@@ -46,7 +46,7 @@ const CuratedRoadtrips = () => {
     return (
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Curated Roadtrips</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-8">Best Road Trips in Georgia for Self-Drive Travel</h2>
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
@@ -62,16 +62,17 @@ const CuratedRoadtrips = () => {
   return (
     <section className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-foreground">Curated Roadtrips</h2>
-          <Link 
-            to="/tours" 
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-foreground">Best Road Trips in Georgia for Self-Drive Travel</h2>
+          <Link
+            to="/tours"
             className="flex items-center gap-2 text-primary font-medium hover:underline transition-all group"
           >
             View All Tours
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
+        <p className="text-muted-foreground mb-8">Explore scenic routes and destinations across Georgia, from Tbilisi city drives to mountain adventures.</p>
         
         <Carousel
           opts={{

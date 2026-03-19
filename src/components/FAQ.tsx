@@ -51,10 +51,10 @@ const FAQ = () => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-foreground mb-3">
-            Frequently Asked Questions
+            Frequently Asked Questions About Car Rental in Georgia
           </h2>
           <p className="text-muted-foreground">
-            Everything you need to know about renting a car in Georgia
+            Find answers about renting a car in Georgia, from requirements and insurance to pick-up in Tbilisi and airport options.
           </p>
         </div>
 

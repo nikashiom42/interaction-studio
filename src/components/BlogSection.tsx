@@ -86,10 +86,10 @@ const BlogSection = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-              From Our Blog
+              Travel Guides and Road Trip Ideas in Georgia
             </h2>
             <p className="text-muted-foreground">
-              Tips, guides, and inspiration for your next road trip
+              Explore the best routes, driving tips and destinations in Georgia to plan your trip with confidence.
             </p>
           </div>
 

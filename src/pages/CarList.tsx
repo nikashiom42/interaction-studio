@@ -244,8 +244,8 @@ const CarList = () => {
         )}
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Available Cars</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-foreground">Car Rental in Georgia</h1>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Sort by:</span>
             <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:border-foreground transition-colors">
@@ -254,6 +254,10 @@ const CarList = () => {
             </button>
           </div>
         </div>
+
+        <p className="text-muted-foreground mb-8 max-w-3xl">
+          Find the right car for your trip in Georgia, whether you are driving in Tbilisi, picking up at the airport, or planning a longer road trip. Choose from economy cars, SUVs, 4x4 vehicles and more, all ready for reliable and comfortable travel.
+        </p>
 
         {/* Loading State */}
         {isLoading && (
@@ -366,6 +370,22 @@ const CarList = () => {
             <p className="text-sm text-muted-foreground">Showing {cars.length} cars</p>
           </div>
         )}
+
+        {/* Bottom SEO Content */}
+        <div className="mt-16 border-t border-border pt-12 max-w-3xl">
+          <h2 className="text-xl font-bold text-foreground mb-4">Choose the Right Car for Your Trip in Georgia</h2>
+          <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
+            <p>
+              Choose a car for your trip in Georgia, from compact cars in Tbilisi to 4x4 vehicles for routes like Kazbegi or Gudauri. Filter by type, price, and availability to find the right option.
+            </p>
+            <p>
+              Combine tours with car rental in Georgia to continue your trip at your own pace. Start with a tour and explore further with a rental car.
+            </p>
+            <p>
+              Browse available cars for flexible travel across Georgia.
+            </p>
+          </div>
+        </div>
       </main>
 
       <Footer />

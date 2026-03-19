@@ -69,11 +69,11 @@ const HeroSection = () => {
             Friendly car rental in Georgia
           </span>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-background mb-4 leading-tight">
-            Drive Your Adventure<br />
-            <span className="text-primary">Across Georgia</span>
+            Car Rental in Georgia.<br />
+            <span className="text-primary">Rent a Car in Tbilisi and Airport</span>
           </h1>
           <p className="text-background/80 text-base md:text-lg mb-8 max-w-lg">
-            Appropriate vehicles and tours throughout Georgia.
+            Reliable cars and curated tours to explore Georgia your way.
           </p>
         </div>
 
