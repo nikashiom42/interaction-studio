@@ -87,8 +87,8 @@ const TourList = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={seo?.meta_title || "Tours & Road Trips"}
-        description={seo?.meta_description || "Discover amazing road trips and guided tours across Georgia. Beach getaways, mountain adventures, cultural tours and more."}
+        title={seo?.meta_title || "Tours in Georgia. Road Trips and Travel Ideas | Pegarent"}
+        description={seo?.meta_description || "Explore tours in Georgia with scenic road trips, routes and travel ideas. Discover destinations across the country and plan your journey with ease."}
         url="/tours"
         keywords={seo?.keywords || "Georgia tours, road trips Georgia, guided tours Tbilisi, adventure travel Georgia"}
         image={seo?.og_image || undefined}

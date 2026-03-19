@@ -23,8 +23,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={seo?.meta_title || "Rent Cars in Georgia"}
-        description={seo?.meta_description || "Premium car rental in Georgia. Explore Tbilisi, Batumi, Gudauri and more. Self-drive or with driver. Best prices, free cancellation, 24/7 support."}
+        title={seo?.meta_title || "Car Rental in Georgia | Rent a Car in Tbilisi with Airport Pickup"}
+        description={seo?.meta_description || "Looking for car rental in Georgia? Pick up your car in Tbilisi or at the airport. SUVs, 4x4 and economy cars available. No deposit options and instant booking."}
         url="/"
         keywords={seo?.keywords || undefined}
         image={seo?.og_image || undefined}

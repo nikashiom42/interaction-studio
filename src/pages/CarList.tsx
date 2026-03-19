@@ -118,8 +118,8 @@ const CarList = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={seo?.meta_title || "Rent a Car"}
-        description={seo?.meta_description || "Browse our fleet of premium cars available for rent in Georgia. SUVs, luxury cars, economy vehicles and more. Best prices guaranteed."}
+        title={seo?.meta_title || "Rental Cars in Georgia. Compare SUVs and 4x4 | Pegarent"}
+        description={seo?.meta_description || "Browse rental cars in Georgia and compare luxury cars, SUVs, 4x4 and economy options. Filter by price, type and availability to find the right car for your trip."}
         url="/cars"
         keywords={seo?.keywords || "rent car Georgia, car hire Tbilisi, SUV rental, luxury car Georgia"}
         image={seo?.og_image || undefined}
