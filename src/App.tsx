@@ -33,6 +33,9 @@ import LocationsManagement from "./pages/admin/LocationsManagement";
 import SettingsManagement from "./pages/admin/SettingsManagement";
 import SEOManagement from "./pages/admin/SEOManagement";
 import TourCategoriesManagement from "./pages/admin/TourCategoriesManagement";
+import HelpCenter from "./pages/HelpCenter";
+import CancellationPolicy from "./pages/CancellationPolicy";
+import SafetyInformation from "./pages/SafetyInformation";
 import NotFound from "./pages/NotFound";
 import { RedirectHandler } from "./components/RedirectHandler";
 import { GlobalHeadScriptsRaw } from "./components/GlobalHeadScripts";
@@ -70,6 +73,9 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<UserDashboard />} />
               <Route path="/about" element={<AboutUs />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+              <Route path="/safety-information" element={<SafetyInformation />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/blog/:slug" element={<BlogDetail />} />
               <Route path="/admin/login" element={<AdminLogin />} />

@@ -1,32 +1,35 @@
+import { Link } from 'react-router-dom';
+import { ChevronRight, Car, CheckCircle, MapPin, Headphones, Shield, Users } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { usePageSEO } from '@/hooks/usePageSEO';
-import { Car, Users, Award, MapPin } from 'lucide-react';
 
-const stats = [
-  { label: 'Cars in Fleet', value: '150+', icon: Car },
-  { label: 'Happy Customers', value: '10,000+', icon: Users },
-  { label: 'Years of Experience', value: '8+', icon: Award },
-  { label: 'Pickup Locations', value: '12', icon: MapPin },
+const whyChoose = [
+  'Pickup in Tbilisi and at the airport',
+  'No hidden fees or unexpected charges',
+  'Flexible booking and cancellation options',
+  'Local expertise and travel support',
 ];
 
-const team = [
-  {
-    name: 'Giorgi Kapanadze',
-    role: 'Founder & CEO',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
-  },
-  {
-    name: 'Nino Beridze',
-    role: 'Operations Manager',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face',
-  },
-  {
-    name: 'Davit Lomidze',
-    role: 'Fleet Manager',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
-  },
+const fleetFeatures = [
+  'Carefully inspected and maintained',
+  'Clean, comfortable, and fully equipped',
+  'Ready for both city driving and long road trips',
+];
+
+const focusPoints = [
+  'Clear and transparent booking',
+  'No hidden fees',
+  'Flexible rental options',
+  'Friendly and responsive support',
+];
+
+const planHelp = [
+  'Best driving routes in Georgia',
+  'Road conditions and travel tips',
+  'Recommended destinations and road trips',
+  'Pickup and delivery options',
 ];
 
 const AboutUs = () => {
@@ -35,8 +38,8 @@ const AboutUs = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={seo?.meta_title || "About Us"}
-        description={seo?.meta_description || "Learn about Pegarent - your trusted car rental partner since 2016. 150+ cars, 10,000+ happy customers, 24/7 support."}
+        title={seo?.meta_title || "About Pegarent Car Rental in Georgia"}
+        description={seo?.meta_description || "Pegarent is a car rental company in Georgia focused on providing reliable vehicles and a smooth travel experience. Pickup in Tbilisi and at the airport."}
         url="/about"
         keywords={seo?.keywords || undefined}
         image={seo?.og_image || undefined}
@@ -45,131 +48,96 @@ const AboutUs = () => {
         schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
-      
-      <main>
-        {/* Hero Section */}
-        <section className="relative py-20 bg-gradient-to-br from-primary/10 to-secondary">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              About Pegarent
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Your trusted partner for exploring the beauty of Georgia. We've been helping travelers discover 
-              the Caucasus region since 2016 with reliable vehicles and exceptional service.
-            </p>
-          </div>
-        </section>
 
-        {/* Stats Section */}
-        <section className="py-16 bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <stat.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
-                  <div className="text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-foreground font-medium">About</span>
+        </nav>
 
-        {/* Our Story */}
-        <section className="py-16 bg-secondary/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground mb-6">Our Story</h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>
-                    Founded in 2016 in the heart of Tbilisi, Pegarent started with a simple mission: 
-                    to make exploring Georgia accessible and enjoyable for everyone.
-                  </p>
-                  <p>
-                    What began as a small fleet of 5 cars has grown into one of Georgia's most trusted 
-                    car rental services, serving thousands of travelers from around the world each year.
-                  </p>
-                  <p>
-                    We understand that every journey is unique. Whether you're navigating the winding roads 
-                    of Kazbegi, exploring the Black Sea coast in Batumi, or discovering the ancient wine 
-                    regions of Kakheti, we have the perfect vehicle for your adventure.
-                  </p>
-                </div>
-              </div>
-              <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=800&h=600&fit=crop"
-                  alt="Georgian landscape with mountains"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
+        <article className="prose prose-neutral dark:prose-invert max-w-none">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">About Pegarent Car Rental in Georgia</h1>
+          <p className="text-lg text-muted-foreground mb-8">
+            Pegarent is a <Link to="/" className="text-primary hover:underline">car rental company in Georgia</Link> focused on providing reliable vehicles and a smooth travel experience for every customer. We offer a wide range of cars, from economy models to SUVs and 4x4 vehicles, with pickup available in Tbilisi and at the airport.
+          </p>
 
-        {/* Why Choose Us */}
-        <section className="py-16 bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-foreground mb-10 text-center">Why Choose Us</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-secondary/50 rounded-2xl p-8">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                  <Car className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Quality Fleet</h3>
-                <p className="text-muted-foreground">
-                  Well-maintained vehicles from economy to luxury, all equipped for Georgian roads 
-                  including mountain terrain.
-                </p>
-              </div>
-              <div className="bg-secondary/50 rounded-2xl p-8">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                  <Award className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Best Prices</h3>
-                <p className="text-muted-foreground">
-                  Competitive rates with no hidden fees. What you see is what you pay, including 
-                  basic insurance and unlimited mileage.
-                </p>
-              </div>
-              <div className="bg-secondary/50 rounded-2xl p-8">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">24/7 Support</h3>
-                <p className="text-muted-foreground">
-                  Our team is available around the clock for roadside assistance, questions, 
-                  or last-minute changes to your booking.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+          <div className="space-y-10 text-muted-foreground">
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-3">Reliable Car Rental for Travel Across Georgia</h2>
+              <p className="mb-3">Our goal is simple: to make car rental in Georgia easy, flexible, and stress-free.</p>
+              <p className="mb-3">Every <Link to="/cars" className="text-primary hover:underline">vehicle in our fleet</Link> is:</p>
+              <ul className="space-y-2">
+                {fleetFeatures.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3">Whether you are driving in Tbilisi or exploring mountain destinations like Kazbegi or Gudauri, we make sure your car is ready for the journey.</p>
+            </section>
 
-        {/* Team Section */}
-        <section className="py-16 bg-secondary/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-foreground mb-10 text-center">Meet Our Team</h2>
-            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              {team.map((member) => (
-                <div key={member.name} className="text-center">
-                  <div className="w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 ring-4 ring-primary/20">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground">{member.name}</h3>
-                  <p className="text-muted-foreground">{member.role}</p>
-                </div>
-              ))}
-            </div>
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-3">More Than Just Car Rental</h2>
+              <p className="mb-3">We believe renting a car is not just about transportation, it is about your entire travel experience in Georgia.</p>
+              <p className="mb-3">That's why we focus on:</p>
+              <ul className="space-y-2">
+                {focusPoints.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3">Our goal is to make your trip smooth, enjoyable, and fully under your control.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-3">Personal Support for Your Trip</h2>
+              <p className="mb-3">After completing your reservation, one of our managers will personally contact you to assist with your plans.</p>
+              <p className="mb-3">You can ask about:</p>
+              <ul className="space-y-2">
+                {planHelp.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3">We are always happy to help you <Link to="/tours" className="text-primary hover:underline">plan your trip</Link> and make the most of your time in Georgia.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-3">Explore Georgia Your Way</h2>
+              <p>With Pegarent, you can explore Georgia at your own pace: from the streets of Tbilisi to the mountains, coastlines, and hidden destinations across the country.</p>
+              <p className="mt-2">We are here to make your journey simple, reliable, and memorable.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-3">Why Choose Pegarent</h2>
+              <p className="mb-3">We focus on making car rental in Georgia simple, transparent, and reliable for every traveler.</p>
+              <ul className="space-y-2">
+                {whyChoose.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="bg-primary/5 rounded-xl p-6 border border-primary/10">
+              <h2 className="text-xl font-bold text-foreground mb-2">Need Help Planning Your Trip?</h2>
+              <p className="mb-2">Have questions about your booking or need advice for your trip in Georgia?</p>
+              <p>Our team is here to help you choose the right car, plan your route, and make your journey smooth from start to finish.</p>
+              <p className="mt-3">
+                <Link to="/contact" className="text-primary hover:underline font-medium">Contact us</Link> anytime for assistance with your car rental in Georgia.
+              </p>
+            </section>
           </div>
-        </section>
+        </article>
       </main>
 
       <Footer />

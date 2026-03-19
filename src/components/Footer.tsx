@@ -6,9 +6,9 @@ const footerLinks = {
   support: {
     title: 'Support',
     links: [
-      { label: 'Help Center', href: '/contact' },
-      { label: 'Safety Information', href: '/contact' },
-      { label: 'Cancellation Policy', href: '/contact' },
+      { label: 'Help Center', href: '/help-center' },
+      { label: 'Safety Information', href: '/safety-information' },
+      { label: 'Cancellation Policy', href: '/cancellation-policy' },
     ],
   },
   company: {
