@@ -63,3 +63,26 @@ export function getCarDetailUrl(car: CarForUrl): string {
   const slug = car.slug || generateSlug(`${car.brand} ${car.model}`);
   return `/cars/${categoryToSlug(category)}/${slug}`;
 }
+
+interface TourForUrl {
+  slug?: string | null;
+  id: string;
+  name: string;
+  category: string;
+  categories?: string[] | null;
+}
+
+/** Build the detail URL for a tour: /tours/:category/:slug */
+export function getTourDetailUrl(tour: TourForUrl): string {
+  const category = tour.categories?.[0] || categoryToSlug(tour.category);
+  const slug = tour.slug || generateSlug(tour.name);
+  return `/tours/${category}/${slug}`;
+}
+
+/** Format a tour category slug to display name (e.g. "day-tours" → "Day Tours") */
+export function formatTourCategory(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}

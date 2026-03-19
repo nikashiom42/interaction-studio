@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatTourCategory } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -262,7 +263,9 @@ export default function ToursManagement() {
       const duplicateData = {
         name: `${tour.name} (Copy)`,
         description: tour.description,
+        slug: `${(tour as Record<string, unknown>).slug || tour.name.toLowerCase().replace(/\s+/g, '-')}-copy-${Date.now()}`,
         category: tour.category as 'beach' | 'mountains' | 'city_tours' | 'day_tours' | 'adventure' | 'cultural' | 'wildlife' | 'desert',
+        categories: (tour as Record<string, unknown>).categories as string[] || [],
         duration_type: tour.duration_type as 'fixed' | 'flexible',
         duration_days: tour.duration_days,
         duration_label: tour.duration_label,
@@ -338,20 +341,6 @@ export default function ToursManagement() {
   const handleAddNew = () => {
     setSelectedTour(null);
     setIsFormOpen(true);
-  };
-
-  const getCategoryBadgeColor = (category: string) => {
-    const colors: Record<string, string> = {
-      beach: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20',
-      mountains: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-      city_tours: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-      day_tours: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-      adventure: 'bg-red-500/10 text-red-500 border-red-500/20',
-      cultural: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
-      wildlife: 'bg-green-500/10 text-green-500 border-green-500/20',
-      desert: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
-    };
-    return colors[category] || 'bg-muted text-muted-foreground';
   };
 
   return (
@@ -455,8 +444,10 @@ export default function ToursManagement() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={getCategoryBadgeColor(tour.category)}>
-                          {tour.category.replace('_', ' ')}
+                        <Badge variant="outline" className="bg-muted text-muted-foreground">
+                          {(tour as Record<string, unknown>).categories && Array.isArray((tour as Record<string, unknown>).categories) && ((tour as Record<string, unknown>).categories as string[]).length > 0
+                            ? ((tour as Record<string, unknown>).categories as string[]).map(formatTourCategory).join(', ')
+                            : formatTourCategory(tour.category.replace('_', '-'))}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-center">

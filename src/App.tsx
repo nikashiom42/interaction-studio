@@ -32,6 +32,7 @@ import BlogsManagement from "./pages/admin/BlogsManagement";
 import LocationsManagement from "./pages/admin/LocationsManagement";
 import SettingsManagement from "./pages/admin/SettingsManagement";
 import SEOManagement from "./pages/admin/SEOManagement";
+import TourCategoriesManagement from "./pages/admin/TourCategoriesManagement";
 import NotFound from "./pages/NotFound";
 import { RedirectHandler } from "./components/RedirectHandler";
 import { GlobalHeadScriptsRaw } from "./components/GlobalHeadScripts";
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/cars/:category/:slug" element={<CarDetail />} />
               <Route path="/car/:id" element={<CarDetail />} />
               <Route path="/tours" element={<TourList />} />
+              <Route path="/tours/:category/:slug" element={<TripDetail />} />
               <Route path="/trip/:id" element={<TripDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
@@ -80,6 +82,7 @@ const App = () => (
                 <Route path="bookings" element={<BookingsManagement />} />
                 <Route path="users" element={<UsersManagement />} />
                 <Route path="tours" element={<ToursManagement />} />
+                <Route path="tour-categories" element={<TourCategoriesManagement />} />
                 <Route path="faqs" element={<FAQsManagement />} />
                 <Route path="blogs" element={<BlogsManagement />} />
                 <Route path="messages" element={<MessagesManagement />} />

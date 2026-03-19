@@ -804,6 +804,8 @@ export type Database = {
           reviews_count: number | null
           route_details: string | null
           route_type: Database["public"]["Enums"]["tour_route_type"]
+          categories: string[] | null
+          slug: string
           start_location: string | null
           updated_at: string
         }
@@ -812,6 +814,7 @@ export type Database = {
           advance_booking_days?: number | null
           base_price: number
           category: Database["public"]["Enums"]["tour_category"]
+          categories?: string[] | null
           created_at?: string
           description: string
           destinations?: string[] | null
@@ -837,6 +840,7 @@ export type Database = {
           reviews_count?: number | null
           route_details?: string | null
           route_type?: Database["public"]["Enums"]["tour_route_type"]
+          slug: string
           start_location?: string | null
           updated_at?: string
         }
@@ -844,6 +848,7 @@ export type Database = {
           additional_fees?: Json | null
           advance_booking_days?: number | null
           base_price?: number
+          categories?: string[] | null
           category?: Database["public"]["Enums"]["tour_category"]
           created_at?: string
           description?: string
@@ -870,8 +875,33 @@ export type Database = {
           reviews_count?: number | null
           route_details?: string | null
           route_type?: Database["public"]["Enums"]["tour_route_type"]
+          slug?: string
           start_location?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      tour_categories: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          display_order: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          display_order?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          display_order?: number | null
+          created_at?: string
         }
         Relationships: []
       }

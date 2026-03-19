@@ -25,12 +25,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2, Upload, X } from 'lucide-react';
 import { RichTextEditor } from './RichTextEditor';
+import { generateSlug } from '@/lib/utils';
+import { Tables } from '@/integrations/supabase/types';
 
 type Tour = {
   id: string;
   name: string;
   description: string;
   category: string;
+  categories: string[] | null;
+  slug: string;
   duration_type: string;
   duration_days: number;
   duration_label: string | null;
@@ -64,17 +68,6 @@ interface TourFormDialogProps {
   tour: Tour | null;
 }
 
-const categories = [
-  { value: 'beach', label: 'Beach' },
-  { value: 'mountains', label: 'Mountains' },
-  { value: 'city_tours', label: 'City Tours' },
-  { value: 'day_tours', label: 'Day Tours' },
-  { value: 'adventure', label: 'Adventure' },
-  { value: 'cultural', label: 'Cultural' },
-  { value: 'wildlife', label: 'Wildlife' },
-  { value: 'desert', label: 'Desert' },
-];
-
 const defaultServices = [
   'Professional driver',
   'Fuel',
@@ -90,10 +83,25 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
   const queryClient = useQueryClient();
   const isEditing = !!tour;
 
+  // Fetch dynamic tour categories
+  const { data: tourCategories } = useQuery({
+    queryKey: ['tour-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tour_categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data as Tables<'tour_categories'>[];
+    },
+  });
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    slug: '',
     category: 'beach',
+    categories: [] as string[],
     duration_type: 'fixed',
     duration_days: 1,
     duration_label: '',
@@ -130,7 +138,9 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
       setFormData({
         name: tour.name,
         description: tour.description,
+        slug: tour.slug || generateSlug(tour.name),
         category: tour.category,
+        categories: tour.categories || [tour.category.replace('_', '-')],
         duration_type: tour.duration_type,
         duration_days: tour.duration_days,
         duration_label: tour.duration_label || '',
@@ -159,7 +169,9 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
       setFormData({
         name: '',
         description: '',
+        slug: '',
         category: 'beach',
+        categories: [],
         duration_type: 'fixed',
         duration_days: 1,
         duration_label: '',
@@ -312,10 +324,16 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
 
   const mutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      // Use first selected category as primary for backward compat
+      const primaryCategory = data.categories.length > 0
+        ? data.categories[0].replace('-', '_')
+        : data.category;
       const tourData = {
         name: data.name,
         description: data.description,
-        category: data.category as 'beach' | 'mountains' | 'city_tours' | 'day_tours' | 'adventure' | 'cultural' | 'wildlife' | 'desert',
+        slug: data.slug || generateSlug(data.name),
+        category: primaryCategory as 'beach' | 'mountains' | 'city_tours' | 'day_tours' | 'adventure' | 'cultural' | 'wildlife' | 'desert',
+        categories: data.categories,
         duration_type: data.duration_type as 'fixed' | 'flexible',
         duration_days: data.duration_days,
         duration_label: data.duration_label || null,
@@ -411,23 +429,49 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(cat => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="col-span-2">
+                    <Label>URL Slug</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={formData.slug}
+                        onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                        placeholder="e.g., hidden-georgia-mtskheta"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFormData(prev => ({ ...prev, slug: generateSlug(prev.name) }))}
+                      >
+                        Generate
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">URL-friendly identifier. Click Generate to create from tour name.</p>
+                  </div>
+
+                  <div className="col-span-2">
+                    <Label>Categories</Label>
+                    <div className="grid grid-cols-3 gap-2 rounded-md border border-input p-3 mt-1">
+                      {tourCategories?.map((cat) => (
+                        <div key={cat.id} className="flex items-center gap-2">
+                          <Checkbox
+                            checked={formData.categories.includes(cat.slug)}
+                            onCheckedChange={(checked) => {
+                              setFormData(prev => ({
+                                ...prev,
+                                categories: checked
+                                  ? [...prev.categories, cat.slug]
+                                  : prev.categories.filter(c => c !== cat.slug),
+                              }));
+                            }}
+                          />
+                          <span className="text-sm">{cat.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {formData.categories.length === 0 && (
+                      <p className="text-xs text-destructive mt-1">Select at least one category</p>
+                    )}
                   </div>
 
                   <div>

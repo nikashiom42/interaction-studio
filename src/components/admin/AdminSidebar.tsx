@@ -1,4 +1,4 @@
-import { Car, CalendarCheck, Users, LayoutDashboard, Map, LogOut, Mail, FileText, HelpCircle, MapPin, Settings, Search } from "lucide-react";
+import { Car, CalendarCheck, Users, LayoutDashboard, Map, LogOut, Mail, FileText, HelpCircle, MapPin, Settings, Search, Tags } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +22,7 @@ const menuItems = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Cars", url: "/admin/cars", icon: Car },
   { title: "Tours", url: "/admin/tours", icon: Map },
+  { title: "Tour Categories", url: "/admin/tour-categories", icon: Tags },
   { title: "Bookings", url: "/admin/bookings", icon: CalendarCheck },
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "FAQs", url: "/admin/faqs", icon: HelpCircle },

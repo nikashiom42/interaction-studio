@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/hooks/useCart';
 import { toast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn, getTourDetailUrl, formatTourCategory } from '@/lib/utils';
 
 // Georgian cities for pickup
 const PICKUP_CITIES = [
@@ -35,6 +35,8 @@ type Tour = {
   name: string;
   description: string;
   category: string;
+  categories: string[] | null;
+  slug: string;
   duration_type: string;
   duration_days: number;
   duration_label: string | null;
@@ -63,7 +65,7 @@ type Tour = {
 };
 
 const TripDetail = () => {
-  const { id } = useParams();
+  const { id, slug, category: categoryParam } = useParams();
   const navigate = useNavigate();
   const { addItem, isInCart } = useCart();
 
@@ -76,18 +78,29 @@ const TripDetail = () => {
   const [pickupAddress, setPickupAddress] = useState<string>('');
 
   const { data: tour, isLoading, error } = useQuery({
-    queryKey: ['tour', id],
+    queryKey: ['tour', slug || id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tours')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as Tour;
+      if (slug) {
+        const { data, error } = await supabase
+          .from('tours')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+        if (error) throw error;
+        return data as Tour;
+      }
+      if (id) {
+        const { data, error } = await supabase
+          .from('tours')
+          .select('*')
+          .eq('id', id)
+          .single();
+        if (error) throw error;
+        return data as Tour;
+      }
+      return null as unknown as Tour;
     },
-    enabled: !!id,
+    enabled: !!slug || !!id,
   });
 
   // Set initial start date when tour loads (respecting advance_booking_days)
@@ -216,21 +229,35 @@ const TripDetail = () => {
       <SEO
         title={tour.meta_title || tour.name}
         description={tour.meta_description || `${tour.name} - ${tour.duration_label || `${tour.duration_days} Days`}. Book now!`}
-        url={`/trip/${tour.id}`}
+        url={getTourDetailUrl(tour)}
         image={tour.main_image || undefined}
         schemaMarkup={tour.schema_markup || undefined}
       />
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
-        <Link 
-          to="/" 
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to trips</span>
-        </Link>
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+          <ChevronRight className="w-4 h-4" />
+          <Link to="/tours" className="hover:text-foreground transition-colors">Tours</Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="flex items-center gap-1">
+            {(tour.categories?.length ? tour.categories : [tour.category.replace('_', '-')]).map((cat, i, arr) => (
+              <span key={cat} className="inline-flex items-center">
+                <Link
+                  to={`/tours?category=${cat}`}
+                  className="hover:text-foreground transition-colors"
+                >
+                  {formatTourCategory(cat)}
+                </Link>
+                {i < arr.length - 1 && <span className="mx-1">,</span>}
+              </span>
+            ))}
+          </span>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-foreground font-medium">{tour.name}</span>
+        </nav>
 
         {/* Hero Image */}
         <div className="relative rounded-2xl overflow-hidden mb-8 aspect-[21/9]">

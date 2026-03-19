@@ -1,35 +1,43 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Tables, Database } from '@/integrations/supabase/types';
-import { ChevronRight, ChevronDown, Clock, MapPin, ArrowRight, Loader2, Compass, Star, Users } from 'lucide-react';
+import { Tables } from '@/integrations/supabase/types';
+import { ChevronRight, ChevronDown, Clock, MapPin, ArrowRight, Loader2, Compass, Users } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
+import { getTourDetailUrl, formatTourCategory } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { usePageSEO } from '@/hooks/usePageSEO';
 
 type TourType = Tables<'tours'>;
-type TourCategory = Database['public']['Enums']['tour_category'];
-
-const filters: { id: TourCategory; label: string }[] = [
-  { id: 'beach', label: 'Beach' },
-  { id: 'mountains', label: 'Mountains' },
-  { id: 'city_tours', label: 'City Tours' },
-  { id: 'day_tours', label: 'Day Tours' },
-  { id: 'adventure', label: 'Adventure' },
-  { id: 'cultural', label: 'Cultural' },
-  { id: 'wildlife', label: 'Wildlife' },
-  { id: 'desert', label: 'Desert' },
-];
+type TourCategoryRow = Tables<'tour_categories'>;
 
 const tabs = ['All Tours', 'Featured', 'Multi-Day', 'Day Trips'];
 
 const TourList = () => {
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get('category') || '';
   const [activeTab, setActiveTab] = useState('All Tours');
-  const [activeFilters, setActiveFilters] = useState<TourCategory[]>([]);
+  const [activeFilters, setActiveFilters] = useState<string[]>(() => {
+    return categoryParam ? [categoryParam] : [];
+  });
   const { data: seo } = usePageSEO('tours');
+
+  // Fetch tour categories from database
+  const { data: categories } = useQuery({
+    queryKey: ['tour-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tour_categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data as TourCategoryRow[];
+    },
+  });
 
   // Fetch tours from database
   const { data: tours, isLoading } = useQuery({
@@ -40,7 +48,7 @@ const TourList = () => {
         .select('*')
         .eq('is_active', true)
         .order('display_order', { ascending: true });
-      
+
       // Apply tab filters
       if (activeTab === 'Featured') {
         query = query.eq('is_featured', true);
@@ -50,22 +58,30 @@ const TourList = () => {
         query = query.eq('duration_days', 1);
       }
 
-      // Apply category filters
+      // Apply category filters using overlaps on categories array
       if (activeFilters.length > 0) {
-        query = query.in('category', activeFilters);
+        query = query.overlaps('categories', activeFilters);
       }
-      
+
       const { data, error } = await query;
-      
+
       if (error) throw error;
       return data as TourType[];
     },
   });
 
-  const toggleFilter = (id: TourCategory) => {
-    setActiveFilters(prev => 
-      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+  const toggleFilter = (slug: string) => {
+    setActiveFilters(prev =>
+      prev.includes(slug) ? prev.filter(f => f !== slug) : [...prev, slug]
     );
+  };
+
+  // Format category display for tour card badge
+  const formatTourCategories = (tour: TourType): string => {
+    if (tour.categories && tour.categories.length > 0) {
+      return tour.categories.map(formatTourCategory).join(', ');
+    }
+    return formatTourCategory(tour.category.replace('_', '-'));
   };
 
   return (
@@ -81,7 +97,7 @@ const TourList = () => {
         schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -99,8 +115,8 @@ const TourList = () => {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`pb-3 text-sm font-medium transition-all relative ${
-                activeTab === tab 
-                  ? 'text-foreground' 
+                activeTab === tab
+                  ? 'text-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -112,21 +128,21 @@ const TourList = () => {
           ))}
         </div>
 
-        {/* Filters */}
+        {/* Dynamic Filters from DB */}
         <div className="flex gap-3 overflow-x-auto pb-6 scrollbar-hide">
-          {filters.map(filter => {
-            const isActive = activeFilters.includes(filter.id);
+          {categories?.map(cat => {
+            const isActive = activeFilters.includes(cat.slug);
             return (
               <button
-                key={filter.id}
-                onClick={() => toggleFilter(filter.id)}
+                key={cat.id}
+                onClick={() => toggleFilter(cat.slug)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 btn-scale border ${
                   isActive
                     ? 'bg-foreground text-background border-foreground'
                     : 'bg-background text-foreground border-border hover:border-foreground'
                 }`}
               >
-                <span>{filter.label}</span>
+                <span>{cat.name}</span>
               </button>
             );
           })}
@@ -166,7 +182,7 @@ const TourList = () => {
             {tours.map((tour, index) => (
               <Link
                 key={tour.id}
-                to={`/trip/${tour.id}`}
+                to={getTourDetailUrl(tour)}
                 className="group bg-card rounded-xl overflow-hidden shadow-card card-hover opacity-0 animate-fade-in-up"
                 style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
               >
@@ -190,8 +206,8 @@ const TourList = () => {
                     </div>
                   )}
                   {/* Category Badge */}
-                  <div className="absolute top-3 right-3 px-3 py-1 bg-foreground/80 backdrop-blur-sm text-background text-xs font-medium rounded-md capitalize">
-                    {tour.category.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                  <div className="absolute top-3 right-3 px-3 py-1 bg-foreground/80 backdrop-blur-sm text-background text-xs font-medium rounded-md">
+                    {formatTourCategories(tour)}
                   </div>
                 </div>
 
