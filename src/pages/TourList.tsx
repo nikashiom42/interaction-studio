@@ -81,7 +81,7 @@ const TourList = () => {
     if (tour.categories && tour.categories.length > 0) {
       return tour.categories.map(formatTourCategory).join(', ');
     }
-    return formatTourCategory(tour.category.replace('_', '-'));
+    return formatTourCategory((tour.category || '').replace('_', '-'));
   };
 
   return (

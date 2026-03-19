@@ -140,7 +140,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
         description: tour.description,
         slug: tour.slug || generateSlug(tour.name),
         category: tour.category,
-        categories: tour.categories || [tour.category.replace('_', '-')],
+        categories: tour.categories || [(tour.category || '').replace('_', '-')],
         duration_type: tour.duration_type,
         duration_days: tour.duration_days,
         duration_label: tour.duration_label || '',

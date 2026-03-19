@@ -30,16 +30,19 @@ export function formatCategories(categories: string[] | null | undefined, fallba
 
 /** Convert DB category enum (e.g. "luxury_suv") to URL slug (e.g. "luxury-suv") */
 export function categoryToSlug(category: string): string {
+  if (!category) return '';
   return category.replace(/_/g, '-');
 }
 
 /** Convert URL slug (e.g. "luxury-suv") back to DB category enum (e.g. "luxury_suv") */
 export function slugToCategory(slug: string): string {
+  if (!slug) return '';
   return slug.replace(/-/g, '_');
 }
 
 /** Generate a URL-friendly slug from text */
 export function generateSlug(text: string): string {
+  if (!text) return '';
   return text
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
@@ -74,13 +77,14 @@ interface TourForUrl {
 
 /** Build the detail URL for a tour: /tours/:category/:slug */
 export function getTourDetailUrl(tour: TourForUrl): string {
-  const category = tour.categories?.[0] || categoryToSlug(tour.category);
-  const slug = tour.slug || generateSlug(tour.name);
-  return `/tours/${category}/${slug}`;
+  const category = tour.categories?.[0] || categoryToSlug(tour.category || '');
+  const slug = tour.slug || generateSlug(tour.name || '');
+  return `/tours/${category || 'uncategorized'}/${slug || tour.id}`;
 }
 
 /** Format a tour category slug to display name (e.g. "day-tours" → "Day Tours") */
 export function formatTourCategory(slug: string): string {
+  if (!slug) return '';
   return slug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))

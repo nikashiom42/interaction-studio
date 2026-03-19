@@ -243,7 +243,7 @@ const TripDetail = () => {
           <Link to="/tours" className="hover:text-foreground transition-colors">Tours</Link>
           <ChevronRight className="w-4 h-4" />
           <span className="flex items-center gap-1">
-            {(tour.categories?.length ? tour.categories : [tour.category.replace('_', '-')]).map((cat, i, arr) => (
+            {(tour.categories?.length ? tour.categories : [(tour.category || '').replace('_', '-')]).map((cat, i, arr) => (
               <span key={cat} className="inline-flex items-center">
                 <Link
                   to={`/tours?category=${cat}`}

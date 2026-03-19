@@ -447,7 +447,7 @@ export default function ToursManagement() {
                         <Badge variant="outline" className="bg-muted text-muted-foreground">
                           {(tour as Record<string, unknown>).categories && Array.isArray((tour as Record<string, unknown>).categories) && ((tour as Record<string, unknown>).categories as string[]).length > 0
                             ? ((tour as Record<string, unknown>).categories as string[]).map(formatTourCategory).join(', ')
-                            : formatTourCategory(tour.category.replace('_', '-'))}
+                            : formatTourCategory((tour.category || '').replace('_', '-'))}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-center">
