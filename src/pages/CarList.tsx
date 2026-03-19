@@ -32,13 +32,10 @@ const filters = [
   { id: 'automatic', label: 'Automatic' },
 ];
 
-const tabs = ['Explore Cars', 'Places to See', 'Things to Do', 'Trip Inspiration'];
-
 const CarList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const categoryParam = searchParams.get('category') || '';
-  const [activeTab, setActiveTab] = useState('Explore Cars');
   const [activeFilters, setActiveFilters] = useState<string[]>(() => {
     const initial = ['dates'];
     if (categoryParam) {
@@ -141,26 +138,6 @@ const CarList = () => {
           <ChevronRight className="w-4 h-4" />
           <span className="text-foreground font-medium">All Cars</span>
         </nav>
-
-        {/* Tabs */}
-        <div className="flex gap-6 border-b border-border mb-6">
-          {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`pb-3 text-sm font-medium transition-all relative ${
-                activeTab === tab 
-                  ? 'text-foreground' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {tab}
-              {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full" />
-              )}
-            </button>
-          ))}
-        </div>
 
         {/* Filters */}
         <div className="flex gap-3 overflow-x-auto pb-6 scrollbar-hide">
