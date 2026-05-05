@@ -3,16 +3,88 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Favicons & manifest -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/site.webmanifest" />
-    <title>Car Rental Georgia | Premium Cars & Tours</title>
+
+    <!-- Primary SEO (defaults; React Helmet overrides per page) -->
+    <title>Car Rental in Georgia | Rent a Car in Tbilisi with Airport Pickup</title>
+    <meta name="description" content="Looking for car rental in Georgia? Pick up your car in Tbilisi or at the airport. SUVs, 4x4 and economy cars available. No deposit options and instant booking." />
     <meta name="author" content="Pegarent" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="geo.region" content="GE" />
+    <meta name="geo.placename" content="Georgia" />
+    <link rel="canonical" href="https://www.pegarent.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pegarent" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://www.pegarent.com/" />
+    <meta property="og:title" content="Car Rental in Georgia | Rent a Car in Tbilisi with Airport Pickup" />
+    <meta property="og:description" content="Looking for car rental in Georgia? Pick up your car in Tbilisi or at the airport. SUVs, 4x4 and economy cars available. No deposit options and instant booking." />
+    <meta property="og:image" content="https://www.pegarent.com/og-image.jpg" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="1024" />
+    <meta property="og:image:alt" content="Pegarent — Car Rental in Georgia" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://www.pegarent.com/" />
+    <meta name="twitter:title" content="Car Rental in Georgia | Rent a Car in Tbilisi with Airport Pickup" />
+    <meta name="twitter:description" content="Looking for car rental in Georgia? Pick up your car in Tbilisi or at the airport. SUVs, 4x4 and economy cars available. No deposit options and instant booking." />
+    <meta name="twitter:image" content="https://www.pegarent.com/og-image.jpg" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Structured data: Organization + WebSite -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://www.pegarent.com/#organization",
+            "name": "Pegarent",
+            "url": "https://www.pegarent.com/",
+            "logo": "https://www.pegarent.com/og-image.jpg",
+            "areaServed": {
+              "@type": "Country",
+              "name": "Georgia"
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "GE",
+              "addressLocality": "Tbilisi",
+              "streetAddress": "Gia Abesadze 10"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://www.pegarent.com/#website",
+            "url": "https://www.pegarent.com/",
+            "name": "Pegarent",
+            "publisher": { "@id": "https://www.pegarent.com/#organization" },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://www.pegarent.com/cars?search={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GWWNF70LCP"></script>
