@@ -5,6 +5,51 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 const siteUrl = 'https://www.pegarent.com';
 
+function categoryToSlug(category: string): string {
+  return category ? category.replace(/_/g, '-') : '';
+}
+
+function generateSlug(text: string): string {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+interface CarRow {
+  id: string;
+  slug: string | null;
+  category: string;
+  categories: string[] | null;
+  brand: string;
+  model: string;
+  updated_at: string | null;
+}
+
+interface TourRow {
+  id: string;
+  slug: string | null;
+  category: string;
+  categories: string[] | null;
+  name: string;
+  updated_at: string | null;
+}
+
+function getCarUrl(car: CarRow): string {
+  const category = car.categories?.[0] || car.category;
+  const slug = car.slug || generateSlug(`${car.brand} ${car.model}`);
+  return `/cars/${categoryToSlug(category)}/${slug}`;
+}
+
+function getTourUrl(tour: TourRow): string {
+  const category = tour.categories?.[0] || categoryToSlug(tour.category || '');
+  const slug = tour.slug || generateSlug(tour.name || '');
+  return `/tours/${category || 'uncategorized'}/${slug || tour.id}`;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -14,6 +59,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     { url: '/tours', changefreq: 'weekly', priority: '0.8' },
     { url: '/about', changefreq: 'monthly', priority: '0.6' },
     { url: '/contact', changefreq: 'monthly', priority: '0.6' },
+    { url: '/help-center', changefreq: 'monthly', priority: '0.5' },
+    { url: '/safety-information', changefreq: 'monthly', priority: '0.5' },
+    { url: '/cancellation-policy', changefreq: 'monthly', priority: '0.5' },
   ];
 
   const { data: blogs } = await supabase
@@ -23,12 +71,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { data: cars } = await supabase
     .from('cars')
-    .select('id, updated_at')
+    .select('id, slug, category, categories, brand, model, updated_at')
     .eq('is_active', true);
 
   const { data: tours } = await supabase
     .from('tours')
-    .select('id, updated_at')
+    .select('id, slug, category, categories, name, updated_at')
     .eq('is_active', true);
 
   const today = new Date().toISOString().split('T')[0];
@@ -59,10 +107,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (cars) {
-    for (const car of cars) {
+    for (const car of cars as CarRow[]) {
       xml += `
   <url>
-    <loc>${siteUrl}/car/${car.id}</loc>
+    <loc>${siteUrl}${getCarUrl(car)}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>${car.updated_at?.split('T')[0] || today}</lastmod>
@@ -71,10 +119,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (tours) {
-    for (const tour of tours) {
+    for (const tour of tours as TourRow[]) {
       xml += `
   <url>
-    <loc>${siteUrl}/trip/${tour.id}</loc>
+    <loc>${siteUrl}${getTourUrl(tour)}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>${tour.updated_at?.split('T')[0] || today}</lastmod>

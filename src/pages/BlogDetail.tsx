@@ -14,6 +14,7 @@ interface Blog {
   excerpt: string | null;
   content: string;
   main_image: string | null;
+  main_image_alt: string | null;
   author_name: string | null;
   is_published: boolean | null;
   published_at: string | null;
@@ -148,7 +149,7 @@ const BlogDetail = () => {
             <div className="mb-8 rounded-xl overflow-hidden">
               <img
                 src={blog.main_image}
-                alt={blog.title}
+                alt={blog.main_image_alt || blog.title}
                 className="w-full h-auto object-cover max-h-[500px]"
               />
             </div>

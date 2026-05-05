@@ -1,7 +1,8 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import { useEffect } from "react";
+import Image from "@tiptap/extension-image";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Bold,
@@ -13,8 +14,12 @@ import {
   ListOrdered,
   Link as LinkIcon,
   WrapText,
+  ImagePlus,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface RichTextEditorProps {
   value: string;
@@ -48,6 +53,8 @@ function ToolbarButton({ onClick, active, title, children }: ToolbarButtonProps)
 }
 
 export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+  const [uploading, setUploading] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -55,6 +62,11 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         openOnClick: false,
         HTMLAttributes: {
           class: "text-primary underline cursor-pointer",
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: "rounded-md my-4 max-w-full h-auto",
         },
       }),
     ],
@@ -66,10 +78,42 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     editorProps: {
       attributes: {
         class:
-          "min-h-[200px] p-3 focus:outline-none prose prose-sm max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1",
+          "min-h-[200px] p-3 focus:outline-none prose prose-sm max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_img]:rounded-md [&_img]:my-4 [&_img]:max-w-full",
       },
     },
   });
+
+  const insertImage = () => {
+    if (!editor) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      setUploading(true);
+      try {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `blogs/inline-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("tour-images")
+          .upload(fileName, file);
+        if (uploadError) throw uploadError;
+        const { data } = supabase.storage
+          .from("tour-images")
+          .getPublicUrl(fileName);
+        const alt = window.prompt("Alt text (for SEO and accessibility)", "") || "";
+        editor.chain().focus().setImage({ src: data.publicUrl, alt }).run();
+        toast.success("Image inserted");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Upload failed";
+        toast.error(message);
+      } finally {
+        setUploading(false);
+      }
+    };
+    input.click();
+  };
 
   // Sync external value changes (e.g. when editing an existing blog)
   useEffect(() => {
@@ -166,6 +210,13 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           title="Insert Link"
         >
           <LinkIcon className="h-4 w-4" />
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={insertImage}
+          title={uploading ? "Uploading..." : "Insert Image"}
+        >
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
         </ToolbarButton>
 
         <ToolbarButton

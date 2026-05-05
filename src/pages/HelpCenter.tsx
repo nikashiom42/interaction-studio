@@ -3,6 +3,7 @@ import { ChevronRight, Phone, Mail, CalendarCheck, Truck, Shield, Car, Headphone
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import { usePageSEO } from '@/hooks/usePageSEO';
 
 const topics = [
   {
@@ -53,12 +54,19 @@ const topics = [
 ];
 
 const HelpCenter = () => {
+  const { data: seo } = usePageSEO('help-center');
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Help Center – Car Rental Support in Georgia | Pegarent"
-        description="Need help with your car rental in Georgia? Find answers about booking, pickup, insurance, driving tips and more. Contact our support team anytime."
+        title={seo?.meta_title || "Help Center – Car Rental Support in Georgia | Pegarent"}
+        description={seo?.meta_description || "Need help with your car rental in Georgia? Find answers about booking, pickup, insurance, driving tips and more. Contact our support team anytime."}
         url="/help-center"
+        keywords={seo?.keywords || undefined}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
+        schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
 

@@ -3,14 +3,22 @@ import { ChevronRight } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import { usePageSEO } from '@/hooks/usePageSEO';
 
 const CancellationPolicy = () => {
+  const { data: seo } = usePageSEO('cancellation-policy');
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Car Rental Cancellation Policy | Pegarent"
-        description="Flexible car rental cancellation policy in Georgia. Free cancellation, no advance payment required, and easy booking modifications."
+        title={seo?.meta_title || "Car Rental Cancellation Policy | Pegarent"}
+        description={seo?.meta_description || "Flexible car rental cancellation policy in Georgia. Free cancellation, no advance payment required, and easy booking modifications."}
         url="/cancellation-policy"
+        keywords={seo?.keywords || undefined}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
+        schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
 

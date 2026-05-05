@@ -24,6 +24,7 @@ interface Blog {
   excerpt: string | null;
   content: string;
   main_image: string | null;
+  main_image_alt?: string | null;
   author_name: string | null;
   is_published: boolean | null;
   published_at: string | null;
@@ -40,6 +41,7 @@ interface BlogFormData {
   excerpt?: string;
   content: string;
   main_image?: string;
+  main_image_alt?: string;
   author_name?: string;
   is_published: boolean;
   meta_title?: string;
@@ -74,6 +76,7 @@ export default function BlogsManagement() {
         excerpt: data.excerpt || null,
         content: data.content,
         main_image: data.main_image || null,
+        main_image_alt: data.main_image_alt || null,
         author_name: data.author_name || "Admin",
         is_published: data.is_published,
         published_at: data.is_published ? new Date().toISOString() : null,
@@ -101,6 +104,7 @@ export default function BlogsManagement() {
         excerpt: data.excerpt || null,
         content: data.content,
         main_image: data.main_image || null,
+        main_image_alt: data.main_image_alt || null,
         author_name: data.author_name || "Admin",
         is_published: data.is_published,
         meta_title: data.meta_title || null,

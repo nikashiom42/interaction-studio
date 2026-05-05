@@ -38,6 +38,9 @@ const PAGE_LABELS: Record<string, string> = {
   contact: 'Contact Us',
   cars: 'Cars Listing',
   tours: 'Tours Listing',
+  'help-center': 'Help Center',
+  'safety-information': 'Safety Information',
+  'cancellation-policy': 'Cancellation Policy',
 };
 
 interface Redirect {
@@ -432,7 +435,7 @@ function SitemapTab() {
     },
   });
 
-  const total = 5 + (blogs || 0) + (cars || 0) + (tours || 0);
+  const total = 8 + (blogs || 0) + (cars || 0) + (tours || 0);
 
   return (
     <div className="space-y-6">
@@ -447,7 +450,7 @@ function SitemapTab() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="border rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold">5</p>
+          <p className="text-2xl font-bold">8</p>
           <p className="text-sm text-muted-foreground">Static Pages</p>
         </div>
         <div className="border rounded-lg p-4 text-center">

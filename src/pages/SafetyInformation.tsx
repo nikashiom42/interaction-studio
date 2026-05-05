@@ -3,14 +3,22 @@ import { ChevronRight, Check, X, AlertTriangle } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
+import { usePageSEO } from '@/hooks/usePageSEO';
 
 const SafetyInformation = () => {
+  const { data: seo } = usePageSEO('safety-information');
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Car Rental Insurance in Georgia | Pegarent"
-        description="All Pegarent rental cars are insured with 100% exterior damage coverage. Drive across Georgia with confidence. Learn what's covered and what's not."
+        title={seo?.meta_title || "Car Rental Insurance in Georgia | Pegarent"}
+        description={seo?.meta_description || "All Pegarent rental cars are insured with 100% exterior damage coverage. Drive across Georgia with confidence. Learn what's covered and what's not."}
         url="/safety-information"
+        keywords={seo?.keywords || undefined}
+        image={seo?.og_image || undefined}
+        canonicalUrl={seo?.canonical_url || undefined}
+        noIndex={seo?.no_index || false}
+        schemaMarkup={seo?.schema_markup || undefined}
       />
       <Header />
 

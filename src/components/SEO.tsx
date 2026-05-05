@@ -28,7 +28,7 @@ const SEO = ({
   noIndex = false,
   schemaMarkup,
 }: SEOProps) => {
-  const fullTitle = title ? `${title} | Car Rental Georgia` : defaultTitle;
+  const fullTitle = title || defaultTitle;
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
   const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
   const canonical = canonicalUrl || fullUrl;

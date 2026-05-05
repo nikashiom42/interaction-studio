@@ -29,6 +29,7 @@ const blogSchema = z.object({
   excerpt: z.string().optional(),
   content: z.string().min(1, "Content is required"),
   main_image: z.string().optional(),
+  main_image_alt: z.string().optional(),
   author_name: z.string().optional(),
   is_published: z.boolean().default(false),
   meta_title: z.string().optional(),
@@ -45,6 +46,7 @@ interface Blog {
   excerpt: string | null;
   content: string;
   main_image: string | null;
+  main_image_alt?: string | null;
   author_name: string | null;
   is_published: boolean | null;
   published_at: string | null;
@@ -80,6 +82,7 @@ export function BlogFormDialog({
       excerpt: "",
       content: "",
       main_image: "",
+      main_image_alt: "",
       author_name: "Admin",
       is_published: false,
       meta_title: "",
@@ -96,6 +99,7 @@ export function BlogFormDialog({
         excerpt: blog.excerpt || "",
         content: blog.content,
         main_image: blog.main_image || "",
+        main_image_alt: blog.main_image_alt || "",
         author_name: blog.author_name || "Admin",
         is_published: blog.is_published || false,
         meta_title: blog.meta_title || "",
@@ -110,6 +114,7 @@ export function BlogFormDialog({
         excerpt: "",
         content: "",
         main_image: "",
+        main_image_alt: "",
         author_name: "Admin",
         is_published: false,
         meta_title: "",
@@ -226,6 +231,23 @@ export function BlogFormDialog({
                 onChange={setImageUrl}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="main_image_alt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Main Image Alt Text</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Describe the image (used by search engines and screen readers)"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
