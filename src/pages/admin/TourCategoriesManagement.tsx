@@ -61,7 +61,7 @@ const TourCategoriesManagement = () => {
     mutationFn: async (data: CategoryFormData) => {
       const payload = {
         name: data.name,
-        slug: data.slug || generateSlug(data.name),
+        slug: generateSlug(data.slug || data.name),
         display_order: data.display_order,
       };
 

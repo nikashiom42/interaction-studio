@@ -191,7 +191,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       const carData = {
         brand: values.brand,
         model: values.model,
-        slug: values.slug || generateSlug(`${values.brand} ${values.model}`),
+        slug: generateSlug(values.slug || `${values.brand} ${values.model}`),
         category: primaryCategory,
         categories: values.categories,
         seats: values.seats,

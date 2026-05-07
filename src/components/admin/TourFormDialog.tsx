@@ -331,7 +331,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
       const tourData = {
         name: data.name,
         description: data.description,
-        slug: data.slug || generateSlug(data.name),
+        slug: generateSlug(data.slug || data.name),
         category: primaryCategory as 'beach' | 'mountains' | 'city_tours' | 'day_tours' | 'adventure' | 'cultural' | 'wildlife' | 'desert',
         categories: data.categories,
         duration_type: data.duration_type as 'fixed' | 'flexible',
