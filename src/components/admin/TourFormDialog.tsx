@@ -57,6 +57,7 @@ type Tour = {
   display_order: number | null;
   meta_title: string | null;
   meta_description: string | null;
+  canonical_url: string | null;
   schema_markup: string | null;
   rating: number | null;
   reviews_count: number | null;
@@ -124,6 +125,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
     display_order: 0,
     meta_title: '',
     meta_description: '',
+    canonical_url: '',
     schema_markup: '',
   });
 
@@ -163,6 +165,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
         display_order: tour.display_order || 0,
         meta_title: tour.meta_title || '',
         meta_description: tour.meta_description || '',
+        canonical_url: tour.canonical_url || '',
         schema_markup: tour.schema_markup || '',
       });
     } else {
@@ -194,6 +197,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
         display_order: 0,
         meta_title: '',
         meta_description: '',
+        canonical_url: '',
         schema_markup: '',
       });
     }
@@ -356,6 +360,7 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
         display_order: data.display_order,
         meta_title: data.meta_title || null,
         meta_description: data.meta_description || null,
+        canonical_url: data.canonical_url || null,
         schema_markup: data.schema_markup || null,
       };
 
@@ -856,6 +861,17 @@ export function TourFormDialog({ open, onOpenChange, tour }: TourFormDialogProps
                       placeholder="SEO description"
                       rows={2}
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="canonical_url">Canonical URL (Optional)</Label>
+                    <Input
+                      id="canonical_url"
+                      value={formData.canonical_url}
+                      onChange={(e) => setFormData(prev => ({ ...prev, canonical_url: e.target.value }))}
+                      placeholder="https://www.pegarent.com/preferred-url"
+                      className="font-mono text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Leave empty to use this page's own URL. Set only if this tour page has duplicate content elsewhere.</p>
                   </div>
                   <div>
                     <Label htmlFor="schema_markup">Schema Markup (JSON-LD)</Label>

@@ -23,6 +23,7 @@ interface Blog {
   meta_title: string | null;
   meta_description: string | null;
   schema_markup: string | null;
+  canonical_url: string | null;
 }
 
 const BlogDetail = () => {
@@ -102,6 +103,7 @@ const BlogDetail = () => {
         url={`/blog/${blog.slug}`}
         type="article"
         image={blog.main_image || undefined}
+        canonicalUrl={blog.canonical_url || undefined}
         schemaMarkup={blog.schema_markup || undefined}
       />
       <Header />

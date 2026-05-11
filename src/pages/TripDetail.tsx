@@ -231,6 +231,7 @@ const TripDetail = () => {
         description={tour.meta_description || `${tour.name} - ${tour.duration_label || `${tour.duration_days} Days`}. Book now!`}
         url={getTourDetailUrl(tour)}
         image={tour.main_image || undefined}
+        canonicalUrl={tour.canonical_url || undefined}
         schemaMarkup={tour.schema_markup || undefined}
       />
       <Header />

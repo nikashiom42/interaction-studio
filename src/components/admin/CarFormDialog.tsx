@@ -87,6 +87,7 @@ const carFormSchema = z.object({
   description: z.string().optional().nullable(),
   meta_title: z.string().max(60, 'Meta title should be under 60 characters').optional().nullable(),
   meta_description: z.string().max(160, 'Meta description should be under 160 characters').optional().nullable(),
+  canonical_url: z.string().optional().nullable(),
   schema_markup: z.string().optional().nullable(),
 });
 
@@ -126,6 +127,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
       description: '',
       meta_title: '',
       meta_description: '',
+      canonical_url: '',
       schema_markup: '',
     },
   });
@@ -154,6 +156,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         description: (car as any).description || '',
         meta_title: (car as any).meta_title || '',
         meta_description: (car as any).meta_description || '',
+        canonical_url: (car as any).canonical_url || '',
         schema_markup: (car as any).schema_markup || '',
       });
       setMainImage(car.main_image || null);
@@ -177,6 +180,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         description: '',
         meta_title: '',
         meta_description: '',
+        canonical_url: '',
         schema_markup: '',
       });
       setMainImage(null);
@@ -208,6 +212,7 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
         description: values.description || null,
         meta_title: values.meta_title || null,
         meta_description: values.meta_description || null,
+        canonical_url: values.canonical_url || null,
         schema_markup: values.schema_markup || null,
       };
 
@@ -571,6 +576,27 @@ export function CarFormDialog({ open, onOpenChange, car }: CarFormDialogProps) {
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
                         {(field.value?.length || 0)}/160 characters - Shown in search engine results
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="canonical_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Canonical URL (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://www.pegarent.com/preferred-url"
+                          className="font-mono text-sm"
+                          {...field}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        Leave empty to use this page's own URL. Set only if this car page has duplicate content elsewhere.
                       </p>
                       <FormMessage />
                     </FormItem>

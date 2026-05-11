@@ -34,6 +34,7 @@ const blogSchema = z.object({
   is_published: z.boolean().default(false),
   meta_title: z.string().optional(),
   meta_description: z.string().optional(),
+  canonical_url: z.string().optional(),
   schema_markup: z.string().optional(),
 });
 
@@ -54,6 +55,7 @@ interface Blog {
   updated_at: string;
   meta_title?: string | null;
   meta_description?: string | null;
+  canonical_url?: string | null;
   schema_markup?: string | null;
 }
 
@@ -87,6 +89,7 @@ export function BlogFormDialog({
       is_published: false,
       meta_title: "",
       meta_description: "",
+      canonical_url: "",
       schema_markup: "",
     },
   });
@@ -104,6 +107,7 @@ export function BlogFormDialog({
         is_published: blog.is_published || false,
         meta_title: blog.meta_title || "",
         meta_description: blog.meta_description || "",
+        canonical_url: blog.canonical_url || "",
         schema_markup: blog.schema_markup || "",
       });
       setImageUrl(blog.main_image || "");
@@ -119,6 +123,8 @@ export function BlogFormDialog({
         is_published: false,
         meta_title: "",
         meta_description: "",
+        canonical_url: "",
+        schema_markup: "",
       });
       setImageUrl("");
     }
@@ -310,6 +316,27 @@ export function BlogFormDialog({
                         rows={2}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="canonical_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Canonical URL (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="https://www.pegarent.com/preferred-url"
+                        className="font-mono text-sm"
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Leave empty to use this page's own URL. Set only if this blog post has duplicate content elsewhere.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
