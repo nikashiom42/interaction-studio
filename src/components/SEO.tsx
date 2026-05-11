@@ -47,7 +47,7 @@ const SEO = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={fullImage} />
-      <meta property="og:site_name" content="Pegarent" />
+      <meta property="og:site_name" content="Car Rental Georgia" />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
